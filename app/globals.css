@@ -4199,3 +4199,13 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 @keyframes muFlypastThree{0%{transform:translateX(0) translateY(4px) rotate(-3deg)}100%{transform:translateX(128vw) translateY(-12px) rotate(-3deg)}}
 @media(max-width:650px){.mu-tricolour-flypast{top:8px;height:105px;opacity:.78}.mu-flypast-plane{font-size:21px}.mu-flypast-plane:before{width:85px;height:6px}.mu-flypast-two{top:43px;font-size:18px}.mu-flypast-three{top:76px;font-size:16px}}
 @media(prefers-reduced-motion:reduce){.mu-flypast-plane{animation:none!important;left:auto}.mu-flypast-one{top:12px;right:8%}.mu-flypast-two{top:48px;right:16%}.mu-flypast-three{top:82px;right:5%}}
+
+
+/* Brief tricolour aircraft flypast during live mock tests */
+.test-layout{position:relative;isolation:isolate}
+.mu-test-flypast{position:fixed;z-index:1000;top:17%;left:0;width:100vw;height:56px;overflow:visible;pointer-events:none;animation:muTestFlyAcross 5.8s cubic-bezier(.25,.55,.45,.95) forwards}
+.mu-test-flypast-plane{position:absolute;left:-70px;top:0;color:#f8fafc;font-size:32px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.35);filter:drop-shadow(0 2px 4px rgba(0,0,0,.28))}
+.mu-test-flypast-plane:after{content:"";position:absolute;z-index:-1;right:23px;top:50%;width:clamp(120px,24vw,300px);height:9px;transform:translateY(-50%);border-radius:99px;background:linear-gradient(to bottom,#ff9933 0 33.33%,#fff 33.33% 66.66%,#138808 66.66% 100%);box-shadow:0 0 8px rgba(255,255,255,.12)}
+@keyframes muTestFlyAcross{0%{transform:translateX(-5vw) translateY(12px) rotate(-3deg);opacity:0}8%{opacity:.92}85%{opacity:.9}100%{transform:translateX(115vw) translateY(-25px) rotate(-3deg);opacity:0}}
+@media(max-width:650px){.mu-test-flypast{top:14%}.mu-test-flypast-plane{font-size:25px}.mu-test-flypast-plane:after{width:105px;height:7px}}
+@media(prefers-reduced-motion:reduce){.mu-test-flypast{display:none!important}}

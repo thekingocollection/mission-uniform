@@ -4,20 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
-type SubjectTest = {
-  id: string;
-  subject_id: string;
-  name_en: string | null;
-  name_hi: string | null;
-  verified_questions: number;
-};
-
 export default function Dashboard() {
   const [name, setName] = useState("Student");
   const [attempts, setAttempts] = useState(0);
-  const [subjects, setSubjects] = useState<SubjectTest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -26,20 +15,15 @@ export default function Dashboard() {
       if (!sb) throw new Error("Student portal is temporarily unavailable.");
       const { data: { user } } = await sb.auth.getUser();
       if (!user) throw new Error("Please sign in to view subject mock tests.");
-      const [{ data: profile }, { count }, response] = await Promise.all([
+      const [{ data: profile }, { count }] = await Promise.all([
         sb.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
         sb.from("test_attempts").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        fetch("/api/subject-practice")
       ]);
       if (!active) return;
       if (profile?.full_name) setName(profile.full_name);
       setAttempts(count || 0);
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Subject tests could not be loaded.");
-      setSubjects(payload.subjects || []);
-      setLoading(false);
-    })().catch((e: any) => {
-      if (active) { setError(e.message || "Tests load nahi ho paaye."); setLoading(false); }
+    })().catch(() => {
+      if (active) setName("Student");
     });
     return () => { active = false; };
   }, []);
@@ -66,29 +50,6 @@ export default function Dashboard() {
         <span>AAJ KA SANKALP</span>
         <h2>“Selection ek din mein nahi hota, lekin har din ki taiyari se zaroor hoti hai.”</h2>
         <p>Focus rakhiye. Practice kijiye. Apne aap par bharosa rakhiye.</p>
-      </section>
-      <section className="mu-student-subject-section">
-        <div className="mu-student-section-heading">
-          <div><span className="mu-kicker">PRACTICE · IMPROVE · REPEAT</span><h2>Subject-wise Mock Tests</h2><p>Subject chuniye, questions ki sankhya select kijiye aur apna random mock test shuru kijiye.</p></div>
-          <span className="mu-student-count">{subjects.length} SUBJECTS</span>
-        </div>
-        {loading ? <div className="mu-student-empty">Subjects load ho rahe hain…</div> :
-          error ? <div className="mu-student-empty">{error}</div> :
-          subjects.length === 0 ? <div className="mu-student-empty">Abhi kisi subject mein verified questions available nahi hain.</div> :
-          <div className="mu-student-subject-grid">
-            {subjects.map((subject, index) => (
-              <article className="mu-student-subject-card" key={subject.subject_id}>
-                <div className="mu-student-subject-number">{String(index + 1).padStart(2, "0")}</div>
-                <div className="mu-student-subject-card-copy">
-                  <span>RANDOM SUBJECT PRACTICE</span>
-                  <h3>{subject.name_en || subject.name_hi || "Subject"}</h3>
-                  <p>Fresh random questions · Practice at your pace</p>
-                </div>
-                <Link href={"/subject-mock-test?subject=" + subject.subject_id} className="mu-student-start">Choose Questions <b>→</b></Link>
-              </article>
-            ))}
-          </div>
-        }
       </section>
       <p className="mu-student-signoff">MISSION UNIFORM OP <span>·</span> Your Dream. Your Uniform. Your Mission.</p>
     </div>

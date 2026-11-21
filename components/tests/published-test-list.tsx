@@ -1,9 +1,37 @@
 "use client";
-import {useEffect,useState} from "react";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-export default function PublishedTestList({testType}:{testType?:string}){
- const [tests,setTests]=useState<any[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
- useEffect(()=>{const u="/api/tests"+(testType?`?type=${testType}`:"");fetch(u).then(r=>r.json()).then(d=>{if(d.error)setError(d.error);setTests(d.tests??[])}).catch(()=>setError("Tests load nahi ho paye.")).finally(()=>setLoading(false))},[testType]);
- if(loading)return <section className="panel">Loading published tests…</section>;
- return <section className="panel"><h1>{testType?`${testType[0].toUpperCase()+testType.slice(1)} Tests`:"Available Mock Tests"}</h1>{error&&<p>{error}</p>}{tests.length===0?<p>Abhi is category me koi published test nahi hai. Admin se test publish karwayein.</p>:tests.map(t=><article className="review-item" key={t.id}><h3>{t.title}</h3><p>{t.description} · {t.duration_minutes} minutes · {t.total_questions} questions</p><Link className="btn primary" href={`/tests/paper/${t.id}`}>Start Test</Link></article>)}</section>
+
+type Paper = { id:string; title:string; description:string|null; test_type:string; duration_minutes:number; total_questions:number; marks_per_question:number; negative_marking:number };
+
+export default function PublishedTestList({ testType }: { testType?: string }) {
+  const [tests,setTests]=useState<Paper[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState("");
+  const [filter,setFilter]=useState("all");
+  useEffect(()=>{
+    let active=true;
+    fetch("/api/tests"+(testType?"?type="+encodeURIComponent(testType):""))
+      .then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error||"Tests load nahi hue.");return d;})
+      .then(d=>{if(active){setTests(d.tests||[]);setError("");}})
+      .catch(e=>{if(active)setError(e.message||"Tests load nahi hue.");})
+      .finally(()=>{if(active)setLoading(false);});
+    return()=>{active=false};
+  },[testType]);
+  const types=[["all","All"],["daily","Daily"],["subject","Subject"],["chapter","Chapter"],["full","Full Mock"],["grand","Grand Test"]];
+  const visible=filter==="all"?tests:tests.filter(t=>t.test_type===filter);
+  return <div className="mu-test-list">
+    {!testType && <div className="mu-filter-row" aria-label="Filter tests">{types.map(([v,l])=><button key={v} onClick={()=>setFilter(v)} className={filter===v?"active":""}>{l}</button>)}</div>}
+    {loading&&<section className="panel">Loading published tests…</section>}
+    {!loading&&error&&<section className="panel"><h3>Tests load nahi ho paye</h3><p>{error}</p><button className="btn primary" onClick={()=>window.location.reload()}>Try again</button></section>}
+    {!loading&&!error&&visible.length===0&&<section className="panel"><h3>No tests available</h3><p>Abhi is category mein test publish nahi hua hai.</p></section>}
+    {!loading&&!error&&visible.length>0&&<div className="mu-test-grid">{visible.map(t=><article className="mu-test-card" key={t.id}>
+      <span className="mu-test-type">{t.test_type.replaceAll("_"," ").toUpperCase()}</span>
+      <h3>{t.title}</h3><p>{t.description||"Odisha Police exam practice paper."}</p>
+      <div className="mu-test-stats"><span><b>{t.total_questions}</b>Questions</span><span><b>{t.duration_minutes} min</b>Duration</span><span><b>{t.marks_per_question}</b>Marks / Q</span></div>
+      <small>Negative marking: {t.negative_marking}</small>
+      <Link className="mu-btn mu-btn-gold mu-test-start" href={"/tests/paper/"+t.id}>Start Test <b>→</b></Link>
+    </article>)}</div>}
+  </div>;
 }

@@ -39,6 +39,33 @@ export default function SubjectMockTestPage() {
   }
 
   return <main className="content-wrap">
+    <section className="mu-parade-banner" aria-label="Indian flag parade animation">
+      <div className="mu-parade-copy">
+        <span className="mu-parade-kicker">MISSION UNIFORM OP · PARADE GROUND</span>
+        <h2>March towards your uniform.</h2>
+        <p>Har practice ek kadam, har mock test manzil ke aur kareeb. Jai Hind!</p>
+        <span className="mu-parade-chip">🇮🇳 DISCIPLINE · PRACTICE · PRIDE</span>
+      </div>
+      <div className="mu-parade-stage" aria-hidden="true">
+        <div className="mu-parade-track">
+          {Array.from({length:5},(_,i)=><div className={"mu-parade-soldier mu-parade-soldier-"+i} key={i}>
+            {i===0&&<div className="mu-parade-flag"><span>☸</span></div>}
+            <svg viewBox="0 0 56 116" xmlns="http://www.w3.org/2000/svg" role="presentation">
+              <path d="M15 18 L18 8 H38 L41 18 Z" fill="#374737"/>
+              <rect x="19" y="18" width="18" height="5" rx="2" fill="#182a2c"/>
+              <circle cx="28" cy="30" r="10" fill="#a88b68"/>
+              <path d="M15 42 Q28 34 41 42 L45 74 H11 Z" fill="#536849"/>
+              <path d="M18 44 L9 70 L15 74 L26 51 M38 44 L47 70 L41 74 L30 51" fill="#445b40"/>
+              <path d="M18 73 L15 102 L22 106 L30 77 L35 105 L43 103 L39 73 Z" fill="#34483b"/>
+              <path d="M15 101 L24 103 L24 113 H10 Z M34 103 L43 100 L48 113 H34 Z" fill="#182a2c"/>
+              <path d="M14 71 H42" stroke="#c5a36c" strokeWidth="3"/>
+            </svg>
+          </div>)}
+        </div>
+      </div>
+      <div className="mu-parade-ground" aria-hidden="true" />
+    </section>
+
     <section className="panel test-intro">
       <span className="eyebrow">MISSION UNIFORM OP · CUSTOM PRACTICE</span>
       <h1>Apna Random Mock Test Banaiye</h1>

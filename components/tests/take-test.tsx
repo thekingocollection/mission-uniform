@@ -25,6 +25,7 @@ type ReviewItem = {
 export default function TakeTest({ id }: { id: string }) {
   const [test, setTest] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [attemptId, setAttemptId] = useState("");
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [marked, setMarked] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
@@ -104,16 +105,19 @@ export default function TakeTest({ id }: { id: string }) {
         throw new Error("Result save karne ke liye login karein.");
       }
 
+      if (!attemptId) throw new Error("Test attempt missing. Please restart the test.");
       const response = await fetch(`/api/tests/${id}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, attempt_id: attemptId }),
       });
-
-      const data = await response.json();
+      const raw = await response.text();
+      let data: any = {};
+      try { data = raw ? JSON.parse(raw) : {}; }
+      catch { throw new Error("Server response invalid. Please try again."); }
 
       if (!response.ok) {
         submittedRef.current = false;
@@ -123,6 +127,41 @@ export default function TakeTest({ id }: { id: string }) {
       setResult(data);
     } catch (e: any) {
       setError(e.message || "Result save nahi hua.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function beginTest() {
+    if (saving) return;
+    setSaving(true);
+    setError("");
+    try {
+      const sb = supabaseBrowser();
+      if (!sb) throw new Error("Supabase connection unavailable.");
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) throw new Error("Mock test start karne ke liye login karein.");
+      const response = await fetch(`/api/tests/${id}/start`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const raw = await response.text();
+      let data: any = {};
+      try { data = raw ? JSON.parse(raw) : {}; }
+      catch { throw new Error("Server response invalid. Please check and retry."); }
+      if (!response.ok) throw new Error(data.error || "Test start nahi hua.");
+      submittedRef.current = false;
+      setAttemptId(data.attempt_id);
+      setTest(data.test);
+      setQuestions(data.questions || []);
+      setSeconds(Number(data.test.duration_minutes || 30) * 60);
+      setAnswers({});
+      setMarked([]);
+      setIndex(0);
+      setTimeUp(false);
+      setStarted(true);
+    } catch (e: any) {
+      setError(e.message || "Test start nahi hua.");
     } finally {
       setSaving(false);
     }
@@ -175,7 +214,7 @@ export default function TakeTest({ id }: { id: string }) {
     return <section className="panel"><h2>Loading Mock Test...</h2></section>;
   }
 
-  if (!questions.length) {
+  if (started && !questions.length) {
     return (
       <section className="panel">
         <h2>No questions available</h2>
@@ -304,13 +343,15 @@ export default function TakeTest({ id }: { id: string }) {
 
         <button
           className="btn primary"
+          disabled={saving}
           onClick={() => {
             submittedRef.current = false;
-            setStarted(true);
+            void beginTest();
           }}
         >
-          Start Mock Test
+          {saving ? "Starting..." : "Start Mock Test"}
         </button>
+        {error && <p className="bulk-message">{error}</p>}
       </section>
     );
   }

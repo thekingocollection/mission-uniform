@@ -15,10 +15,12 @@ create table if not exists public.question_pools (
   total_questions integer not null default 0,
   is_active boolean not null default true,
   cycle_number integer not null default 1,
+  test_paper_id uuid references public.test_papers(id) on delete cascade,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table public.question_pools add column if not exists test_paper_id uuid references public.test_papers(id) on delete cascade;
 
 create table if not exists public.pool_questions (
   id uuid primary key default gen_random_uuid(),

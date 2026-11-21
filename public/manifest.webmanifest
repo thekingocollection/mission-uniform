@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "MISSION UNIFORM OP",
+  "short_name": "MISSION OP",
+  "description": "Free Odisha Police and competitive exam preparation, mock tests and job alerts.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08172f",
+  "theme_color": "#08172f",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -16,9 +16,12 @@ export async function GET(req: NextRequest) {
   try {
     const type = req.nextUrl.searchParams.get("type");
     const year = req.nextUrl.searchParams.get("year");
+    const scope = req.nextUrl.searchParams.get("scope");
     const db = getServiceSupabase();
     let q = db.from("test_papers").select("id,title,description,test_type,subject_id,subject:subjects(name_en,name_hi),chapter,duration_minutes,total_questions,marks_per_question,negative_marking,status,created_at,is_previous_year,exam_year,exam_name,session_label,source_label,question_mode").eq("status","published").order("created_at",{ascending:false});
     if (type) q = q.eq("test_type", type);
+    if (scope === "previous_year") q = q.eq("is_previous_year", true);
+    else q = q.or("is_previous_year.is.null,is_previous_year.eq.false");
     if (year) q = q.eq("exam_year", Number(year));
     const { data, error } = await q;
     if (error) return NextResponse.json({error:error.message},{status:500});

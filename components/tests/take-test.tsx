@@ -57,11 +57,7 @@ export default function TakeTest({ id }: { id: string }) {
         if (!response.ok) throw new Error(data.error || "Test load nahi hua.");
 
         if (active) {
-          const requestedCount = Number(new URLSearchParams(window.location.search).get("count"));
-          const customCount = Number.isInteger(requestedCount) && requestedCount > 0 && requestedCount <= 100 ? requestedCount : null;
-          const loadedTest = customCount && data.test.question_mode === "subject_random"
-            ? { ...data.test, total_questions: customCount, duration_minutes: customCount }
-            : data.test;
+          const loadedTest = data.test;
           setTest(loadedTest);
           setQuestions(data.questions ?? []);
           setSeconds(Number(loadedTest.duration_minutes || 30) * 60);
@@ -152,12 +148,11 @@ export default function TakeTest({ id }: { id: string }) {
       if (!sb) throw new Error("Supabase connection unavailable.");
       const { data: { session } } = await sb.auth.getSession();
       if (!session) throw new Error("Mock test start karne ke liye login karein.");
-      const requestedCount = Number(new URLSearchParams(window.location.search).get("count"));
-      const customCount = Number.isInteger(requestedCount) && requestedCount > 0 && requestedCount <= 100 ? requestedCount : null;
+      const difficulty = new URLSearchParams(window.location.search).get("mode") === "easy" ? "easy" : "normal";
       const response = await fetch(`/api/tests/${id}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify(customCount ? { question_count: customCount } : {}),
+        body: JSON.stringify({ difficulty }),
       });
       const raw = await response.text();
       let data: any = {};

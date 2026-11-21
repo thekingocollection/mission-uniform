@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Subject = { id:string; subject_id:string; name_en:string|null; name_hi:string|null; verified_questions:number };
-const choices=[10,20,30,50,100];
 
 export default function SubjectMockTestPage() {
   const [subjects,setSubjects]=useState<Subject[]>([]);
@@ -29,10 +28,8 @@ export default function SubjectMockTestPage() {
   },[]);
 
   const selected=useMemo(()=>subjects.find(s=>s.subject_id===subjectId),[subjects,subjectId]);
-  const availableCounts=selected?choices.filter(n=>n<=selected.verified_questions):[];
-
   useEffect(()=>{
-    if(selected&&!availableCounts.includes(count)) setCount(availableCounts.at(-1)||selected.verified_questions);
+    if(selected&&count>selected.verified_questions) setCount(selected.verified_questions);
   },[selected?.subject_id,selected?.verified_questions]);
 
   function start() {
@@ -52,10 +49,8 @@ export default function SubjectMockTestPage() {
           {subjects.map(s=><option key={s.subject_id} value={s.subject_id}>{s.name_en||s.name_hi||"Subject"} ({s.verified_questions} questions)</option>)}
         </select>
         <label className="field-label" htmlFor="question-count">How many questions?</label>
-        <select id="question-count" className="form-control" value={count} onChange={e=>setCount(Number(e.target.value))}>
-          {availableCounts.map(n=><option key={n} value={n}>{n} Questions</option>)}
-          {selected&&selected.verified_questions<10?<option value={selected.verified_questions}>{selected.verified_questions} Questions (all available)</option>:null}
-        </select>
+        <input id="question-count" className="form-control" type="number" min={1} max={Math.min(100,selected?.verified_questions||100)} value={count} onChange={e=>setCount(Number(e.target.value))} />
+        <small className="muted">1 se {Math.min(100,selected?.verified_questions||100)} tak questions enter kar sakte hain.</small>
         {selected&&<div className="test-result-grid">
           <div><b>{selected.verified_questions}</b><span>Verified in bank</span></div>
           <div><b>{count}</b><span>Your test size</span></div>
@@ -63,7 +58,7 @@ export default function SubjectMockTestPage() {
           <div><b>Random</b><span>Question order</span></div>
         </div>}
         <p className="muted">Har attempt par naya random set milega. Duplicate questions ek hi test mein nahi aayenge.</p>
-        <button className="btn primary" disabled={!selected||starting||!count||count>selected.verified_questions} onClick={start}>{starting?"Starting Mock Test…":"Start Mock Test"}</button>
+        <button className="btn primary" disabled={!selected||starting||!Number.isInteger(count)||count<1||count>100||count>selected.verified_questions} onClick={start}>{starting?"Starting Mock Test…":"Start Mock Test"}</button>
         {error&&<p className="bulk-message">{error}</p>}
       </>}
     </section>

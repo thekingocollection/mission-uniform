@@ -3,9 +3,17 @@
 begin;
 
 alter table public.test_papers
-  add column if not exists question_mode text not null default 'bank'
-  check(question_mode in ('bank','manual','pool')),
+  add column if not exists question_mode text not null default 'bank',
   add column if not exists pool_id uuid;
+alter table public.test_papers
+  drop constraint if exists test_papers_question_mode_check;
+alter table public.test_papers
+  add constraint test_papers_question_mode_check
+  check(question_mode in ('bank','manual','pool'));
+do $ begin
+  alter table public.test_papers add constraint test_papers_pool_id_fkey foreign key(pool_id)
+    references public.question_pools(id) on delete set null;
+exception when duplicate_object then null; end $;
 
 create table if not exists public.test_attempt_questions (
   id uuid primary key default gen_random_uuid(),

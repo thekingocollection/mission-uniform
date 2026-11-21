@@ -35,6 +35,7 @@ export default function TakeTest({ id }: { id: string }) {
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
+  const [flypastRun, setFlypastRun] = useState(0);
   const [error, setError] = useState("");
 
   const submittedRef = useRef(false);
@@ -198,6 +199,15 @@ export default function TakeTest({ id }: { id: string }) {
     }, 1000);
 
     return () => window.clearInterval(timer);
+  }, [started, result, timeUp]);
+
+  // Trigger a brief tricolour aircraft flypast every 30 seconds during a live test.
+  useEffect(() => {
+    if (!started || result || timeUp) return;
+    const flypastTimer = window.setInterval(() => {
+      setFlypastRun((run) => run + 1);
+    }, 30000);
+    return () => window.clearInterval(flypastTimer);
   }, [started, result, timeUp]);
 
   useEffect(() => {
@@ -386,6 +396,12 @@ export default function TakeTest({ id }: { id: string }) {
         </div>
 
         {error && <p className="bulk-message">{error}</p>}
+
+        {flypastRun > 0 && (
+          <div className="mu-test-flypast" key={flypastRun} aria-hidden="true">
+            <span className="mu-test-flypast-plane">✈</span>
+          </div>
+        )}
 
         <div className="test-grid">
           <section className="panel question-panel">

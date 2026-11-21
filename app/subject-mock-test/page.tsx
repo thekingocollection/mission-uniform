@@ -46,13 +46,12 @@ export default function SubjectMockTestPage() {
       {loading?<p>Subjects load ho rahe hain…</p>:error?<p className="bulk-message">{error}</p>:subjects.length===0?<p>Abhi kisi subject mein verified questions available nahi hain.</p>:<>
         <label className="field-label" htmlFor="subject-choice">Select Subject</label>
         <select id="subject-choice" className="form-control" value={subjectId} onChange={e=>setSubjectId(e.target.value)}>
-          {subjects.map(s=><option key={s.subject_id} value={s.subject_id}>{s.name_en||s.name_hi||"Subject"} ({s.verified_questions} questions)</option>)}
+          {subjects.map(s=><option key={s.subject_id} value={s.subject_id}>{s.name_en||s.name_hi||"Subject"}</option>)}
         </select>
         <label className="field-label" htmlFor="question-count">How many questions?</label>
         <input id="question-count" className="form-control" type="number" min={1} max={Math.min(100,selected?.verified_questions||100)} value={count} onChange={e=>setCount(Number(e.target.value))} />
-        <small className="muted">1 se {Math.min(100,selected?.verified_questions||100)} tak questions enter kar sakte hain.</small>
+        <small className="muted">Apni practice ke liye question count select kijiye.</small>
         {selected&&<div className="test-result-grid">
-          <div><b>{selected.verified_questions}</b><span>Verified in bank</span></div>
           <div><b>{count}</b><span>Your test size</span></div>
           <div><b>{count}</b><span>Minutes</span></div>
           <div><b>Random</b><span>Question order</span></div>

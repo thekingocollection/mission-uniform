@@ -14,15 +14,19 @@ async function authenticatedUser(req:NextRequest) {
 
 export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>}) {
   try {
-    const user=await authenticatedUser(req);
-    if(!user)return NextResponse.json({error:"Please sign in first."},{status:401});
+    const authorization=req.headers.get("authorization");
+    if(!authorization?.startsWith("Bearer "))return NextResponse.json({error:"Please sign in first."},{status:401});
+    const token=authorization.slice(7);
+    const db=getServiceSupabase();
+    const {data:userData,error:authError}=await db.auth.getUser(token);
+    const user=userData.user;
+    if(authError||!user)return NextResponse.json({error:"Your login session has expired. Please login again."},{status:401});
     const {id}=await params;
     const body=await req.json();
     const attemptId=String(body.attempt_id||"");
     const answers=body.answers;
     if(!attemptId||!answers||typeof answers!=="object"||Array.isArray(answers))
       return NextResponse.json({error:"Invalid attempt or answers."},{status:400});
-    const db=getServiceSupabase();
     const {data:attempt,error:attemptError}=await db.from("test_attempts")
       .select("id,user_id,test_id,is_submitted,started_at")
       .eq("id",attemptId).eq("user_id",user.id).eq("test_id",id).maybeSingle();

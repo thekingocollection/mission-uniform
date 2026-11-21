@@ -45,7 +45,13 @@ export default function TakeTest({ id }: { id: string }) {
 
     async function load() {
       try {
-        const response = await fetch(`/api/tests/${id}/questions`);
+        const sb = supabaseBrowser();
+        if (!sb) throw new Error("Supabase connection unavailable.");
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) throw new Error("Mock test dekhne ke liye login karein.");
+        const response = await fetch(`/api/tests/${id}/questions`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
         const data = await response.json();
 
         if (!response.ok) throw new Error(data.error || "Test load nahi hua.");

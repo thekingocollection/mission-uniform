@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
-
-async function authenticatedUser(req:NextRequest) {
-  const token=req.headers.get("authorization")?.replace(/^Bearer\s+/i,"");
-  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if(!token||!url||!key)return null;
-  const auth=createClient(url,key);
-  const {data}=await auth.auth.getUser(token);
-  return data.user??null;
-}
 
 export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>}) {
   try {

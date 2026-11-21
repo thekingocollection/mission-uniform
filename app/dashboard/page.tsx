@@ -82,7 +82,7 @@ export default function Dashboard() {
                 <div className="mu-student-subject-card-copy">
                   <span>RANDOM SUBJECT PRACTICE</span>
                   <h3>{subject.name_en || subject.name_hi || "Subject"}</h3>
-                  <p>{subject.verified_questions} Verified Questions Available</p>
+                  <p>Fresh random questions · Practice at your pace</p>
                 </div>
                 <Link href={"/subject-mock-test?subject=" + subject.subject_id} className="mu-student-start">Choose Questions <b>→</b></Link>
               </article>

@@ -376,10 +376,15 @@ export default function AdminQuestions() {
 
     setBusy(true);
 
-    const { error } = await supabase.from("questions").insert(valid);
+    let importError: any = null;
+    for (let i = 0; i < valid.length; i += 100) {
+      const { error } = await supabase.from("questions").insert(valid.slice(i, i + 100));
+      if (error) { importError = error; break; }
+      setMessage(`Imported ${Math.min(i + 100, valid.length)} / ${valid.length} questions...`);
+    }
 
-    if (error) {
-      setMessage("Import failed: " + error.message);
+    if (importError) {
+      setMessage("Import failed: " + importError.message + ". Already inserted rows remain saved; remove duplicates before retrying.");
     } else {
       setMessage(`${valid.length} questions imported. All are unverified.`);
       setPreview([]);

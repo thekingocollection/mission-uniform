@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
-type Test = { id:string; title:string; test_type:string; duration_minutes:number; total_questions:number; status:string; question_mode?:string };
+type Test = { id:string; title:string; test_type:string; duration_minutes:number; total_questions:number; status:string; question_mode?:string; is_previous_year?:boolean; exam_year?:number|null; exam_name?:string|null };
 type Question = { id:string; chapter:string|null; question_hi:string|null; question_or:string|null; question_en:string|null; options:any; correct_option:string; explanation?:string|null };
 
 export default function TestManager() {
@@ -15,6 +15,12 @@ export default function TestManager() {
   const [mode,setMode]=useState<"manual"|"pool">("manual");
   const [title,setTitle]=useState("");
   const [type,setType]=useState("daily");
+  const [isPreviousYear,setIsPreviousYear]=useState(false);
+  const [managePreviousOnly,setManagePreviousOnly]=useState(false);
+  const [examYear,setExamYear]=useState(new Date().getFullYear()-1);
+  const [examName,setExamName]=useState("Odisha Police Constable");
+  const [sessionLabel,setSessionLabel]=useState("");
+  const [sourceLabel,setSourceLabel]=useState("Previous Year Question Paper");
   const [subject,setSubject]=useState("");
   const [chapter,setChapter]=useState("");
   const [duration,setDuration]=useState(30);
@@ -34,7 +40,7 @@ export default function TestManager() {
   async function load() {
     if(!sb)return;
     const [t,s,q,p]=await Promise.all([
-      sb.from("test_papers").select("id,title,test_type,duration_minutes,total_questions,status,question_mode").order("created_at",{ascending:false}),
+      sb.from("test_papers").select("id,title,test_type,duration_minutes,total_questions,status,question_mode,is_previous_year,exam_year,exam_name").order("created_at",{ascending:false}),
       sb.from("subjects").select("id,name_en,name_hi").eq("is_active",true),
       sb.from("questions").select("id,chapter,question_hi,question_or,question_en,options,correct_option,explanation").eq("is_active",true).eq("verified",true).limit(1000),
       sb.from("question_pools").select("id,title,total_questions,is_active").eq("is_active",true).order("created_at",{ascending:false})
@@ -43,8 +49,8 @@ export default function TestManager() {
     setSubjects(s.data||[]);setBankQuestions(q.data||[]);setPools(p.data||[]);
   }
   useEffect(()=>{void load()},[sb]);
-  const chapters=[...new Set(bankQuestions.filter(q=>!subject||true).map(q=>q.chapter).filter(Boolean))] as string[];
-  const visibleBank=bankQuestions.filter(q=>(!subject||true)&&(!chapter||q.chapter===chapter)&&(!search||String(q.question_hi||q.question_en||q.question_or).toLowerCase().includes(search.toLowerCase())));
+  const chapters=[...new Set(bankQuestions.map(q=>q.chapter).filter(Boolean))] as string[];
+  const visibleBank=bankQuestions.filter(q=>(!chapter||q.chapter===chapter)&&(!search||String(q.question_hi||q.question_en||q.question_or).toLowerCase().includes(search.toLowerCase())));
 
   function normalizeSheet(rows:any[]) {
     return rows.map((r,i)=>{
@@ -91,7 +97,8 @@ export default function TestManager() {
       if(mode==="manual"&&questionRows.length){
         const {data:{user}}=await sb.auth.getUser();
         const {data:test,error:testError}=await sb.from("test_papers").insert({
-          title:title.trim(),description:type+" manual practice",test_type:type,subject_id:subject||null,chapter:chapter||null,
+          title:title.trim(),description:isPreviousYear?"Previous year question paper":type+" manual practice",test_type:isPreviousYear?"full":type,subject_id:subject||null,chapter:chapter||null,
+          is_previous_year:isPreviousYear,exam_year:isPreviousYear?examYear:null,exam_name:isPreviousYear?examName:null,session_label:isPreviousYear?(sessionLabel||null):null,source_label:isPreviousYear?(sourceLabel||null):null,
           question_mode:"manual",pool_id:null,duration_minutes:duration,total_questions:questionRows.length,
           marks_per_question:marks,negative_marking:negative,status,created_by:user?.id
         }).select("id").single();
@@ -111,7 +118,8 @@ export default function TestManager() {
         const {error:modeError}=await sb.from("test_papers").update({question_mode:"pool",pool_id:privatePool.id}).eq("id",test.id);
         if(modeError){await sb.from("test_papers").delete().eq("id",test.id);throw modeError;}
       } else {
-        const payload:any={title:title.trim(),description:type+" practice",test_type:type,subject_id:subject||null,chapter:chapter||null,
+        const payload:any={title:title.trim(),description:isPreviousYear?"Previous year question paper":type+" practice",test_type:isPreviousYear?"full":type,subject_id:subject||null,chapter:chapter||null,
+          is_previous_year:isPreviousYear,exam_year:isPreviousYear?examYear:null,exam_name:isPreviousYear?examName:null,session_label:isPreviousYear?(sessionLabel||null):null,source_label:isPreviousYear?(sourceLabel||null):null,
           question_mode:mode,pool_id:mode==="pool"?poolId:null,duration_minutes:duration,total_questions:mode==="pool"?count:Math.min(count,selected.length),
           marks_per_question:marks,negative_marking:negative,status};
         const response=await fetch("/api/tests",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},
@@ -119,11 +127,12 @@ export default function TestManager() {
         const data=await response.json();if(!response.ok)throw new Error(data.error||"Test save failed.");
       }
       setMessage("Test paper successfully saved.");
-      setTitle("");setQuestionRows([]);setSelected([]);setPoolId("");setFileName("");
+      setTitle("");setQuestionRows([]);setSelected([]);setPoolId("");setFileName("");setIsPreviousYear(false);
       await load();
     }catch(e:any){setMessage(e.message||"Test save nahi hua.");}
     finally{setBusy(false);}
   }
+  const visibleTests=tests.filter(t=>managePreviousOnly?!!t.is_previous_year:!t.is_previous_year);
   async function updateStatus(id:string,next:string){
     if(!sb)return;
     const {error}=await sb.from("test_papers").update({status:next}).eq("id",id);
@@ -133,7 +142,15 @@ export default function TestManager() {
   return <div className="admin-tests-page">
     <section className="panel">
       <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span><h1>Mock Test Builder</h1>
-      <p>Fixed Manual Test banayein ya bade Question Pool se har student ko random unseen questions dijiye.</p>
+      <div className="mu-admin-mode-switch"><button type="button" className={!managePreviousOnly?"active":""} onClick={()=>setManagePreviousOnly(false)}>Regular Mock Tests</button><button type="button" className={managePreviousOnly?"active":""} onClick={()=>{setManagePreviousOnly(true);setIsPreviousYear(true);setMode("manual");setType("full");}}>Previous Year Papers</button></div>
+      <p>Daily / full mock tests ke saath year-wise Previous Year Question Papers bhi create aur publish karein.</p>
+      <label className="mu-prev-toggle"><input type="checkbox" checked={isPreviousYear||managePreviousOnly} disabled={managePreviousOnly} onChange={e=>{setIsPreviousYear(e.target.checked);if(e.target.checked){setType("full");setMode("manual");}}}/> This is a Previous Year Paper</label>
+      {isPreviousYear&&<div className="form-grid mu-prev-metadata">
+        <label>Exam year<input className="input" type="number" min="2000" max="2100" value={examYear} onChange={e=>setExamYear(+e.target.value)}/></label>
+        <label>Exam name<input className="input" value={examName} onChange={e=>setExamName(e.target.value)} placeholder="Odisha Police Constable"/></label>
+        <label>Shift / Session<input className="input" value={sessionLabel} onChange={e=>setSessionLabel(e.target.value)} placeholder="Shift 1 / Morning / General"/></label>
+        <label>Paper source label<input className="input" value={sourceLabel} onChange={e=>setSourceLabel(e.target.value)} placeholder="Official Previous Year Question Paper"/></label>
+      </div>}
       <label>Test title<input className="input" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Odisha Police Mock Test 01"/></label>
       <div className="form-grid">
         <label>Test type<select className="input" value={type} onChange={e=>setType(e.target.value)}>{["daily","subject","chapter","full","grand"].map(x=><option key={x}>{x}</option>)}</select></label>
@@ -164,8 +181,8 @@ export default function TestManager() {
       <button className="btn primary" disabled={busy} onClick={()=>void save()}>{busy?"Saving...":"Save Test Paper"}</button>
       {message&&<p className="bulk-message" role="status">{message}</p>}
     </section>
-    <section className="panel"><h2>Existing Test Papers</h2>{tests.length===0?<p>No tests yet.</p>:tests.map(t=><article className="review-item" key={t.id}>
-      <b>{t.title}</b><p>{t.test_type} · {t.question_mode||"legacy"} · {t.duration_minutes} min · {t.total_questions} questions · {t.status}</p>
+    <section className="panel"><h2>{managePreviousOnly?"Previous Year Papers":"Existing Regular Test Papers"}</h2>{visibleTests.length===0?<p>No papers yet.</p>:visibleTests.map(t=><article className="review-item" key={t.id}>
+      <b>{t.is_previous_year?"Previous Year · "+(t.exam_name||"Exam")+" · "+(t.exam_year||"Year"):t.title}</b><p>{t.title} · {t.test_type} · {t.question_mode||"legacy"} · {t.duration_minutes} min · {t.total_questions} questions · {t.status}</p>
       <div className="result-actions">{t.status!=="published"&&<button className="btn primary" onClick={()=>void updateStatus(t.id,"published")}>Publish</button>}
       {t.status!=="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"archived")}>Archive</button>}
       {t.status==="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"draft")}>Restore draft</button>}</div>

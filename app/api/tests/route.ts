@@ -15,9 +15,11 @@ async function authUser(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const type = req.nextUrl.searchParams.get("type");
+    const year = req.nextUrl.searchParams.get("year");
     const db = getServiceSupabase();
-    let q = db.from("test_papers").select("id,title,description,test_type,subject_id,chapter,duration_minutes,total_questions,marks_per_question,negative_marking,status,created_at").eq("status","published").order("created_at",{ascending:false});
+    let q = db.from("test_papers").select("id,title,description,test_type,subject_id,subject:subjects(name_en,name_hi),chapter,duration_minutes,total_questions,marks_per_question,negative_marking,status,created_at,is_previous_year,exam_year,exam_name,session_label,source_label,question_mode").eq("status","published").order("created_at",{ascending:false});
     if (type) q = q.eq("test_type", type);
+    if (year) q = q.eq("exam_year", Number(year));
     const { data, error } = await q;
     if (error) return NextResponse.json({error:error.message},{status:500});
     return NextResponse.json({tests:data ?? []});
@@ -37,6 +39,7 @@ export async function POST(req: NextRequest) {
     const questionIds: string[] = body.question_ids ?? [];
     const {question_ids: _unused, ...paper} = body;
     if (!paper.title || !paper.test_type) return NextResponse.json({error:"Test title and type are required."},{status:400});
+    if (paper.is_previous_year && (!Number.isInteger(Number(paper.exam_year)) || Number(paper.exam_year) < 2000 || Number(paper.exam_year) > 2100 || !paper.exam_name)) return NextResponse.json({error:"Valid exam name and year are required for a Previous Year Paper."},{status:400});
     if (paper.question_mode === "pool") {
       if (!paper.pool_id) return NextResponse.json({error:"Choose a question pool."},{status:400});
       const {data:pool,error:poolError}=await db.from("question_pools").select("id,total_questions,is_active").eq("id",paper.pool_id).single();

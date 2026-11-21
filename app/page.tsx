@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const studyLinks = [
@@ -14,15 +15,49 @@ const studyLinks = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   const [published, setPublished] = useState(0);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   useEffect(() => {
     let active = true;
     const sb = supabaseBrowser();
-    if (!sb) return;
+    if (!sb) {
+      setCheckingAuth(false);
+      return;
+    }
+
+    sb.auth.getUser().then(({ data }) => {
+      if (!active) return;
+      if (data.user) {
+        router.replace("/dashboard");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+
+    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      if (session?.user) router.replace("/dashboard");
+      else setCheckingAuth(false);
+    });
+
     sb.from("test_papers").select("id", { count: "exact", head: true }).eq("status", "published")
       .then(({ count }) => { if (active) setPublished(count || 0); });
-    return () => { active = false; };
-  }, []);
+
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  if (checkingAuth) {
+    return <section className="panel" style={{ maxWidth: 520, margin: "48px auto", padding: 32, textAlign: "center" }}>
+      <span className="eyebrow">MISSION UNIFORM OP</span>
+      <h2>Welcome back</h2>
+      <p>Checking your student account…</p>
+    </section>;
+  }
 
   return (
     <div className="mu-home">

@@ -10,7 +10,7 @@ const links = [
   ["Mock Tests", "/tests", "✎"],
   ["Syllabus", "/syllabus", "▤"],
   ["Job Alerts", "/job-alerts", "◷"],
-  ["Previous Papers", "/previous-papers", "▧"],
+  ["Previous Year Questions", "/previous-papers", "▧"],
   ["Dashboard", "/dashboard", "▦"],
   ["Leaderboard", "/leaderboard", "♛"],
 ];
@@ -53,11 +53,15 @@ export function SiteHeader() {
         {open ? "✕" : "☰"}
       </button>
       <nav className={open ? "nav open" : "nav"}>
-        {links.map(([name, href, icon]) => (
-          <Link key={href} href={href} className={path === href ? "active" : ""} onClick={() => setOpen(false)}>
-            <span className="nav-icon">{icon}</span>{name}
-          </Link>
-        ))}
+        {links.map(([name, href, icon]) => {
+          const target = name === "Home" && signedIn ? "/dashboard" : href;
+          const label = name === "Home" && signedIn ? "My Home" : name;
+          return (
+            <Link key={href} href={target} className={path === target ? "active" : ""} onClick={() => setOpen(false)}>
+              <span className="nav-icon">{icon}</span>{label}
+            </Link>
+          );
+        })}
         {signedIn ? (
           <>
             <Link href="/profile" onClick={() => setOpen(false)}>My Profile</Link>

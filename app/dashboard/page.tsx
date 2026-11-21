@@ -41,7 +41,6 @@ export default function Dashboard() {
       <span className="mu-kicker">MISSION UNIFORM OP · STUDENT PORTAL</span>
       <h1>Welcome back, {name}!</h1>
       <p>Your preparation journey starts with one focused step today.</p>
-      {!signedIn && <div className="mu-dashboard-actions"><Link className="mu-btn mu-btn-gold" href="/login">Login to your account</Link><Link className="mu-btn mu-btn-light" href="/signup">Create account</Link></div>}
       <div className="mu-dashboard-stats">
         <div><b>{signedIn?attempts:"—"}</b><span>Test attempts</span></div>
         <div><b>{signedIn?"Active":"—"}</b><span>Account status</span></div>

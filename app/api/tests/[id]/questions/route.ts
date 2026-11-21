@@ -18,10 +18,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const db = getServiceSupabase();
   const { data: test, error } = await db.from("test_papers")
-    .select("id,title,description,test_type,question_mode,duration_minutes,total_questions,marks_per_question,negative_marking,status")
+    .select("id,title,description,test_type,question_mode,duration_minutes,total_questions,marks_per_question,negative_marking,status,is_previous_year,exam_year,exam_name,session_label,source_label")
     .eq("id", id).eq("status", "published").maybeSingle();
   if (error || !test) return NextResponse.json({ error: "Test not found or not published." }, { status: 404 });
-  if (test.question_mode === "pool") return NextResponse.json({ test, questions: [] });
+  if (test.question_mode === "pool" || test.question_mode === "subject_random") return NextResponse.json({ test, questions: [] });
   const { data: links, error: linkError } = await db.from("test_paper_questions")
     .select("sort_order,questions(id,question_hi,question_or,question_en,options,chapter,difficulty)")
     .eq("test_id", id).order("sort_order");

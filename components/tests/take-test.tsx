@@ -334,7 +334,7 @@ export default function TakeTest({ id }: { id: string }) {
         <p>{test.description}</p>
 
         <div className="test-result-grid">
-          <div><b>{questions.length}</b><span>Questions</span></div>
+          <div><b>{test.total_questions || questions.length}</b><span>Questions</span></div>
           <div><b>{test.duration_minutes}</b><span>Minutes</span></div>
           <div><b>{test.marks_per_question}</b><span>Marks</span></div>
           <div><b>{test.negative_marking}</b><span>Negative</span></div>

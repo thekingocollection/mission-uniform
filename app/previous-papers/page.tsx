@@ -26,7 +26,7 @@ export default function Page() {
       if(error||!data.user){router.replace("/login?next=/previous-papers");return;}
       setAuthorized(true);setChecking(false);
       try{
-        const response=await fetch("/api/tests?type=full");
+        const response=await fetch("/api/tests?type=full&scope=previous_year");
         const body=await response.json();
         if(!response.ok)throw new Error(body.error||"Previous year questions load nahi hue.");
         if(active)setPapers((body.tests||[]).filter((p:any)=>p.is_previous_year));

@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authorization = req.headers.get("authorization");
+  if (!authorization?.startsWith("Bearer ")) {
+    return NextResponse.json({ error: "Please login to access this test." }, { status: 401 });
+  }
+  const token = authorization.slice(7);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !anon) return NextResponse.json({ error: "Supabase public configuration is missing." }, { status: 500 });
+  const authClient = createClient(url, anon, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data: userData, error: authError } = await authClient.auth.getUser(token);
+  if (authError || !userData.user) return NextResponse.json({ error: "Please login to access this test." }, { status: 401 });
+
   const { id } = await params;
   const db = getServiceSupabase();
   const { data: test, error } = await db.from("test_papers")

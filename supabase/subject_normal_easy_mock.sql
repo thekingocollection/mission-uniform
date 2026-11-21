@@ -25,7 +25,7 @@ begin
   if v_name is not null and not exists (
     select 1 from public.test_papers t
     where t.subject_id=v_subject and t.question_mode='subject_random'
-      and t.status<>'archived'
+      and t.status='published'
   ) then
     insert into public.test_papers(
       title,description,test_type,subject_id,duration_minutes,total_questions,
@@ -56,7 +56,7 @@ begin
   loop
     if not exists (
       select 1 from public.test_papers t
-      where t.subject_id=r.id and t.question_mode='subject_random' and t.status<>'archived'
+      where t.subject_id=r.id and t.question_mode='subject_random' and t.status='published'
     ) then
       insert into public.test_papers(
         title,description,test_type,subject_id,duration_minutes,total_questions,

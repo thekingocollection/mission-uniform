@@ -3633,3 +3633,20 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 @media(prefers-reduced-motion:reduce) {
  *,*::before,*::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
 }
+
+
+/* Admin builder touch-friendly controls */
+.mu-admin-upload-actions { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; }
+.mu-manual-preview { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; max-height:360px; overflow:auto; margin:12px 0 18px; }
+.mu-manual-preview article { min-width:0; border:1px solid var(--mu-line); border-radius:12px; padding:12px; background:#fbfcff; }
+.mu-manual-preview p { overflow-wrap:anywhere; font-size:13px; }
+.mu-manual-preview small { color:#187548; font-weight:800; }
+.nav-icon { display:inline-block; margin-right:6px; }
+.nav-register { border:1px solid #d4a72c; color:#f5cf65 !important; }
+@media(max-width:560px) {
+ .mu-admin-upload-actions { display:grid; grid-template-columns:1fr; }
+ .mu-admin-upload-actions .btn { width:100%; }
+ .mu-manual-preview { grid-template-columns:1fr; }
+ .nav a { display:flex; align-items:center; min-height:44px; }
+ .menu-toggle { min-width:44px; min-height:44px; }
+}

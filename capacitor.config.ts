@@ -1,6 +1,4 @@
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
+const config = {
   appId: 'in.missionuniform.op',
   appName: 'MISSION UNIFORM OP',
   webDir: 'out',

@@ -46,7 +46,9 @@ export default function TakeTest({ id }: { id: string }) {
     async function load() {
       try {
         const response = await fetch(`/api/tests/${id}/questions`);
-        const data = await response.json();
+        const raw = await response.text();
+      let data: any = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch { throw new Error("Server response invalid. Please check Render logs."); }
 
         if (!response.ok) throw new Error(data.error || "Test load nahi hua.");
 

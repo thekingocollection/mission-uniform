@@ -390,8 +390,9 @@ export default function TakeTest({ id }: { id: string }) {
             <p>Question {index + 1} / {questions.length}</p>
           </div>
 
-          <div className="timer">
-            ⏱ {formatTime(seconds)}
+          <div className={`timer mu-exam-timer ${seconds <= 300 ? "is-warning" : ""}`} role="timer" aria-live="off" aria-label={`Time remaining ${formatTime(seconds)}`}>
+            <div className="mu-exam-timer-top"><span>⏱ TIME REMAINING</span><b>{formatTime(seconds)}</b></div>
+            <div className="mu-exam-time-track"><i style={{ width: `${Math.max(0, Math.min(100, (seconds / (Math.max(1, Number(test.duration_minutes || 30) * 60))) * 100))}%` }} /></div>
           </div>
         </div>
 

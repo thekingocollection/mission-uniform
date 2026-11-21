@@ -40,6 +40,13 @@ export default function Dashboard() {
             <div><b>FREE</b><span>Practice for every student</span></div>
           </div>
         </div>
+        <div className="mu-student-field-activity" aria-hidden="true">
+          <span className="mu-student-radar-ring ring-one" />
+          <span className="mu-student-radar-ring ring-two" />
+          <span className="mu-student-flight-path" />
+          <span className="mu-student-flight">✈</span>
+          <span className="mu-student-field-label">FIELD STATUS · ACTIVE</span>
+        </div>
         <div className="mu-student-emblem" aria-hidden="true">
           <div className="mu-student-emblem-ring"><span>DISCIPLINE</span><b>MU</b><span>DEDICATION</span></div>
           <small>EK LAKSHYA · EK JUNOON</small>

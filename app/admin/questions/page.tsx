@@ -50,6 +50,9 @@ export default function AdminQuestions() {
   const [search, setSearch] = useState("");
 
   const [file, setFile] = useState<File | null>(null);
+  const [importSubjectId, setImportSubjectId] = useState("");
+  const [importChapterId, setImportChapterId] = useState("");
+  const [importDifficulty, setImportDifficulty] = useState("excel");
   const [preview, setPreview] = useState<any[]>([]);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -135,6 +138,10 @@ export default function AdminQuestions() {
 
   const availableChapters = chapters.filter(
     c => !subjectFilter || c.subject_id === subjectFilter
+  );
+
+  const importChapters = chapters.filter(
+    c => !importSubjectId || c.subject_id === importSubjectId
   );
 
   const filteredQuestions = questions.filter(q => {
@@ -308,16 +315,20 @@ export default function AdminQuestions() {
           data[key.trim().toLowerCase().replace(/[\s-]+/g, "_")] = String(value ?? "").trim();
         });
 
-        const subject = subjects.find(s =>
-          normalize(s.name_en) === normalize(data.subject_name) ||
-          normalize(s.name_hi) === normalize(data.subject_name) ||
-          s.id === data.subject_id
-        );
+        const subject = importSubjectId
+          ? subjects.find(s => s.id === importSubjectId)
+          : subjects.find(s =>
+              normalize(s.name_en) === normalize(data.subject_name) ||
+              normalize(s.name_hi) === normalize(data.subject_name) ||
+              s.id === data.subject_id
+            );
 
-        const chapter = chapters.find(c =>
-          c.subject_id === subject?.id &&
-          normalize(c.name) === normalize(data.chapter)
-        );
+        const chapter = importChapterId
+          ? chapters.find(c => c.id === importChapterId && c.subject_id === subject?.id)
+          : chapters.find(c =>
+              c.subject_id === subject?.id &&
+              normalize(c.name) === normalize(data.chapter)
+            );
 
         const options = [
           data.option_a, data.option_b, data.option_c, data.option_d
@@ -361,8 +372,9 @@ export default function AdminQuestions() {
             explanation_hi: data.explanation_hi || null,
             explanation_or: data.explanation_or || null,
             explanation_en: data.explanation_en || null,
-            difficulty: ["easy", "medium", "hard"].includes(normalize(data.difficulty))
-              ? normalize(data.difficulty) : "medium",
+            difficulty: importDifficulty !== "excel"
+              ? importDifficulty
+              : (["easy", "medium", "hard"].includes(normalize(data.difficulty)) ? normalize(data.difficulty) : "medium"),
             source_note: data.source_note || null,
             verified: false,
             is_active: true
@@ -518,9 +530,36 @@ export default function AdminQuestions() {
 
       <section className="admin-qb-section admin-qb-import" id="qb-import">
         <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Excel/CSV upload karein. Har naya question automatically Unverified mein aayega.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
-        <div className="admin-qb-upload-row">
-          <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 2 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
-          <div className="admin-qb-upload-info"><b>Before importing</b><p>Subject name aur chapter name database se match hona chahiye. Template use karne se column errors kam honge.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
+        <div className="admin-qb-import-controls">
+          <div className="admin-qb-import-selects">
+            <label>Default Subject
+              <select value={importSubjectId} onChange={e => { setImportSubjectId(e.target.value); setImportChapterId(""); }}>
+                <option value="">Use subject_name from Excel</option>
+                {subjects.map(s => <option key={s.id} value={s.id}>{s.name_en}{s.name_hi ? ` · ${s.name_hi}` : ""}</option>)}
+              </select>
+              <small>Choose once to assign every row to this subject.</small>
+            </label>
+            <label>Default Chapter
+              <select value={importChapterId} onChange={e => setImportChapterId(e.target.value)} disabled={!importSubjectId}>
+                <option value="">Use chapter from Excel</option>
+                {importChapters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+              <small>{importSubjectId ? "Optional: apply one chapter to all imported rows." : "Select a subject first to choose a chapter."}</small>
+            </label>
+            <label>Default Difficulty
+              <select value={importDifficulty} onChange={e => setImportDifficulty(e.target.value)}>
+                <option value="excel">Use Excel value</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <small>Optional: override difficulty for all rows.</small>
+            </label>
+          </div>
+          <div className="admin-qb-upload-row">
+            <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 2 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
+            <div className="admin-qb-upload-info"><b>Before importing</b><p>Upar Subject, Chapter aur Difficulty select kar sakte hain. Jo option blank rahega, uski value Excel columns se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
+          </div>
         </div>
         {file && <div className="admin-qb-file-selected">Selected file: <b>{file.name}</b></div>}
         {preview.length > 0 && <>

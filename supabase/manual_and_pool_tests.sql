@@ -57,7 +57,6 @@ create table if not exists public.student_pool_seen (
 create index if not exists pool_questions_pool_idx on public.pool_questions(pool_id);
 create index if not exists student_pool_seen_lookup_idx
   on public.student_pool_seen(user_id,pool_id,cycle_number);
-  on public.test_attempt_questions(attempt_id,sort_order);
 
 create or replace function public.sync_question_pool_count()
 returns trigger language plpgsql security definer set search_path=public as $$

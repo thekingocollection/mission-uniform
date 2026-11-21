@@ -2,34 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
-export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>}) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const authorization=req.headers.get("authorization");
-    if(!authorization?.startsWith("Bearer ")) return NextResponse.json({error:"Please sign in first."},{status:401});
-    const token=authorization.slice(7);
-    const service=getServiceSupabase();
-    const {data:userData,error:authError}=await service.auth.getUser(token);
-    if(authError||!userData.user)return NextResponse.json({error:"Your login session has expired. Please login again."},{status:401});
-    const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anon=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-    if(!url||!anon)return NextResponse.json({error:"Supabase public key is not configured."},{status:500});
-    const studentDb=createClient(url,anon,{global:{headers:{Authorization:"Bearer "+token}},auth:{autoRefreshToken:false,persistSession:false}});
-    const {id}=await params;
-    let body:any={};
-    try { body=await req.json(); } catch {}
-    const rawCount=body.question_count;
-    const questionCount=rawCount===undefined||rawCount===null?null:Number(rawCount);
-    if(questionCount!==null&&(!Number.isInteger(questionCount)||questionCount<1||questionCount>100))
-      return NextResponse.json({error:"Question count must be between 1 and 100."},{status:400});
-    const {data:started,error}=await studentDb.rpc("start_mock_test_attempt",{p_test_id:id,p_question_count:questionCount});
-    if(error)return NextResponse.json({error:error.message},{status:400});
-    const questions=(started?.questions??[]).map((q:any)=>({
-      id:q.id,question_hi:q.question_hi,question_or:q.question_or,question_en:q.question_en,
-      options:q.options,chapter:q.chapter??null,difficulty:q.difficulty??null
+    const authorization = req.headers.get("authorization");
+    if (!authorization?.startsWith("Bearer ")) return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
+    const token = authorization.slice(7);
+    const service = getServiceSupabase();
+    const { data: userData, error: authError } = await service.auth.getUser(token);
+    if (authError || !userData.user) return NextResponse.json({ error: "Your login session has expired. Please login again." }, { status: 401 });
+
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    if (!url || !anon) return NextResponse.json({ error: "Supabase public key is not configured." }, { status: 500 });
+    const studentDb = createClient(url, anon, { global: { headers: { Authorization: "Bearer " + token } }, auth: { autoRefreshToken: false, persistSession: false } });
+
+    const { id } = await params;
+    let body: any = {};
+    try { body = await req.json(); } catch {}
+    const difficulty = body.difficulty === "easy" ? "easy" : "normal";
+    const { data: started, error } = await studentDb.rpc("start_mock_test_attempt", {
+      p_test_id: id, p_question_count: null, p_difficulty: difficulty,
+    });
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+    const questions = (started?.questions ?? []).map((q: any) => ({
+      id: q.id, question_hi: q.question_hi, question_or: q.question_or, question_en: q.question_en,
+      options: q.options, chapter: q.chapter ?? null, difficulty: q.difficulty ?? null,
     }));
-    return NextResponse.json({test:started.test,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions});
-  }catch(e:any){
-    console.error("TEST_START_ERROR",e);
-    return NextResponse.json({error:e.message||"Unable to start mock test."},{status:500});
+    return NextResponse.json({ test: started.test, attempt_id: started.attempt_id, started_at: started.started_at ?? new Date().toISOString(), questions });
+  } catch (e: any) {
+    console.error("TEST_START_ERROR", e);
+    return NextResponse.json({ error: e.message || "Unable to start mock test." }, { status: 500 });
   }
 }

@@ -72,7 +72,7 @@ export default function AdminQuestions() {
         supabase.from("questions")
           .select("id,subject_id,chapter,question_hi,question_or,question_en,options,correct_option,difficulty,verified,is_active,created_at")
           .order("created_at", { ascending: false })
-          .limit(500)
+          .limit(5000)
       ]);
 
     if (subjectResult.error) throw subjectResult.error;

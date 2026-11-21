@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -12,13 +12,20 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [sent, setSent] = useState(false);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [nextPath, setNextPath] = useState("/dashboard");
   const router = useRouter();
   const validPhone = /^[6-9]\d{9}$/.test(phone);
   const validName = name.trim().length >= 2;
 
-  function destination() {
+  useEffect(() => {
     const next = new URLSearchParams(window.location.search).get("next");
-    return next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      setNextPath(next);
+    }
+  }, []);
+
+  function destination() {
+    return nextPath;
   }
 
   async function send() {

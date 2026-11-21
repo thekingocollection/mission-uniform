@@ -3962,3 +3962,62 @@ button:disabled { opacity:.55; cursor:not-allowed; }
  .admin-subject-mock-row { grid-template-columns:1fr; gap:14px; }
 }
 @media(max-width:420px) { .admin-subject-mock-stats { grid-template-columns:1fr; } }
+
+
+/* Student motivational home - subject mock tests only */
+.mu-student-home { max-width:1160px; margin:0 auto; padding:8px 0 34px; color:#18294b; }
+.mu-student-hero { position:relative; display:grid; grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr); align-items:center; gap:26px; overflow:hidden; padding:clamp(26px,5vw,54px); border:1px solid rgba(222,190,111,.4); border-radius:26px; background:radial-gradient(circle at 82% 25%,rgba(221,177,75,.2),transparent 28%),linear-gradient(125deg,#101e3d 0%,#1d3764 62%,#253f70 100%); box-shadow:0 18px 44px rgba(18,36,72,.16); color:#fff; }
+.mu-student-hero:after { content:""; position:absolute; width:320px; height:320px; right:-140px; bottom:-190px; border:1px solid rgba(244,211,133,.22); border-radius:50%; box-shadow:0 0 0 22px rgba(244,211,133,.035),0 0 0 48px rgba(244,211,133,.025); }
+.mu-student-hero-copy { position:relative; z-index:1; }
+.mu-student-hero .mu-kicker { color:#f0d28a; text-align:left; }
+.mu-student-greeting { margin:18px 0 9px; color:#d9e2f2; font-size:11px; font-weight:900; letter-spacing:2px; }
+.mu-student-hero h1 { margin:0; color:#fff; font-size:clamp(30px,4.8vw,51px); line-height:1.12; letter-spacing:-1.3px; }
+.mu-student-hero h1 em { color:#f1d38a; font-style:normal; }
+.mu-student-hero-lead { max-width:620px; margin:17px 0 24px; color:#d5deed; font-size:14px; line-height:1.85; }
+.mu-student-hero-stats { display:flex; flex-wrap:wrap; gap:12px; }
+.mu-student-hero-stats div { min-width:128px; display:grid; gap:4px; padding:12px 16px; border:1px solid rgba(255,255,255,.15); border-radius:12px; background:rgba(255,255,255,.07); }
+.mu-student-hero-stats b { color:#f4d58c; font-size:23px; }
+.mu-student-hero-stats span { color:#d5deed; font-size:11px; }
+.mu-student-emblem { position:relative; z-index:1; display:grid; justify-items:center; gap:15px; }
+.mu-student-emblem-ring { width:min(220px,100%); aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:2px solid #d9b65f; border-radius:50%; outline:1px solid rgba(240,210,138,.45); outline-offset:8px; color:#f0d28a; box-shadow:inset 0 0 0 9px rgba(240,210,138,.06),0 12px 35px rgba(0,0,0,.15); }
+.mu-student-emblem-ring span { font-size:9px; font-weight:900; letter-spacing:2px; }
+.mu-student-emblem-ring b { color:#fff; font-family:Georgia,serif; font-size:70px; line-height:1; }
+.mu-student-emblem > small { color:#e5d5a9; font-size:9px; font-weight:900; letter-spacing:1.5px; text-align:center; }
+.mu-student-quote { margin:20px 0 30px; padding:23px clamp(18px,3vw,32px); border:1px solid #e7d9b7; border-left:5px solid #c69a39; border-radius:15px; background:linear-gradient(110deg,#fffdf7,#fff); }
+.mu-student-quote > span { color:#a47a25; font-size:10px; font-weight:950; letter-spacing:1.7px; }
+.mu-student-quote h2 { margin:9px 0 7px; color:#1b2e50; font-family:Georgia,serif; font-size:clamp(18px,2.7vw,25px); line-height:1.45; }
+.mu-student-quote p { margin:0; color:#77839a; font-size:12px; }
+.mu-student-section-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:15px; margin-bottom:17px; }
+.mu-student-section-heading .mu-kicker { text-align:left; }
+.mu-student-section-heading h2 { margin:6px 0; color:#18294b; font-size:clamp(23px,3vw,30px); letter-spacing:-.5px; }
+.mu-student-section-heading p { margin:0; color:#71809a; font-size:13px; line-height:1.6; }
+.mu-student-count { flex:0 0 auto; padding:8px 12px; border:1px solid #e5d6ad; border-radius:99px; background:#fffaf0; color:#8a681d; font-size:10px; font-weight:950; letter-spacing:1px; }
+.mu-student-subject-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px; }
+.mu-student-subject-card { display:grid; grid-template-columns:48px minmax(0,1fr); align-items:center; gap:13px; padding:18px; border:1px solid #e2e8f1; border-radius:16px; background:#fff; box-shadow:0 7px 22px rgba(20,38,76,.045); transition:transform .18s,border-color .18s,box-shadow .18s; }
+.mu-student-subject-card:hover { transform:translateY(-2px); border-color:#d6b45f; box-shadow:0 12px 26px rgba(20,38,76,.08); }
+.mu-student-subject-number { width:44px; height:44px; display:grid; place-items:center; border-radius:13px; background:#f3f5fa; color:#9b7627; font-family:Georgia,serif; font-size:17px; font-weight:900; }
+.mu-student-subject-card-copy { min-width:0; }
+.mu-student-subject-card-copy > span { color:#a17a28; font-size:9px; font-weight:950; letter-spacing:1.3px; }
+.mu-student-subject-card h3 { margin:4px 0; color:#1c2d4d; font-size:17px; }
+.mu-student-subject-card p { margin:0; color:#7b879b; font-size:11px; }
+.mu-student-subject-card p i { padding:0 3px; color:#c39a42; font-style:normal; }
+.mu-student-start { grid-column:2; display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; min-height:40px; padding:9px 12px; border-radius:9px; background:#1b3159; color:#fff; font-size:12px; font-weight:850; text-decoration:none; transition:background .18s; }
+.mu-student-start:hover { background:#9a7425; }
+.mu-student-start b { color:#f0d28a; font-size:16px; }
+.mu-student-empty { padding:24px; border:1px dashed #d5deea; border-radius:14px; background:#fbfcff; color:#66758e; text-align:center; font-size:13px; line-height:1.7; }
+.mu-student-signoff { margin:30px 0 0; color:#8793a7; text-align:center; font-size:10px; font-weight:850; letter-spacing:1.4px; }
+.mu-student-signoff span { color:#c69a39; padding:0 5px; }
+@media(max-width:760px) {
+ .mu-student-hero { grid-template-columns:1fr; }
+ .mu-student-emblem { display:none; }
+ .mu-student-subject-grid { grid-template-columns:1fr; }
+}
+@media(max-width:520px) {
+ .mu-student-home { padding-top:0; }
+ .mu-student-hero { padding:25px 19px; border-radius:18px; }
+ .mu-student-hero h1 { font-size:32px; }
+ .mu-student-hero-lead { font-size:13px; }
+ .mu-student-section-heading { align-items:flex-start; flex-direction:column; }
+ .mu-student-subject-card { padding:14px; }
+ .mu-student-subject-card h3 { font-size:16px; }
+}

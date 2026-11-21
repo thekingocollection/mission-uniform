@@ -1,14 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Subject = { id:string; subject_id:string; name_en:string|null; name_hi:string|null; verified_questions:number };
 const choices=[10,20,30,50,100];
 
 export default function SubjectMockTestPage() {
-  const search=useSearchParams();
   const [subjects,setSubjects]=useState<Subject[]>([]);
   const [subjectId,setSubjectId]=useState("");
   const [count,setCount]=useState(30);
@@ -23,13 +20,13 @@ export default function SubjectMockTestPage() {
       if(!r.ok) throw new Error(data.error||"Subjects load nahi hue.");
       if(!active)return;
       setSubjects(data.subjects||[]);
-      const requested=search.get("subject");
+      const requested=new URLSearchParams(window.location.search).get("subject");
       const initial=(data.subjects||[]).find((s:Subject)=>s.subject_id===requested)||(data.subjects||[])[0];
       if(initial){setSubjectId(initial.subject_id);setCount(Math.min(30,initial.verified_questions));}
       setLoading(false);
     }).catch(e=>{if(active){setError(e.message);setLoading(false);}});
     return ()=>{active=false;};
-  },[search]);
+  },[]);
 
   const selected=useMemo(()=>subjects.find(s=>s.subject_id===subjectId),[subjects,subjectId]);
   const availableCounts=selected?choices.filter(n=>n<=selected.verified_questions):[];
@@ -38,23 +35,10 @@ export default function SubjectMockTestPage() {
     if(selected&&!availableCounts.includes(count)) setCount(availableCounts.at(-1)||selected.verified_questions);
   },[selected?.subject_id,selected?.verified_questions]);
 
-  async function start() {
+  function start() {
     if(!selected||count>selected.verified_questions||count<1)return;
-    setStarting(true);setError("");
-    try {
-      const sb=supabaseBrowser();
-      if(!sb)throw new Error("Supabase connection unavailable.");
-      const {data:{session}}=await sb.auth.getSession();
-      if(!session)throw new Error("Mock test start karne ke liye login karein.");
-      const response=await fetch("/api/tests/"+selected.id+"/start",{
-        method:"POST",
-        headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},
-        body:JSON.stringify({question_count:count})
-      });
-      const data=await response.json();
-      if(!response.ok)throw new Error(data.error||"Mock test start nahi hua.");
-      window.location.href="/tests/paper/"+selected.id+"?count="+count;
-    }catch(e:any){setError(e.message||"Mock test start nahi hua.");setStarting(false);}
+    setStarting(true);
+    window.location.href="/tests/paper/"+selected.id+"?count="+count;
   }
 
   return <main className="content-wrap">

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const links = [
   ["Home", "/", "⌂"],
@@ -14,9 +15,34 @@ const links = [
   ["Leaderboard", "/leaderboard", "♛"],
 ];
 
+const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms"];
+function isPublicPath(path: string) {
+  return publicPaths.includes(path) || path.startsWith("/login/") || path.startsWith("/signup/");
+}
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
   const path = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const sb = supabaseBrowser();
+    if (!sb) return;
+    sb.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => setSignedIn(!!session?.user));
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  async function logout() {
+    const sb = supabaseBrowser();
+    if (sb) await sb.auth.signOut();
+    setSignedIn(false);
+    setOpen(false);
+    router.replace("/");
+    router.refresh();
+  }
+
   return (
     <header className="site-header">
       <Link className="brand" href="/" onClick={() => setOpen(false)}>
@@ -32,9 +58,17 @@ export function SiteHeader() {
             <span className="nav-icon">{icon}</span>{name}
           </Link>
         ))}
-        <Link href="/profile" onClick={() => setOpen(false)}>Profile</Link>
-        <Link className="nav-login" href="/login" onClick={() => setOpen(false)}>Login</Link>
-        <Link className="nav-register" href="/signup" onClick={() => setOpen(false)}>Register</Link>
+        {signedIn ? (
+          <>
+            <Link href="/profile" onClick={() => setOpen(false)}>My Profile</Link>
+            <button type="button" className="nav-login" onClick={logout}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link className="nav-login" href={`/login?next=${encodeURIComponent(path)}`} onClick={() => setOpen(false)}>Login</Link>
+            <Link className="nav-register" href={`/signup?next=${encodeURIComponent(path)}`} onClick={() => setOpen(false)}>Register</Link>
+          </>
+        )}
       </nav>
     </header>
   );
@@ -53,8 +87,56 @@ export function SiteFooter() {
   );
 }
 
+function StudentAccessGate({ children }: { children: React.ReactNode }) {
+  const path = usePathname();
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    if (isPublicPath(path) || path.startsWith("/admin")) {
+      setAllowed(true);
+      setChecking(false);
+      return;
+    }
+    let active = true;
+    const sb = supabaseBrowser();
+    if (!sb) {
+      router.replace("/login?next=" + encodeURIComponent(path));
+      return;
+    }
+    sb.auth.getUser().then(({ data, error }) => {
+      if (!active) return;
+      if (!error && data.user) {
+        setAllowed(true);
+        setChecking(false);
+      } else {
+        router.replace("/login?next=" + encodeURIComponent(path));
+      }
+    });
+    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      if (session?.user) {
+        setAllowed(true);
+        setChecking(false);
+      } else if (!isPublicPath(path) && !path.startsWith("/admin")) {
+        setAllowed(false);
+        router.replace("/login?next=" + encodeURIComponent(path));
+      }
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [path, router]);
+
+  if (isPublicPath(path) || path.startsWith("/admin")) return <>{children}</>;
+  if (checking || !allowed) return <main className="panel" style={{maxWidth:520,margin:"48px auto",padding:32,textAlign:"center"}}><span className="eyebrow">STUDENT ACCESS</span><h2>Checking your login…</h2><p>Please wait. Login or create a free student account to continue.</p></main>;
+  return <>{children}</>;
+}
+
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   if (path.startsWith("/admin")) return <>{children}</>;
-  return <><SiteHeader /><main className="main-wrap">{children}</main><SiteFooter /></>;
+  return <><SiteHeader /><main className="main-wrap"><StudentAccessGate>{children}</StudentAccessGate></main><SiteFooter /></>;
 }

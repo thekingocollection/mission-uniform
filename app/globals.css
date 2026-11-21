@@ -3941,3 +3941,29 @@ button:disabled { opacity:.55; cursor:not-allowed; }
  .mu-previous-filter { align-items:stretch; flex-direction:column; }
  .mu-previous-filter select { width:100%; }
 }
+
+
+/* Student notification centre */
+.mu-notification-count { display:inline-flex; align-items:center; justify-content:center; min-width:19px; height:19px; padding:0 5px; margin-left:5px; border-radius:999px; background:#d4a72c; color:#172554; font-size:10px; font-weight:950; line-height:1; }
+.mu-notifications-page { max-width:920px; margin:0 auto; }
+.mu-notifications-hero { position:relative; padding:clamp(22px,4vw,36px); margin-bottom:20px; border:1px solid rgba(212,167,44,.4); border-radius:19px; background:linear-gradient(125deg,#172554,#294779); color:#fff; box-shadow:0 12px 28px rgba(23,37,84,.12); }
+.mu-notifications-hero .mu-kicker { color:#f5cf65; }
+.mu-notifications-hero h1 { margin:9px 0; font-size:clamp(27px,4vw,36px); font-weight:900; }
+.mu-notifications-hero p { max-width:620px; color:#dbeafe; line-height:1.7; }
+.mu-notifications-summary { display:inline-flex; margin-top:12px; padding:7px 11px; border:1px solid rgba(245,207,101,.4); border-radius:999px; color:#f5cf65; font-size:12px; font-weight:850; }
+.mu-notifications-list { display:grid; gap:13px; }
+.mu-notification-card { display:flex; gap:15px; padding:19px; border:1px solid #e2e8f0; border-radius:15px; background:#fff; box-shadow:0 5px 17px rgba(15,23,42,.045); }
+.mu-notification-card.unread { border-left:4px solid #d4a72c; background:#fffdf7; }
+.mu-notification-card.read { opacity:.82; }
+.mu-notification-icon { display:grid; place-items:center; flex:0 0 42px; width:42px; height:42px; border-radius:12px; background:#172554; color:#f5cf65; font-size:20px; }
+.mu-notification-content { min-width:0; flex:1; }
+.mu-notification-meta { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; color:#7b879b; font-size:10px; font-weight:850; letter-spacing:.5px; }
+.mu-notification-meta span { color:#a47718; }
+.mu-notification-content h2 { margin:8px 0; color:#172554; font-size:17px; font-weight:900; }
+.mu-notification-content p { margin:0 0 12px; color:#5d6b82; font-size:13px; line-height:1.75; white-space:pre-wrap; }
+.mu-notification-content button { min-height:35px; padding:7px 12px; border:1px solid #d8c17f; border-radius:8px; background:#fffaf0; color:#765a17; font-size:11px; font-weight:850; cursor:pointer; }
+.mu-notifications-empty { display:grid; justify-items:center; gap:9px; padding:42px 20px; border:1px dashed #d8e1ed; border-radius:15px; background:#fbfcff; color:#172554; text-align:center; }
+.mu-notifications-empty > span { color:#b58a2b; font-size:32px; }
+.mu-notifications-empty p { color:#71809a; font-size:13px; }
+.mu-notifications-error { padding:12px 14px; margin-bottom:14px; border:1px solid #fecaca; border-radius:10px; background:#fff1f2; color:#9f1239; font-size:12px; }
+@media(max-width:520px) { .mu-notification-card { gap:11px; padding:14px; } .mu-notification-icon { flex-basis:36px; width:36px; height:36px; } .mu-notification-meta { flex-direction:column; } }

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const type = req.nextUrl.searchParams.get("type");
     const year = req.nextUrl.searchParams.get("year");
     const db = getServiceSupabase();
-    let q = db.from("test_papers").select("id,title,description,test_type,subject_id,chapter,duration_minutes,total_questions,marks_per_question,negative_marking,status,created_at,is_previous_year,exam_year,exam_name,session_label,source_label").eq("status","published").order("created_at",{ascending:false});
+    let q = db.from("test_papers").select("id,title,description,test_type,subject_id,subject:subjects(name_en,name_hi),chapter,duration_minutes,total_questions,marks_per_question,negative_marking,status,created_at,is_previous_year,exam_year,exam_name,session_label,source_label,question_mode").eq("status","published").order("created_at",{ascending:false});
     if (type) q = q.eq("test_type", type);
     if (year) q = q.eq("exam_year", Number(year));
     const { data, error } = await q;

@@ -132,6 +132,7 @@ export default function TestManager() {
     }catch(e:any){setMessage(e.message||"Test save nahi hua.");}
     finally{setBusy(false);}
   }
+  const visibleTests=tests.filter(t=>managePreviousOnly?!!t.is_previous_year:!t.is_previous_year);
   async function updateStatus(id:string,next:string){
     if(!sb)return;
     const {error}=await sb.from("test_papers").update({status:next}).eq("id",id);
@@ -140,7 +141,8 @@ export default function TestManager() {
   if(!sb)return <section className="panel">Supabase configuration missing.</section>;
   return <div className="admin-tests-page">
     <section className="panel">
-      <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span><h1>Mock Test Builder</h1>\n      <div className="mu-admin-mode-switch"><button type="button" className={!managePreviousOnly?"active":""} onClick={()=>setManagePreviousOnly(false)}>Regular Mock Tests</button><button type="button" className={managePreviousOnly?"active":""} onClick={()=>{setManagePreviousOnly(true);setIsPreviousYear(true);setMode("manual");setType("full");}}>Previous Year Papers</button></div>
+      <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span><h1>Mock Test Builder</h1>
+      <div className="mu-admin-mode-switch"><button type="button" className={!managePreviousOnly?"active":""} onClick={()=>setManagePreviousOnly(false)}>Regular Mock Tests</button><button type="button" className={managePreviousOnly?"active":""} onClick={()=>{setManagePreviousOnly(true);setIsPreviousYear(true);setMode("manual");setType("full");}}>Previous Year Papers</button></div>
       <p>Daily / full mock tests ke saath year-wise Previous Year Question Papers bhi create aur publish karein.</p>
       <label className="mu-prev-toggle"><input type="checkbox" checked={isPreviousYear||managePreviousOnly} disabled={managePreviousOnly} onChange={e=>{setIsPreviousYear(e.target.checked);if(e.target.checked){setType("full");setMode("manual");}}}/> This is a Previous Year Paper</label>
       {isPreviousYear&&<div className="form-grid mu-prev-metadata">

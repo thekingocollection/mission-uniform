@@ -25,6 +25,7 @@ type ReviewItem = {
 export default function TakeTest({ id }: { id: string }) {
   const [test, setTest] = useState<any>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [attemptId, setAttemptId] = useState("");
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [marked, setMarked] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
@@ -104,13 +105,14 @@ export default function TakeTest({ id }: { id: string }) {
         throw new Error("Result save karne ke liye login karein.");
       }
 
+      if (!attemptId) throw new Error("Test attempt missing. Please restart the test.");
       const response = await fetch(`/api/tests/${id}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, attempt_id: attemptId }),
       });
 
       const data = await response.json();
@@ -126,6 +128,27 @@ export default function TakeTest({ id }: { id: string }) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function beginTest() {
+    if (saving) return;
+    setSaving(true);
+    setError("");
+    try {
+      const sb = supabaseBrowser();
+      if (!sb) throw new Error("Supabase connection unavailable.");
+      const sessionResult = await sb.auth.getSession();
+      const session = sessionResult.data.session;
+      if (!session) throw new Error("Mock test start karne ke liye login karein.");
+      const response = await fetch("/api/tests/" + id + "/start", { method: "POST", headers: { Authorization: "Bearer " + session.access_token } });
+      const raw = await response.text();
+      let data: any = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch { throw new Error("Server response invalid. Please retry."); }
+      if (!response.ok) throw new Error(data.error || "Test start nahi hua.");
+      setAttemptId(data.attempt_id); setTest(data.test); setQuestions(data.questions || []);
+      setSeconds(Number(data.test.duration_minutes || 30) * 60); setStarted(true);
+    } catch (e: any) { setError(e.message || "Test start nahi hua."); }
+    finally { setSaving(false); }
   }
 
   submitRef.current = submit;
@@ -175,7 +198,7 @@ export default function TakeTest({ id }: { id: string }) {
     return <section className="panel"><h2>Loading Mock Test...</h2></section>;
   }
 
-  if (!questions.length) {
+  if (started && !questions.length) {
     return (
       <section className="panel">
         <h2>No questions available</h2>
@@ -306,10 +329,10 @@ export default function TakeTest({ id }: { id: string }) {
           className="btn primary"
           onClick={() => {
             submittedRef.current = false;
-            setStarted(true);
+            void beginTest();
           }}
         >
-          Start Mock Test
+          {saving ? "Starting..." : "Start Mock Test"}
         </button>
       </section>
     );

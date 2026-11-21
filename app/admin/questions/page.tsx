@@ -278,7 +278,7 @@ export default function AdminQuestions() {
       );
 
       if (!records.length) throw new Error("No question rows found.");
-      if (records.length > 100) throw new Error("Maximum 100 questions per upload.");
+      if (records.length > 1000) throw new Error("Maximum 1,000 questions per upload.");
 
       const existingKeys = new Set(
         questions.map(q =>
@@ -407,7 +407,7 @@ export default function AdminQuestions() {
       <section className="panel">
         <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span>
         <h1>Question Bank V2</h1>
-        <p>Manage syllabus questions, verification, chapter mapping and Excel imports.</p>
+        <p>Upload up to 1,000 questions per subject. Verify them to automatically activate 30-question random subject mock tests.</p>
 
         {message && <div className="notice" role="status">{message}</div>}
 

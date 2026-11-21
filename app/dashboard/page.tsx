@@ -1,60 +1,19 @@
 "use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-
-const cards = [
-  ["📝", "Mock Tests", "Practice daily and full mock papers", "/tests"],
-  ["📢", "Job Alerts", "Recruitment updates and apply links", "/job-alerts"],
-  ["📄", "Previous Papers", "Prepare with previous exam papers", "/previous-papers"],
-  ["📈", "Performance", "View your score and accuracy", "/performance"],
-  ["🕘", "Test History", "Review your previous attempts", "/test-history"],
-  ["⭐", "Bookmarks", "Return to saved study items", "/bookmarks"],
-  ["👤", "My Profile", "Manage your student details", "/profile"],
-];
-
-export default function Dashboard() {
-  const [name,setName]=useState("Student");
-  const [signedIn,setSignedIn]=useState(false);
-  const [attempts,setAttempts]=useState(0);
-  useEffect(()=>{
-    let active=true;
-    (async()=>{
-      const sb=supabaseBrowser();
-      if(!sb)return;
-      const {data:{user}}=await sb.auth.getUser();
-      if(!active)return;
-      if(user){
-        setSignedIn(true);
-        const {data}=await sb.from("profiles").select("full_name").eq("id",user.id).maybeSingle();
-        if(active && data?.full_name)setName(data.full_name);
-        const {count}=await sb.from("test_attempts").select("id",{count:"exact",head:true}).eq("user_id",user.id);
-        if(active)setAttempts(count||0);
-      }
-    })();
-    return()=>{active=false};
-  },[]);
-  return <div className="mu-dashboard">
-    <section className="mu-dashboard-welcome">
-      <span className="mu-kicker">MISSION UNIFORM OP · STUDENT PORTAL</span>
-      <h1>Welcome back, {name}!</h1>
-      <p>Your preparation journey starts with one focused step today.</p>
-      <div className="mu-dashboard-stats">
-        <div><b>{signedIn?attempts:"—"}</b><span>Test attempts</span></div>
-        <div><b>{signedIn?"Active":"—"}</b><span>Account status</span></div>
-        <div><b>3</b><span>Study languages</span></div>
-      </div>
-    </section>
-    <section className="mu-dash-section">
-      <div className="mu-section-title"><div><span className="mu-kicker">YOUR WORKSPACE</span><h2>What would you like to do?</h2></div></div>
-      <div className="mu-feature-grid">
-        {cards.map(([icon,title,desc,href])=><Link className="mu-feature-card" href={href} key={href}>
-          <span className="mu-feature-icon blue">{icon}</span><span className="mu-feature-title">{title}</span>
-          <span className="mu-feature-desc">{desc}</span><span className="mu-feature-go">Open section <b>↗</b></span>
-        </Link>)}
-      </div>
-    </section>
-    <section className="mu-quick-strip"><div><span className="mu-kicker">DAILY PRACTICE</span><h2>Ready for today's mock test?</h2><p>Attempt a paper and analyse your answers afterwards.</p></div><Link className="mu-btn mu-btn-gold" href="/tests">Explore Mock Tests →</Link></section>
-  </div>
+import {useEffect,useState} from "react";
+import {supabaseBrowser} from "@/lib/supabase-browser";
+type SubjectTest={id:string;title:string;subject?:{name_en?:string|null;name_hi?:string|null}|null;total_questions:number;duration_minutes:number};
+const cards=[["📝","Mock Tests","Daily, full and practice mock papers","/tests"],["📢","Job Alerts","Recruitment updates and apply links","/job-alerts"],["📄","Previous Papers","Prepare with previous exam papers","/previous-papers"],["📈","Performance","View your score and accuracy","/performance"],["🕘","Test History","Review your previous attempts","/test-history"],["⭐","Bookmarks","Return to saved study items","/bookmarks"],["👤","My Profile","Manage your student details","/profile"]];
+export default function Dashboard(){
+ const [name,setName]=useState("Student"),[signedIn,setSignedIn]=useState(false),[attempts,setAttempts]=useState(0),[subjectTests,setSubjectTests]=useState<SubjectTest[]>([]),[subjectLoading,setSubjectLoading]=useState(true);
+ useEffect(()=>{let active=true;(async()=>{const sb=supabaseBrowser();if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!active)return;if(user){setSignedIn(true);const {data}=await sb.from("profiles").select("full_name").eq("id",user.id).maybeSingle();if(active&&data?.full_name)setName(data.full_name);const {count}=await sb.from("test_attempts").select("id",{count:"exact",head:true}).eq("user_id",user.id);if(active)setAttempts(count||0);}})();return()=>{active=false};},[]);
+ useEffect(()=>{let active=true;fetch("/api/tests?mode=subject_random").then(r=>r.json()).then(d=>{if(active)setSubjectTests(d.tests||[]);}).catch(()=>{}).finally(()=>{if(active)setSubjectLoading(false);});return()=>{active=false};},[]);
+ return <div className="mu-dashboard">
+ <section className="mu-dashboard-welcome"><span className="mu-kicker">MISSION UNIFORM OP · STUDENT PORTAL</span><h1>Welcome back, {name}!</h1><p>Your preparation journey starts with one focused step today.</p><div className="mu-dashboard-stats"><div><b>{signedIn?attempts:"—"}</b><span>Test attempts</span></div><div><b>{signedIn?"Active":"—"}</b><span>Account status</span></div><div><b>3</b><span>Study languages</span></div></div></section>
+ <section className="mu-subject-practice" id="subject-practice"><div className="mu-subject-practice-heading"><div><span className="mu-kicker">PRACTICE ANYTIME · RANDOM QUESTIONS</span><h2>Subject-wise Mock Tests</h2><p>Choose a subject. Every attempt gives you a fresh set of 30 random questions from its verified question bank.</p></div><span className="mu-subject-practice-mark">30<br/><small>QUESTIONS</small></span></div>
+ {subjectLoading&&<div className="mu-subject-practice-empty">Loading available subjects…</div>}
+ {!subjectLoading&&subjectTests.length===0&&<div className="mu-subject-practice-empty"><b>Subject tests are being prepared.</b><span>Admin will publish a subject test after at least 30 questions are verified for that subject.</span></div>}
+ {!subjectLoading&&subjectTests.length>0&&<div className="mu-subject-practice-grid">{subjectTests.map(t=><article className="mu-subject-practice-card" key={t.id}><span className="mu-subject-practice-icon">📚</span><div className="mu-subject-practice-card-copy"><span>SUBJECT PRACTICE</span><h3>{t.subject?.name_en||t.subject?.name_hi||t.title.replace(/\s*[·-]\s*Random Mock Test$/i,"")}</h3><p>Random question set on every attempt</p></div><div className="mu-subject-practice-meta"><span><b>{t.total_questions}</b> Questions</span><span><b>{t.duration_minutes} min</b> Time</span></div><Link href={"/tests/paper/"+t.id} className="mu-subject-practice-start">Start Mock Test <b>→</b></Link></article>)}</div>}</section>
+ <section className="mu-dash-section"><div className="mu-section-title"><div><span className="mu-kicker">YOUR WORKSPACE</span><h2>What would you like to do?</h2></div></div><div className="mu-feature-grid">{cards.map(([icon,title,desc,href])=><Link className="mu-feature-card" href={href} key={href}><span className="mu-feature-icon blue">{icon}</span><span className="mu-feature-title">{title}</span><span className="mu-feature-desc">{desc}</span><span className="mu-feature-go">Open section <b>↗</b></span></Link>)}</div></section>
+ <section className="mu-quick-strip"><div><span className="mu-kicker">DAILY PRACTICE</span><h2>Ready for today's mock test?</h2><p>Attempt a paper and analyse your answers afterwards.</p></div><Link className="mu-btn mu-btn-gold" href="/tests">Explore Mock Tests →</Link></section></div>;
 }

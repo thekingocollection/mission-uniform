@@ -3915,3 +3915,29 @@ button:disabled { opacity:.55; cursor:not-allowed; }
  .admin-content .personal-ads-admin header,.admin-content .personal-ads-form,.admin-content .personal-ads-list { padding:16px 13px; }
  .admin-content .personal-ads-list article { align-items:stretch; }
 }
+
+
+/* Previous Year Questions archive and admin builder */
+.mu-previous-intro { margin:18px 0 22px; padding:clamp(18px,3vw,28px); }
+.mu-previous-intro h2 { margin:8px 0; color:#17264d; }
+.mu-previous-intro p { color:#67758e; line-height:1.7; }
+.mu-previous-filter { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:18px; }
+.mu-previous-filter label { color:#344766; font-weight:800; font-size:13px; }
+.mu-previous-filter select { min-width:160px; min-height:42px; padding:9px 12px; border:1px solid #d8e1ed; border-radius:10px; background:#fbfcff; color:#1b2b4c; }
+.mu-previous-empty { display:grid; justify-items:start; gap:9px; padding:25px; }
+.mu-previous-empty p { color:#71809a; }
+.mu-previous-grid { margin:18px 0 32px; }
+.mu-previous-meta { color:#996f19 !important; font-weight:850; }
+.mu-paper-source { display:block; margin-top:7px; color:#6b7890; }
+.mu-prev-toggle { display:flex !important; align-items:center; gap:10px; margin:17px 0; padding:13px 15px; border:1px solid #dfc77f; border-radius:11px; background:#fffaf0; color:#654d18 !important; font-weight:850 !important; }
+.mu-prev-toggle input { width:18px; height:18px; accent-color:#9d761c; }
+.mu-prev-metadata { padding:16px; border:1px solid #eadbb3; border-radius:13px; background:#fffdf7; }
+.mu-admin-mode-switch { display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 18px; padding:5px; width:max-content; max-width:100%; border:1px solid #e3e8f0; border-radius:12px; background:#f4f6fa; }
+.mu-admin-mode-switch button { min-height:38px; padding:8px 13px; border:0; border-radius:8px; background:transparent; color:#5e6d84; font-size:12px; font-weight:850; cursor:pointer; }
+.mu-admin-mode-switch button.active { background:#182b55; color:#fff; box-shadow:0 3px 10px rgba(24,43,85,.16); }
+@media(max-width:520px) {
+ .mu-admin-mode-switch { display:grid; grid-template-columns:1fr 1fr; width:100%; }
+ .mu-admin-mode-switch button { padding:8px 7px; font-size:11px; }
+ .mu-previous-filter { align-items:stretch; flex-direction:column; }
+ .mu-previous-filter select { width:100%; }
+}

@@ -36,7 +36,7 @@ jobs:
           fi
           case "$APP_URL" in https://*) ;; *) echo "::error::CAPACITOR_SERVER_URL must use HTTPS."; exit 1;; esac
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
       - name: Install Android SDK
         uses: android-actions/setup-android@v3
       - name: Generate Capacitor Android project
@@ -48,9 +48,42 @@ jobs:
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug
-      - name: Upload APK
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: mission-uniform-op-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - name: Prepare release signing key
+        id: signing
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Signing secrets are not configured; skipping Play Store AAB."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mission-uniform-upload.jks"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - name: Build signed Play Store AAB
+        if: steps.signing.outputs.ready == 'true'
+        env:
+          CAPACITOR_SERVER_URL: ${{ secrets.CAPACITOR_SERVER_URL }}
+          KEYSTORE_PATH: ${{ runner.temp }}/mission-uniform-upload.jks
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          npx cap build android --androidreleasetype AAB --keystorepath "$KEYSTORE_PATH" --keystorepass "$KEYSTORE_PASSWORD" --keystorealias "$KEY_ALIAS" --keystorealiaspass "$KEY_PASSWORD"
+      - name: Upload Play Store AAB
+        if: steps.signing.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mission-uniform-op-play-store-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error

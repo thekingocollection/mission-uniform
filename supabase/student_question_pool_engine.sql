@@ -60,22 +60,6 @@ create table if not exists public.student_pool_seen (
 create index if not exists pool_questions_pool_idx on public.pool_questions(pool_id);
 create index if not exists student_pool_seen_idx on public.student_pool_seen(user_id,pool_id,cycle_number);
 
-create or replace function public.refresh_pool_count()
-returns trigger language plpgsql security definer set search_path=public as $$
-begin
-  if tg_op='INSERT' then
-    update question_pools set total_questions=total_questions+1 where id=new.pool_id;
-    return new;
-  elsif tg_op='DELETE' then
-    update question_pools set total_questions=greatest(0,total_questions-1) where id=old.pool_id;
-    return old;
-  end if;
-  return new;
-end $$;
-drop trigger if exists trg_refresh_pool_count on public.pool_questions;
-create trigger trg_refresh_pool_count after insert or delete on public.pool_questions
-for each row execute function public.refresh_pool_count();
-
 -- Called only by the server using service-role credentials. Selects unseen questions
 -- for this student. If fewer than requested remain, starts a fresh cycle (reshuffle).
 create or replace function public.pick_student_pool_questions(

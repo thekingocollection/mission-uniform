@@ -1,0 +1,56 @@
+name: Android app build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [android-native-app]
+    paths:
+      - 'capacitor.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'mobile-web/**'
+      - '.github/workflows/android-build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Require production website URL
+        shell: bash
+        env:
+          APP_URL: ${{ secrets.CAPACITOR_SERVER_URL }}
+        run: |
+          if [ -z "$APP_URL" ]; then
+            echo "::error::Add the CAPACITOR_SERVER_URL repository secret with your real HTTPS production website URL."
+            exit 1
+          fi
+          case "$APP_URL" in https://*) ;; *) echo "::error::CAPACITOR_SERVER_URL must use HTTPS."; exit 1;; esac
+      - name: Install dependencies
+        run: npm install
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Generate Capacitor Android project
+        env:
+          CAPACITOR_SERVER_URL: ${{ secrets.CAPACITOR_SERVER_URL }}
+        run: |
+          npx cap add android
+          npx cap sync android
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: mission-uniform-op-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

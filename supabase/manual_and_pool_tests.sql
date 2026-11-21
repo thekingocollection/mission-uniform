@@ -38,6 +38,10 @@ create table if not exists public.pool_questions (
   unique(pool_id, source_row)
 );
 
+do $ begin
+  alter table public.test_papers add constraint test_papers_pool_id_fkey foreign key(pool_id) references public.question_pools(id) on delete set null;
+exception when duplicate_object then null; end $;
+
 alter table public.test_papers
   add constraint test_papers_pool_id_fkey
   foreign key(pool_id) references public.question_pools(id) on delete set null;

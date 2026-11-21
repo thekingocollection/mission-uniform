@@ -97,10 +97,12 @@ drop policy if exists pool_questions_admin_all on public.pool_questions;
 create policy pool_questions_admin_all on public.pool_questions
 for all to authenticated using(public.is_super_admin()) with check(public.is_super_admin());
 
+drop policy if exists student_pool_seen_owner_read on public.student_pool_seen;
+create policy student_pool_seen_owner_read on public.student_pool_seen
 for select to authenticated using(user_id=auth.uid() or public.is_super_admin());
 
 grant select,insert,update,delete on public.question_pools,public.pool_questions to authenticated;
-
+grant select on public.student_pool_seen to authenticated;
 commit;
 
 -- Questions from a pool are copied into each attempt snapshot at start.

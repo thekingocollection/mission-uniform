@@ -42,21 +42,6 @@ do $$ begin
   alter table public.test_papers add constraint test_papers_pool_id_fkey foreign key(pool_id) references public.question_pools(id) on delete set null;
 exception when duplicate_object then null; end $$;
 
-create table if not exists public.test_attempt_questions (
-  id uuid primary key default gen_random_uuid(),
-  attempt_id uuid not null references public.test_attempts(id) on delete cascade,
-  question_source text not null check(question_source in ('bank','manual','pool')),
-  question_id uuid,
-  pool_question_id uuid references public.pool_questions(id) on delete restrict,
-  sort_order integer not null,
-  question_snapshot jsonb not null,
-  unique(attempt_id,sort_order),
-  check (
-    (question_source='pool' and pool_question_id is not null and question_id is null)
-    or (question_source in ('bank','manual') and question_id is not null and pool_question_id is null)
-  )
-);
-
 create table if not exists public.student_pool_seen (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,

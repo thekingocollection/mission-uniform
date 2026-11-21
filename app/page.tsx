@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const studyLinks = [
-  { icon: "📝", title: "Mock Tests", desc: "Exam-style practice se apni taiyari parakhiye", href: "/tests", tone: "gold" },
-  { icon: "📚", title: "Complete Syllabus", desc: "Har subject aur chapter ko step-by-step padhiye", href: "/syllabus", tone: "blue" },
-  { icon: "🔔", title: "Latest Job Alerts", desc: "Nayi recruitment aur vacancy updates dekhiye", href: "/job-alerts", tone: "green" },
-  { icon: "📄", title: "Previous Papers", desc: "Pichhle exam papers se pattern samajhiye", href: "/previous-papers", tone: "violet" },
-  { icon: "📊", title: "Your Performance", desc: "Apne marks aur preparation progress dekhiye", href: "/performance", tone: "blue" },
-  { icon: "👤", title: "Student Profile", desc: "Apna account aur learning journey sambhaliye", href: "/profile", tone: "gold" },
+  { icon: "🎯", title: "Mock Tests", desc: "Practice with exam-style questions and build your confidence.", href: "/tests", tone: "gold", code: "01" },
+  { icon: "🧭", title: "Complete Syllabus", desc: "Explore every subject and chapter with a clear study path.", href: "/syllabus", tone: "olive", code: "02" },
+  { icon: "📡", title: "Latest Job Alerts", desc: "Stay informed about recruitment notices and vacancies.", href: "/job-alerts", tone: "steel", code: "03" },
+  { icon: "📁", title: "Previous Papers", desc: "Understand the exam pattern with previous year papers.", href: "/previous-papers", tone: "sand", code: "04" },
+  { icon: "📈", title: "Your Performance", desc: "Review your scores and track your preparation progress.", href: "/performance", tone: "steel", code: "05" },
+  { icon: "🪪", title: "Student Profile", desc: "Manage your account and keep your learning journey on track.", href: "/profile", tone: "olive", code: "06" },
 ];
 
 export default function HomePage() {
@@ -29,11 +29,8 @@ export default function HomePage() {
 
     sb.auth.getUser().then(({ data }) => {
       if (!active) return;
-      if (data.user) {
-        router.replace("/dashboard");
-      } else {
-        setCheckingAuth(false);
-      }
+      if (data.user) router.replace("/dashboard");
+      else setCheckingAuth(false);
     });
 
     const { data: listener } = sb.auth.onAuthStateChange((_event, session) => {
@@ -60,50 +57,73 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mu-home">
-      <section className="mu-hero">
-        <div className="mu-hero-copy">
-          <span className="mu-kicker">ODISHA POLICE · GOVERNMENT EXAM PREPARATION</span>
-          <h1>Your Dream.<br /><em>Your Uniform.</em><br />Your Mission.</h1>
-          <p className="mu-hero-lead">Sapna sirf naukri paane ka nahi — khaki vardi pehenkar desh aur samaj ki seva karne ka hai. Aapki taiyari ka safar yahin se shuru hota hai.</p>
-          <div className="mu-hero-actions">
-            <Link className="mu-btn mu-btn-gold" href="/signup">Start Your Preparation <span>→</span></Link>
-            <Link className="mu-btn mu-btn-light" href="/login">Already a Student? Login</Link>
+    <main className="mu-home mu-home--defence">
+      <section className="mu-defence-hero">
+        <div className="mu-defence-gridlines" aria-hidden="true" />
+        <div className="mu-defence-copy">
+          <div className="mu-defence-overline"><span className="mu-live-dot" /> ODISHA POLICE · EXAM PREPARATION COMMAND</div>
+          <div className="mu-defence-classification">CADET TRAINING PORTAL <span> / </span> EST. FOR YOUR SUCCESS</div>
+          <h1>THE CALL TO<br /><em>WEAR THE UNIFORM.</em></h1>
+          <p className="mu-defence-lead">Khaki sirf ek vardi nahi, zimmedari aur seva ka sankalp hai. Discipline ke saath taiyari shuru kijiye — aapka mission aaj se shuru hota hai.</p>
+          <div className="mu-defence-actions">
+            <Link className="mu-defence-btn mu-defence-btn-primary" href="/signup">ENLIST / REGISTER <span>↗</span></Link>
+            <Link className="mu-defence-btn mu-defence-btn-outline" href="/login">CADET LOGIN <span>→</span></Link>
           </div>
-          <div className="mu-hero-note"><span>✓ Free student registration</span><span>✓ Practice anytime</span><span>✓ Track your progress</span></div>
+          <div className="mu-defence-assurances">
+            <span><b>✓</b> FREE STUDENT ACCESS</span>
+            <span><b>✓</b> PRACTICE ANYTIME</span>
+            <span><b>✓</b> TRACK YOUR PROGRESS</span>
+          </div>
         </div>
-        <div className="mu-hero-emblem" aria-hidden="true">
-          <div className="mu-emblem-ring"><span>MISSION</span><b>MU</b><span>UNIFORM OP</span></div>
-          <small>DISCIPLINE · DEDICATION · SUCCESS</small>
+        <div className="mu-defence-visual" aria-label="MISSION UNIFORM OP three dimensional shield emblem">
+          <div className="mu-defence-orbit mu-orbit-one" />
+          <div className="mu-defence-orbit mu-orbit-two" />
+          <div className="mu-defence-crosshair mu-crosshair-a" />
+          <div className="mu-defence-crosshair mu-crosshair-b" />
+          <div className="mu-defence-shield-wrap">
+            <div className="mu-defence-shield-shadow" />
+            <div className="mu-defence-shield">
+              <div className="mu-defence-shield-inner">
+                <span className="mu-shield-top">MISSION</span>
+                <b>MU</b>
+                <span className="mu-shield-star">★</span>
+                <span className="mu-shield-bottom">UNIFORM OP</span>
+              </div>
+            </div>
+          </div>
+          <div className="mu-defence-visual-caption"><span>DISCIPLINE</span><i /> <span>COURAGE</span><i /> <span>SERVICE</span></div>
+          <span className="mu-defence-coordinate mu-coord-top">OD / 20.29° N</span>
+          <span className="mu-defence-coordinate mu-coord-bottom">MISSION STATUS: ACTIVE</span>
+        </div>
+        <div className="mu-defence-hero-foot"><span>01 — PREPARE</span><span>02 — PRACTICE</span><span>03 — PERSEVERE</span><span className="mu-defence-foot-right">YOUR MISSION STARTS HERE</span></div>
+      </section>
+
+      <section className="mu-defence-motto">
+        <div className="mu-defence-motto-mark">“</div>
+        <div><span className="mu-defence-section-tag">THE CADET CODE</span><h2>Discipline today. Pride in uniform tomorrow.</h2><p>Har din ka ek focused step aapko apne lakshya ke kareeb le jaata hai.</p></div>
+        <div className="mu-defence-motto-seal">SERVICE<br /><b>★</b><br />HONOUR</div>
+      </section>
+
+      <section className="mu-defence-briefing">
+        <div className="mu-defence-section-head">
+          <div><span className="mu-defence-section-tag">MISSION CONTROL / 01</span><h2>Your preparation command center</h2><p>Choose your next training module and keep moving forward.</p></div>
+          <div className="mu-defence-live-count"><span className="mu-live-dot" /><b>{published}</b><small>LIVE MOCK TESTS</small></div>
+        </div>
+        <div className="mu-defence-modules">
+          {studyLinks.map(item => <Link className="mu-defence-module" href={item.href} key={item.href}>
+            <div className="mu-defence-module-top"><span className={"mu-defence-module-icon " + item.tone}>{item.icon}</span><span className="mu-defence-module-code">MODULE / {item.code}</span></div>
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+            <div className="mu-defence-module-bottom"><span>OPEN MODULE</span><b>↗</b></div>
+          </Link>)}
         </div>
       </section>
 
-      <section className="mu-motivation-banner">
-        <span className="mu-motivation-top">EK LAKSHYA · EK JUNOON</span>
-        <h2>Ek din vardi aapki hogi!</h2>
-        <p>Aaj ki mehnat, kal ki pehchaan. Har din thoda padhiye, har test se kuch naya seekhiye aur apne sapne ki taraf badhte rahiye.</p>
-        <Link className="mu-btn mu-btn-gold" href="/signup">Aaj hi shuruaat karein →</Link>
+      <section className="mu-defence-final">
+        <div><span className="mu-defence-section-tag">YOUR DUTY BEGINS WITH PREPARATION</span><h2>One goal. One uniform. One mission.</h2><p>Create your free student account and begin your preparation journey today.</p></div>
+        <Link className="mu-defence-btn mu-defence-btn-primary" href="/signup">BEGIN YOUR MISSION <span>→</span></Link>
       </section>
-
-      <section className="mu-welcome-row">
-        <div><span className="mu-kicker">YOUR PREPARATION HUB</span><h2>Selection ki taiyari, ek hi platform par</h2><p>Chhote daily goals banaiye, regular practice kijiye aur apni performance behtar banaiye.</p></div>
-        <div className="mu-live-count"><b>{published}</b><span>Published mock tests</span></div>
-      </section>
-
-      <section className="mu-feature-grid">
-        {studyLinks.map(item => <Link className="mu-feature-card" href={item.href} key={item.href}>
-          <span className={"mu-feature-icon " + item.tone}>{item.icon}</span>
-          <span className="mu-feature-title">{item.title}</span>
-          <span className="mu-feature-desc">{item.desc}</span>
-          <span className="mu-feature-go">Explore now <b>↗</b></span>
-        </Link>)}
-      </section>
-
-      <section className="mu-quick-strip">
-        <div><span className="mu-kicker">YOUR JOURNEY STARTS TODAY</span><h2>Rukiye mat. Roz seekhiye. Aage badhiye.</h2><p>Free student account banakar apne test attempts save karein, answers review karein aur apni progress dekhein.</p></div>
-        <Link className="mu-btn mu-btn-gold" href="/signup">Create Free Account →</Link>
-      </section>
-      <p className="mu-home-signoff">MISSION UNIFORM OP <span>·</span> Your Dream. Your Uniform. Your Mission.</p>
-    </div>
+      <footer className="mu-defence-footer"><span>MISSION UNIFORM OP</span><i /> <span>YOUR DREAM. YOUR UNIFORM. YOUR MISSION.</span></footer>
+    </main>
   );
 }

@@ -16,6 +16,7 @@ export default function TestManager() {
   const [title,setTitle]=useState("");
   const [type,setType]=useState("daily");
   const [isPreviousYear,setIsPreviousYear]=useState(false);
+  const [managePreviousOnly,setManagePreviousOnly]=useState(false);
   const [examYear,setExamYear]=useState(new Date().getFullYear()-1);
   const [examName,setExamName]=useState("Odisha Police Constable");
   const [sessionLabel,setSessionLabel]=useState("");
@@ -48,8 +49,8 @@ export default function TestManager() {
     setSubjects(s.data||[]);setBankQuestions(q.data||[]);setPools(p.data||[]);
   }
   useEffect(()=>{void load()},[sb]);
-  const chapters=[...new Set(bankQuestions.filter(q=>!subject||true).map(q=>q.chapter).filter(Boolean))] as string[];
-  const visibleBank=bankQuestions.filter(q=>(!subject||true)&&(!chapter||q.chapter===chapter)&&(!search||String(q.question_hi||q.question_en||q.question_or).toLowerCase().includes(search.toLowerCase())));
+  const chapters=[...new Set(bankQuestions.map(q=>q.chapter).filter(Boolean))] as string[];
+  const visibleBank=bankQuestions.filter(q=>(!chapter||q.chapter===chapter)&&(!search||String(q.question_hi||q.question_en||q.question_or).toLowerCase().includes(search.toLowerCase())));
 
   function normalizeSheet(rows:any[]) {
     return rows.map((r,i)=>{
@@ -139,9 +140,9 @@ export default function TestManager() {
   if(!sb)return <section className="panel">Supabase configuration missing.</section>;
   return <div className="admin-tests-page">
     <section className="panel">
-      <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span><h1>Mock Test Builder</h1>
+      <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span><h1>Mock Test Builder</h1>\n      <div className="mu-admin-mode-switch"><button type="button" className={!managePreviousOnly?"active":""} onClick={()=>setManagePreviousOnly(false)}>Regular Mock Tests</button><button type="button" className={managePreviousOnly?"active":""} onClick={()=>{setManagePreviousOnly(true);setIsPreviousYear(true);setMode("manual");setType("full");}}>Previous Year Papers</button></div>
       <p>Daily / full mock tests ke saath year-wise Previous Year Question Papers bhi create aur publish karein.</p>
-      <label className="mu-prev-toggle"><input type="checkbox" checked={isPreviousYear} onChange={e=>{setIsPreviousYear(e.target.checked);if(e.target.checked){setType("full");setMode("manual");}}}/> This is a Previous Year Paper</label>
+      <label className="mu-prev-toggle"><input type="checkbox" checked={isPreviousYear||managePreviousOnly} disabled={managePreviousOnly} onChange={e=>{setIsPreviousYear(e.target.checked);if(e.target.checked){setType("full");setMode("manual");}}}/> This is a Previous Year Paper</label>
       {isPreviousYear&&<div className="form-grid mu-prev-metadata">
         <label>Exam year<input className="input" type="number" min="2000" max="2100" value={examYear} onChange={e=>setExamYear(+e.target.value)}/></label>
         <label>Exam name<input className="input" value={examName} onChange={e=>setExamName(e.target.value)} placeholder="Odisha Police Constable"/></label>
@@ -178,7 +179,7 @@ export default function TestManager() {
       <button className="btn primary" disabled={busy} onClick={()=>void save()}>{busy?"Saving...":"Save Test Paper"}</button>
       {message&&<p className="bulk-message" role="status">{message}</p>}
     </section>
-    <section className="panel"><h2>Existing Test Papers</h2>{tests.length===0?<p>No tests yet.</p>:tests.map(t=><article className="review-item" key={t.id}>
+    <section className="panel"><h2>{managePreviousOnly?"Previous Year Papers":"Existing Regular Test Papers"}</h2>{visibleTests.length===0?<p>No papers yet.</p>:visibleTests.map(t=><article className="review-item" key={t.id}>
       <b>{t.is_previous_year?"Previous Year · "+(t.exam_name||"Exam")+" · "+(t.exam_year||"Year"):t.title}</b><p>{t.title} · {t.test_type} · {t.question_mode||"legacy"} · {t.duration_minutes} min · {t.total_questions} questions · {t.status}</p>
       <div className="result-actions">{t.status!=="published"&&<button className="btn primary" onClick={()=>void updateStatus(t.id,"published")}>Publish</button>}
       {t.status!=="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"archived")}>Archive</button>}

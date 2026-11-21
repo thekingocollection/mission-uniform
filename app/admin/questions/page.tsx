@@ -46,7 +46,7 @@ export default function AdminQuestions() {
 
   const [subjectFilter, setSubjectFilter] = useState("");
   const [chapterFilter, setChapterFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("pending");
   const [search, setSearch] = useState("");
 
   const [file, setFile] = useState<File | null>(null);
@@ -210,6 +210,19 @@ export default function AdminQuestions() {
       setSelected([]);
     }
 
+    setBusy(false);
+  }
+
+  async function verifyOne(q: Question) {
+    if (!supabase || q.verified) return;
+    setBusy(true);
+    const { error } = await supabase.from("questions").update({ verified: true }).eq("id", q.id);
+    if (error) {
+      setMessage("Verification failed: " + error.message);
+    } else {
+      setQuestions(old => old.map(item => item.id === q.id ? { ...item, verified: true } : item));
+      setMessage("Question verified successfully.");
+    }
     setBusy(false);
   }
 
@@ -408,182 +421,113 @@ export default function AdminQuestions() {
   }
 
   return (
-    <main className="content-wrap">
-      <section className="panel">
-        <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span>
-        <h1>Question Bank V2</h1>
-        <p>Upload up to 1,000 questions per subject. Verify them to automatically activate 30-question random subject mock tests.</p>
-
-        {message && <div className="notice" role="status">{message}</div>}
-
-        <div className="bulk-summary">
-          <span>Total loaded: <b>{questions.length}</b></span>
-          <span>Verified: <b>{verifiedCount}</b></span>
-          <span>Pending: <b>{pendingCount}</b></span>
+    <main className="admin-qb">
+      <section className="admin-qb-hero">
+        <div>
+          <span className="admin-qb-kicker">MISSION UNIFORM OP · CONTENT CONTROL</span>
+          <h1>Question Bank</h1>
+          <p>Har subject ka question bank alag manage karein. Pending questions review karein aur verified questions ko mock tests ke liye ready rakhein.</p>
+          <div className="admin-qb-hero-actions">
+            <button className="admin-qb-gold-btn" onClick={downloadTemplate}>↓ Download Excel Template</button>
+            <a className="admin-qb-ghost-btn" href="#qb-import">＋ Bulk Import</a>
+          </div>
         </div>
-
-        <h2>Question Filters</h2>
-        <div className="bulk-template-actions">
-          <label>
-            Subject
-            <select value={subjectFilter} onChange={e => {
-              setSubjectFilter(e.target.value);
-              setChapterFilter("");
-            }}>
-              <option value="">All Subjects</option>
-              {subjects.map(s => (
-                <option key={s.id} value={s.id}>{s.name_en}</option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Chapter
-            <select value={chapterFilter} onChange={e => setChapterFilter(e.target.value)}>
-              <option value="">All Chapters</option>
-              {availableChapters.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Verification
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-              <option value="all">All Questions</option>
-              <option value="verified">Verified</option>
-              <option value="pending">Pending Verification</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </label>
-
-          <label>
-            Search
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search questions..."
-            />
-          </label>
-        </div>
-
-        <div className="bulk-template-actions">
-          <button className="btn secondary" onClick={selectVisible}>
-            Select / Deselect Visible ({filteredQuestions.length})
-          </button>
-          <button className="btn primary" disabled={busy || !selected.length}
-            onClick={() => void bulkVerify(true)}>
-            Verify Selected ({selected.length})
-          </button>
-          <button className="btn secondary" disabled={busy || !selected.length}
-            onClick={() => void bulkVerify(false)}>
-            Unverify Selected
-          </button>
-          <button className="btn secondary" onClick={() => setSelected([])}>
-            Clear Selection
-          </button>
-        </div>
-
-        <div className="bulk-table-wrap">
-          <table className="bulk-table">
-            <thead>
-              <tr>
-                <th>Select</th>
-                <th>Question</th>
-                <th>Chapter</th>
-                <th>Difficulty</th>
-                <th>Verification</th>
-                <th>Active</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredQuestions.map(q => (
-                <tr key={q.id}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selected.includes(q.id)}
-                      onChange={() => toggleSelected(q.id)}
-                    />
-                  </td>
-                  <td>{q.question_hi || q.question_en || q.question_or || "—"}</td>
-                  <td>{q.chapter || "—"}</td>
-                  <td>{q.difficulty || "—"}</td>
-                  <td>{q.verified ? "Verified" : "Pending"}</td>
-                  <td>{q.is_active ? "Active" : "Inactive"}</td>
-                  <td>
-                    <button className="btn secondary" onClick={() => void toggleActive(q)}>
-                      {q.is_active ? "Unpublish" : "Publish"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {!filteredQuestions.length && (
-                <tr><td colSpan={7}>No questions found.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <p className="muted">Latest 500 questions are loaded. Verification is manual and applies only to selected records.</p>
+        <div className="admin-qb-crest"><span>✦</span><b>MU</b><small>QUESTION BANK</small></div>
       </section>
 
-      <section className="panel">
-        <h2>Bulk Excel Import</h2>
-        <p>Upload Excel/CSV using subject name and exact chapter name. New questions are always imported as unverified.</p>
+      {message && <div className="admin-qb-notice" role="status">{message}</div>}
 
-        <button className="btn secondary" onClick={downloadTemplate}>
-          Download Excel Template
-        </button>
+      <section className="admin-qb-overview">
+        <div className="admin-qb-metric"><span>▤</span><small>Loaded Questions</small><b>{questions.length}</b></div>
+        <div className="admin-qb-metric is-verified"><span>✓</span><small>Verified</small><b>{verifiedCount}</b></div>
+        <div className="admin-qb-metric is-pending"><span>◷</span><small>Unverified</small><b>{pendingCount}</b></div>
+        <div className="admin-qb-metric"><span>▣</span><small>Subjects</small><b>{subjects.length}</b></div>
+      </section>
 
-        <label>
-          Choose Excel or CSV
-          <input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} />
-        </label>
+      <section className="admin-qb-section">
+        <div className="admin-qb-section-head">
+          <div><span className="admin-qb-kicker-dark">01 · SUBJECT LIBRARY</span><h2>Choose a Subject Bank</h2><p>Subject select karte hi usi subject ke questions aur chapters dikhaye jayenge.</p></div>
+          <button className="admin-qb-reset" onClick={() => { setSubjectFilter(""); setChapterFilter(""); setSearch(""); setSelected([]); }}>Reset Filters</button>
+        </div>
+        <div className="admin-qb-subject-grid">
+          <button type="button" className={`admin-qb-subject-card ${!subjectFilter ? "active" : ""}`} onClick={() => { setSubjectFilter(""); setChapterFilter(""); setSelected([]); }}>
+            <span className="admin-qb-subject-icon">▦</span><b>All Subjects</b><small>Combined question library</small><strong>{questions.length} loaded</strong>
+          </button>
+          {subjects.map((s, index) => {
+            const bank = questions.filter(q => q.subject_id === s.id);
+            const isActive = bank.filter(q => q.is_active).length;
+            return <button type="button" key={s.id} className={`admin-qb-subject-card ${subjectFilter === s.id ? "active" : ""}`} onClick={() => { setSubjectFilter(s.id); setChapterFilter(""); setSelected([]); }}>
+              <span className="admin-qb-subject-icon">{["◈","▤","✥","⌘","◎","◇"][index % 6]}</span>
+              <b>{s.name_en}</b>
+              {s.name_hi && <small>{s.name_hi}</small>}
+              <strong>{bank.length} questions · {isActive} active</strong>
+            </button>;
+          })}
+        </div>
+      </section>
 
-        {file && <p>Selected: {file.name}</p>}
+      <section className="admin-qb-section admin-qb-library">
+        <div className="admin-qb-section-head">
+          <div><span className="admin-qb-kicker-dark">02 · QUESTION REVIEW</span><h2>{subjects.find(s => s.id === subjectFilter)?.name_en || "All Subjects"} Bank</h2><p>Verified aur unverified questions alag-alag tabs mein manage karein.</p></div>
+        </div>
+        <div className="admin-qb-tabs">
+          <button className={statusFilter === "pending" ? "active pending" : ""} onClick={() => { setStatusFilter("pending"); setSelected([]); }}>
+            <span>◷</span><b>Unverified Questions</b><em>{subjectFilter ? questions.filter(q => q.subject_id === subjectFilter && !q.verified).length : pendingCount}</em>
+          </button>
+          <button className={statusFilter === "verified" ? "active verified" : ""} onClick={() => { setStatusFilter("verified"); setSelected([]); }}>
+            <span>✓</span><b>Verified Questions</b><em>{subjectFilter ? questions.filter(q => q.subject_id === subjectFilter && q.verified).length : verifiedCount}</em>
+          </button>
+        </div>
 
-        {preview.length > 0 && (
-          <>
-            <p>
-              Valid: {preview.filter(r => r.payload).length} |
-              Errors: {preview.filter(r => r.errors.length).length}
-            </p>
+        <div className="admin-qb-filters">
+          <label>Chapter<select value={chapterFilter} onChange={e => setChapterFilter(e.target.value)}><option value="">All Chapters</option>{availableChapters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+          <label>Search<input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search Hindi, Odia or English question..." /></label>
+          <label>Question status<select value={statusFilter === "verified" ? "verified" : statusFilter === "pending" ? "pending" : "all"} onChange={e => { setStatusFilter(e.target.value); setSelected([]); }}><option value="pending">Unverified only</option><option value="verified">Verified only</option><option value="all">All statuses</option></select></label>
+        </div>
 
-            <div className="bulk-table-wrap">
-              <table className="bulk-table">
-                <thead>
-                  <tr><th>Row</th><th>Subject</th><th>Chapter</th><th>Question</th><th>Validation</th></tr>
-                </thead>
-                <tbody>
-                  {preview.map(r => (
-                    <tr key={r.row}>
-                      <td>{r.row}</td>
-                      <td>{r.subject}</td>
-                      <td>{r.chapter}</td>
-                      <td>{r.question}</td>
-                      <td>{r.errors.length ? r.errors.join(" ") : "Ready"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <div className="admin-qb-toolbar">
+          <span><b>{filteredQuestions.length}</b> questions shown · {selected.length} selected</span>
+          <div>
+            <button className="admin-qb-light-btn" onClick={selectVisible}>Select Visible</button>
+            {statusFilter !== "verified" && <button className="admin-qb-verify-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(true)}>✓ Verify Selected</button>}
+            {statusFilter !== "pending" && <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(false)}>Move to Unverified</button>}
+            <button className="admin-qb-reset" onClick={() => setSelected([])}>Clear</button>
+          </div>
+        </div>
 
-            <button className="btn primary"
-              disabled={busy || !preview.some(r => r.payload)}
-              onClick={() => void importExcel()}>
-              {busy ? "Importing..." : "Import Valid Questions"}
-            </button>
+        <div className="admin-qb-question-list">
+          {filteredQuestions.map((q, index) => (
+            <article className="admin-qb-question" key={q.id}>
+              <label className="admin-qb-check"><input type="checkbox" checked={selected.includes(q.id)} onChange={() => toggleSelected(q.id)} /><span /></label>
+              <div className="admin-qb-question-body">
+                <div className="admin-qb-question-meta"><span>{subjects.find(s => s.id === q.subject_id)?.name_en || "Subject not set"}</span><span>{q.chapter || "No chapter"}</span><span className={q.difficulty === "easy" ? "easy" : q.difficulty === "hard" ? "hard" : ""}>{q.difficulty || "medium"}</span></div>
+                <h3>{q.question_hi || q.question_en || q.question_or || "Question text unavailable"}</h3>
+                {q.question_en && q.question_hi && <p className="admin-qb-translation">{q.question_en}</p>}
+                <div className="admin-qb-question-foot"><span className={q.verified ? "status-good" : "status-wait"}>{q.verified ? "✓ Verified" : "◷ Awaiting verification"}</span><span className={q.is_active ? "status-good" : "status-muted"}>{q.is_active ? "● Active" : "○ Inactive"}</span><small>#{index + 1}</small></div>
+              </div>
+              <div className="admin-qb-question-actions">
+                {!q.verified && <button className="admin-qb-verify-mini" disabled={busy} onClick={() => void verifyOne(q)}>Verify</button>}
+                <button className="admin-qb-light-btn" disabled={busy} onClick={() => void toggleActive(q)}>{q.is_active ? "Unpublish" : "Publish"}</button>
+              </div>
+            </article>
+          ))}
+          {!filteredQuestions.length && <div className="admin-qb-empty"><span>⌕</span><b>No questions in this section</b><p>Is subject/status ke liye questions nahi mile. Excel import karein ya filters reset karein.</p></div>}
+        </div>
+        <p className="admin-qb-footnote">Latest 5,000 records are loaded for this screen. Verification status is controlled by the admin; only active, verified questions are eligible for student mock tests.</p>
+      </section>
 
-            <button className="btn secondary" onClick={() => {
-              setPreview([]);
-              setFile(null);
-            }}>
-              Clear Preview
-            </button>
-          </>
-        )}
+      <section className="admin-qb-section admin-qb-import" id="qb-import">
+        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Excel/CSV upload karein. Har naya question automatically Unverified mein aayega.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
+        <div className="admin-qb-upload-row">
+          <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 2 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
+          <div className="admin-qb-upload-info"><b>Before importing</b><p>Subject name aur chapter name database se match hona chahiye. Template use karne se column errors kam honge.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
+        </div>
+        {file && <div className="admin-qb-file-selected">Selected file: <b>{file.name}</b></div>}
+        {preview.length > 0 && <>
+          <div className="admin-qb-preview-summary"><b>{preview.filter(r => r.payload).length} valid</b><span>{preview.filter(r => r.errors.length).length} need correction</span><span>{preview.length} total rows</span></div>
+          <div className="admin-qb-preview-table"><table><thead><tr><th>Row</th><th>Subject</th><th>Chapter</th><th>Question</th><th>Validation</th></tr></thead><tbody>{preview.map(r => <tr key={r.row}><td>{r.row}</td><td>{r.subject}</td><td>{r.chapter}</td><td>{r.question}</td><td>{r.errors.length ? r.errors.join(" ") : "✓ Ready"}</td></tr>)}</tbody></table></div>
+          <div className="admin-qb-import-actions"><button className="admin-qb-verify-btn" disabled={busy || !preview.some(r => r.payload)} onClick={() => void importExcel()}>{busy ? "Importing..." : "Import Valid Questions"}</button><button className="admin-qb-light-btn" onClick={() => { setPreview([]); setFile(null); }}>Clear Preview</button></div>
+        </>}
       </section>
     </main>
   );

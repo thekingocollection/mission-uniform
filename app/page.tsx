@@ -60,6 +60,11 @@ export default function HomePage() {
     <main className="mu-home mu-home--defence">
       <section className="mu-defence-hero">
         <div className="mu-defence-gridlines" aria-hidden="true" />
+        <div className="mu-tricolour-flypast" aria-hidden="true">
+          <span className="mu-flypast-plane mu-flypast-one">✈</span>
+          <span className="mu-flypast-plane mu-flypast-two">✈</span>
+          <span className="mu-flypast-plane mu-flypast-three">✈</span>
+        </div>
         <div className="mu-defence-copy">
           <div className="mu-defence-overline"><span className="mu-live-dot" /> ODISHA POLICE · EXAM PREPARATION COMMAND</div>
           <div className="mu-defence-classification">CADET TRAINING PORTAL <span> / </span> EST. FOR YOUR SUCCESS</div>

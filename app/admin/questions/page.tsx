@@ -213,6 +213,19 @@ export default function AdminQuestions() {
     setBusy(false);
   }
 
+  async function verifyOne(q: Question) {
+    if (!supabase || q.verified) return;
+    setBusy(true);
+    const { error } = await supabase.from("questions").update({ verified: true }).eq("id", q.id);
+    if (error) {
+      setMessage("Verification failed: " + error.message);
+    } else {
+      setQuestions(old => old.map(item => item.id === q.id ? { ...item, verified: true } : item));
+      setMessage("Question verified successfully.");
+    }
+    setBusy(false);
+  }
+
   async function toggleActive(q: Question) {
     if (!supabase) return;
 
@@ -493,7 +506,7 @@ export default function AdminQuestions() {
                 <div className="admin-qb-question-foot"><span className={q.verified ? "status-good" : "status-wait"}>{q.verified ? "✓ Verified" : "◷ Awaiting verification"}</span><span className={q.is_active ? "status-good" : "status-muted"}>{q.is_active ? "● Active" : "○ Inactive"}</span><small>#{index + 1}</small></div>
               </div>
               <div className="admin-qb-question-actions">
-                {!q.verified && <button className="admin-qb-verify-mini" disabled={busy} onClick={async () => { setSelected([q.id]); await bulkVerify(true); }}>Verify</button>}
+                {!q.verified && <button className="admin-qb-verify-mini" disabled={busy} onClick={() => void verifyOne(q)}>Verify</button>}
                 <button className="admin-qb-light-btn" disabled={busy} onClick={() => void toggleActive(q)}>{q.is_active ? "Unpublish" : "Publish"}</button>
               </div>
             </article>

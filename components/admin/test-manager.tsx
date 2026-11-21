@@ -96,14 +96,19 @@ export default function TestManager() {
           marks_per_question:marks,negative_marking:negative,status,created_by:user?.id
         }).select("id").single();
         if(testError)throw testError;
+        const {data:privatePool,error:poolError}=await sb.from("question_pools").insert({
+          title:title.trim()+" · Manual paper",description:"Private fixed question set for "+title.trim(),
+          subject_id:subject||null,test_paper_id:test.id,created_by:user?.id
+        }).select("id").single();
+        if(poolError){await sb.from("test_papers").delete().eq("id",test.id);throw poolError;}
         const questionsToInsert=questionRows.map(q=>({
-          pool_id:test.id,question_hi:q.question_hi,question_or:q.question_or||null,question_en:q.question_en||null,
+          pool_id:privatePool.id,question_hi:q.question_hi,question_or:q.question_or||null,question_en:q.question_en||null,
           options:q.options,correct_option:q.correct_option,explanation_hi:q.explanation||null,
           chapter:q.chapter||null,difficulty:q.difficulty||"medium",source_row:null
         }));
-        const {data:inserted,error:insertError}=await sb.from("pool_questions").insert(questionsToInsert).select("id");
+        const {error:insertError}=await sb.from("pool_questions").insert(questionsToInsert);
         if(insertError){await sb.from("test_papers").delete().eq("id",test.id);throw insertError;}
-        const {error:modeError}=await sb.from("test_papers").update({question_mode:"pool",pool_id:test.id}).eq("id",test.id);
+        const {error:modeError}=await sb.from("test_papers").update({question_mode:"pool",pool_id:privatePool.id}).eq("id",test.id);
         if(modeError){await sb.from("test_papers").delete().eq("id",test.id);throw modeError;}
       } else {
         const payload:any={title:title.trim(),description:type+" practice",test_type:type,subject_id:subject||null,chapter:chapter||null,

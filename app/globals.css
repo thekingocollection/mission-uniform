@@ -3941,3 +3941,24 @@ button:disabled { opacity:.55; cursor:not-allowed; }
  .mu-previous-filter { align-items:stretch; flex-direction:column; }
  .mu-previous-filter select { width:100%; }
 }
+
+
+/* Dedicated Subject-wise Mock Test admin section */
+.admin-subject-mock .admin-page-heading { display:flex; justify-content:space-between; gap:18px; }
+.admin-subject-mock .admin-page-heading .admin-kicker { text-align:left; }
+.admin-subject-mock-stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.admin-subject-mock-list { display:grid; gap:12px; margin-top:16px; }
+.admin-subject-mock-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,.8fr); gap:20px; padding:17px; border:1px solid #e4eaf2; border-radius:13px; background:#fff; }
+.admin-subject-mock-info h3 { margin:0; color:#17264d; font-size:16px; }
+.admin-subject-mock-info > small,.admin-subject-mock-meta > small { display:block; margin-top:4px; color:#8793a7; font-size:11px; }
+.admin-subject-mock-info p { margin:12px 0 8px; color:#53627c; font-size:12px; font-weight:750; }
+.admin-subject-progress { height:7px; overflow:hidden; border-radius:99px; background:#edf1f6; }
+.admin-subject-progress span { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#1b8055,#d3a943); }
+.admin-subject-mock-meta { display:flex; align-items:flex-start; flex-direction:column; gap:8px; }
+.admin-subject-mock-meta strong { color:#263958; font-size:13px; }
+.admin-subject-mock-meta .admin-actions { margin-top:3px; }
+@media(max-width:700px) {
+ .admin-subject-mock-stats { grid-template-columns:1fr 1fr; }
+ .admin-subject-mock-row { grid-template-columns:1fr; gap:14px; }
+}
+@media(max-width:420px) { .admin-subject-mock-stats { grid-template-columns:1fr; } }

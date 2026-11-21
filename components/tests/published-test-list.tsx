@@ -19,8 +19,7 @@ export default function PublishedTestList({ testType }: { testType?: string }) {
       .finally(()=>{if(active)setLoading(false);});
     return()=>{active=false};
   },[testType]);
-  const types=[["all","All"],["daily","Daily"],["subject","Subject"],["chapter","Chapter"],["full","Full Mock"],["grand","Grand Test"],["subject_random","Subject Practice"],["previous_year","Previous Year"]];
-  const visible=filter==="all"?tests:filter==="previous_year"?tests.filter(t=>t.is_previous_year):filter==="subject_random"?tests.filter(t=>t.question_mode==="subject_random"):tests.filter(t=>t.test_type===filter);
+  // The Mock Tests catalogue is reserved for papers explicitly published by the admin.\n  // Question-bank random subject practice is available only from its separate navigation page.\n  const listedTests=tests.filter(t=>t.question_mode!=="subject_random");\n  const types=[["all","All"],["daily","Daily"],["subject","Subject"],["chapter","Chapter"],["full","Full Mock"],["grand","Grand Test"],["previous_year","Previous Year"]];\n  const visible=filter==="all"?listedTests:filter==="previous_year"?listedTests.filter(t=>t.is_previous_year):listedTests.filter(t=>t.test_type===filter);
   return <div className="mu-test-list">
     {!testType && <div className="mu-filter-row" aria-label="Filter tests">{types.map(([v,l])=><button key={v} onClick={()=>setFilter(v)} className={filter===v?"active":""}>{l}</button>)}</div>}
     {loading&&<section className="panel">Loading published tests…</section>}

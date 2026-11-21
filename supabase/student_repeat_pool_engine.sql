@@ -71,7 +71,7 @@ begin
  insert into public.test_attempts(user_id,test_id,answers,score,correct_count,wrong_count,skipped_count,total_questions,started_at,submitted_at)
  values(v_user,p_test_id,'{}'::jsonb,0,0,0,0,0,now(),now()) returning id into v_attempt;
 
- if v_test.question_mode='pool' then
+ if v_test.question_mode in ('pool','manual') then
    if v_test.pool_id is null then raise exception 'Question pool is not configured'; end if;
    perform pg_advisory_xact_lock(hashtextextended(v_user::text||v_test.pool_id::text,0));
    if exists(select 1 from public.question_pools p where p.id=v_test.pool_id and p.test_paper_id is not null and p.test_paper_id<>p_test_id) then

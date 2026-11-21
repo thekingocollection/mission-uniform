@@ -96,17 +96,15 @@ export default function TestManager() {
           marks_per_question:marks,negative_marking:negative,status,created_by:user?.id
         }).select("id").single();
         if(testError)throw testError;
-        const questionsToInsert=questionRows.map((q,i)=>({
-          question_hi:q.question_hi,question_or:q.question_or||null,question_en:q.question_en||null,
-          options:q.options,correct_option:q.correct_option,explanation:q.explanation||null,
-          chapter:q.chapter||null,difficulty:q.difficulty||"medium",subject_id:subject||null,
-          verified:true,is_active:true,created_by:user?.id
+        const questionsToInsert=questionRows.map(q=>({
+          pool_id:test.id,question_hi:q.question_hi,question_or:q.question_or||null,question_en:q.question_en||null,
+          options:q.options,correct_option:q.correct_option,explanation_hi:q.explanation||null,
+          chapter:q.chapter||null,difficulty:q.difficulty||"medium",source_row:null
         }));
-        const {data:inserted,error:insertError}=await sb.from("questions").insert(questionsToInsert).select("id");
+        const {data:inserted,error:insertError}=await sb.from("pool_questions").insert(questionsToInsert).select("id");
         if(insertError){await sb.from("test_papers").delete().eq("id",test.id);throw insertError;}
-        const links=(inserted||[]).map((q:any,i:number)=>({test_id:test.id,question_id:q.id,sort_order:i+1}));
-        const {error:linkError}=await sb.from("test_paper_questions").insert(links);
-        if(linkError){await sb.from("test_papers").delete().eq("id",test.id);throw linkError;}
+        const {error:modeError}=await sb.from("test_papers").update({question_mode:"pool",pool_id:test.id}).eq("id",test.id);
+        if(modeError){await sb.from("test_papers").delete().eq("id",test.id);throw modeError;}
       } else {
         const payload:any={title:title.trim(),description:type+" practice",test_type:type,subject_id:subject||null,chapter:chapter||null,
           question_mode:mode,pool_id:mode==="pool"?poolId:null,duration_minutes:duration,total_questions:mode==="pool"?count:Math.min(count,selected.length),

@@ -57,7 +57,6 @@ create table if not exists public.student_pool_seen (
 create index if not exists pool_questions_pool_idx on public.pool_questions(pool_id);
 create index if not exists student_pool_seen_lookup_idx
   on public.student_pool_seen(user_id,pool_id,cycle_number);
-create index if not exists test_attempt_questions_attempt_idx
   on public.test_attempt_questions(attempt_id,sort_order);
 
 create or replace function public.sync_question_pool_count()
@@ -88,7 +87,6 @@ for each row execute function public.sync_question_pool_count();
 
 alter table public.question_pools enable row level security;
 alter table public.pool_questions enable row level security;
-alter table public.test_attempt_questions enable row level security;
 alter table public.student_pool_seen enable row level security;
 
 drop policy if exists question_pools_admin_all on public.question_pools;
@@ -99,19 +97,9 @@ drop policy if exists pool_questions_admin_all on public.pool_questions;
 create policy pool_questions_admin_all on public.pool_questions
 for all to authenticated using(public.is_super_admin()) with check(public.is_super_admin());
 
-drop policy if exists attempt_questions_owner_read on public.test_attempt_questions;
-create policy attempt_questions_owner_read on public.test_attempt_questions
-for select to authenticated using(
-  exists(select 1 from public.test_attempts a where a.id=attempt_id
-    and (a.user_id=auth.uid() or public.is_super_admin()))
-);
-
-drop policy if exists student_pool_seen_owner_read on public.student_pool_seen;
-create policy student_pool_seen_owner_read on public.student_pool_seen
 for select to authenticated using(user_id=auth.uid() or public.is_super_admin());
 
 grant select,insert,update,delete on public.question_pools,public.pool_questions to authenticated;
-grant select on public.test_attempt_questions,public.student_pool_seen to authenticated;
 
 commit;
 

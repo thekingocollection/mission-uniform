@@ -74,6 +74,9 @@ begin
  if v_test.question_mode='pool' then
    if v_test.pool_id is null then raise exception 'Question pool is not configured'; end if;
    perform pg_advisory_xact_lock(hashtextextended(v_user::text||v_test.pool_id::text,0));
+   if exists(select 1 from public.question_pools p where p.id=v_test.pool_id and p.test_paper_id is not null and p.test_paper_id<>p_test_id) then
+     raise exception 'This question pool belongs to a different manual test';
+   end if;
    select count(*) into v_total from public.pool_questions where pool_id=v_test.pool_id;
    if v_total < v_test.total_questions then raise exception 'Question pool has fewer questions than requested'; end if;
    select coalesce(max(cycle_number),1) into v_cycle from public.student_pool_seen

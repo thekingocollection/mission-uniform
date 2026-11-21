@@ -6,7 +6,6 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const cards = [
   ["📝", "Mock Tests", "Practice daily and full mock papers", "/tests"],
-  ["📚", "Syllabus", "Subjects, topics and chapters", "/syllabus"],
   ["📢", "Job Alerts", "Recruitment updates and apply links", "/job-alerts"],
   ["📄", "Previous Papers", "Prepare with previous exam papers", "/previous-papers"],
   ["📈", "Performance", "View your score and accuracy", "/performance"],

@@ -10,7 +10,7 @@ const links = [
   ["Mock Tests", "/tests", "✎"],
   ["Syllabus", "/syllabus", "▤"],
   ["Job Alerts", "/job-alerts", "◷"],
-  ["Previous Papers", "/previous-papers", "▧"],
+  ["Previous Year Questions", "/previous-papers", "▧"],
   ["Dashboard", "/dashboard", "▦"],
   ["Leaderboard", "/leaderboard", "♛"],
 ];

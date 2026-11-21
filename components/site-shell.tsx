@@ -44,7 +44,7 @@ export function SiteHeader() {
     sb.auth.getUser().then(({ data }) => { setSignedIn(!!data.user); loadNotifications(data.user?.id); });
     const { data: listener } = sb.auth.onAuthStateChange((_event, session) => { setSignedIn(!!session?.user); loadNotifications(session?.user?.id); });
     return () => listener.subscription.unsubscribe();
-  }, []);
+  }, [path]);
 
   async function logout() {
     const sb = supabaseBrowser();

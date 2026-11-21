@@ -23,14 +23,26 @@ function isPublicPath(path: string) {
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const path = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const sb = supabaseBrowser();
     if (!sb) return;
-    sb.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
-    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => setSignedIn(!!session?.user));
+    const loadNotifications = async (userId: string | undefined) => {
+      if (!userId) { setUnreadCount(0); return; }
+      const [{ count }, { data: reads }] = await Promise.all([
+        sb.from("notifications").select("id", { count: "exact", head: true }).eq("published", true),
+        sb.from("notification_reads").select("notification_id").eq("user_id", userId),
+      ]);
+      if (count === null || count === undefined) { setUnreadCount(0); return; }
+      const readIds = new Set((reads ?? []).map((row: { notification_id: string }) => row.notification_id));
+      const { data: published } = await sb.from("notifications").select("id").eq("published", true);
+      setUnreadCount((published ?? []).filter((row: { id: string }) => !readIds.has(row.id)).length);
+    };
+    sb.auth.getUser().then(({ data }) => { setSignedIn(!!data.user); loadNotifications(data.user?.id); });
+    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => { setSignedIn(!!session?.user); loadNotifications(session?.user?.id); });
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -64,6 +76,9 @@ export function SiteHeader() {
         })}
         {signedIn ? (
           <>
+            <Link href="/notifications" className={path === "/notifications" ? "active" : ""} onClick={() => setOpen(false)} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}>
+              <span className="nav-icon">♧</span> Notifications{unreadCount > 0 && <span className="mu-notification-count">{unreadCount > 99 ? "99+" : unreadCount}</span>}
+            </Link>
             <Link href="/profile" onClick={() => setOpen(false)}>My Profile</Link>
             <button type="button" className="nav-login" onClick={logout}>Logout</button>
           </>

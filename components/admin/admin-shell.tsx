@@ -7,7 +7,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 const links = [
   ["Overview", "/admin", "▦"], ["Students", "/admin/students", "♙"],
   ["Subjects", "/admin/subjects", "▤"], ["Chapters", "/admin/chapters", "▧"],
-  ["Question Bank + Bulk", "/admin/questions", "✎"], ["Mock Tests", "/admin/tests", "◷"],
+  ["Question Bank + Bulk", "/admin/questions", "✎"], ["Question Pools", "/admin/question-pools", "▦"], ["Mock Tests", "/admin/tests", "◷"],
   ["Job Alerts", "/admin/job-alerts", "⌕"], ["Notifications", "/admin/notifications", "♧"],
   ["Website Settings", "/admin/settings", "⚙"],
 ];

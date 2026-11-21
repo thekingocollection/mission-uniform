@@ -4209,3 +4209,39 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 @keyframes muTestFlyAcross{0%{transform:translateX(-5vw) translateY(12px) rotate(-3deg);opacity:0}8%{opacity:.92}85%{opacity:.9}100%{transform:translateX(115vw) translateY(-25px) rotate(-3deg);opacity:0}}
 @media(max-width:650px){.mu-test-flypast{top:14%}.mu-test-flypast-plane{font-size:25px}.mu-test-flypast-plane:after{width:105px;height:7px}}
 @media(prefers-reduced-motion:reduce){.mu-test-flypast{display:none!important}}
+
+
+/* Student dashboard: animated defence command field */
+.mu-student-hero{position:relative;isolation:isolate;overflow:hidden}
+.mu-student-field-activity{position:absolute;z-index:0;right:3%;top:7%;width:min(43%,430px);height:86%;pointer-events:none;opacity:.72}
+.mu-student-radar-ring{position:absolute;right:9%;top:7%;width:clamp(190px,25vw,310px);aspect-ratio:1;border:1px solid rgba(206,190,133,.23);border-radius:50%;animation:muStudentRadarSpin 24s linear infinite}
+.mu-student-radar-ring:before,.mu-student-radar-ring:after{content:"";position:absolute;inset:13%;border:1px dashed rgba(206,190,133,.25);border-radius:50%}
+.mu-student-radar-ring:after{inset:30%;border-style:solid}
+.mu-student-radar-ring.ring-two{inset:18% 0 auto auto;width:clamp(150px,19vw,230px);opacity:.6;animation-direction:reverse;animation-duration:32s}
+.mu-student-radar-ring.ring-two:before{inset:20%}
+.mu-student-flight-path{position:absolute;right:5%;top:48%;width:85%;height:1px;background:linear-gradient(90deg,transparent,rgba(235,211,147,.55),transparent);transform:rotate(-18deg)}
+.mu-student-flight{position:absolute;top:39%;left:8%;color:#f1dfb2;font-size:25px;filter:drop-shadow(0 0 8px rgba(236,205,132,.55));animation:muStudentFly 10s ease-in-out infinite}
+.mu-student-field-label{position:absolute;right:3%;bottom:8%;padding:7px 10px;border:1px solid rgba(214,194,139,.25);border-radius:5px;color:#c9c1a3;background:rgba(7,19,28,.35);font-size:8px;font-weight:900;letter-spacing:1.5px}
+.mu-student-hero-copy,.mu-student-emblem{position:relative;z-index:1}
+@keyframes muStudentRadarSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes muStudentFly{0%,100%{transform:translate(0,18px) rotate(-8deg);opacity:0}12%,78%{opacity:.9}88%{transform:translate(260px,-45px) rotate(-8deg);opacity:0}}
+/* Mock test timer: animated remaining-time bar and low-time alert */
+.timer.mu-exam-timer{min-width:150px;padding:11px 14px;border:1px solid rgba(189,157,83,.45);border-radius:12px;background:linear-gradient(145deg,#172b3a,#243b45);color:#fff8e8;box-shadow:0 8px 22px rgba(15,30,40,.14)}
+.mu-exam-timer-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mu-exam-timer-top span{font-size:9px;font-weight:900;letter-spacing:1.1px;color:#d4c49a}
+.mu-exam-timer-top b{font-variant-numeric:tabular-nums;font-size:23px;letter-spacing:1px;color:#fff}
+.mu-exam-time-track{height:5px;margin-top:8px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.16)}
+.mu-exam-time-track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#aab78a,#e4c77d);transition:width 1s linear}
+.mu-exam-timer.is-warning{border-color:#d97757;animation:muExamTimerPulse 1.4s ease-in-out infinite}
+.mu-exam-timer.is-warning .mu-exam-timer-top b{color:#ffd1bd}
+.mu-exam-timer.is-warning .mu-exam-time-track i{background:#ef8868}
+@keyframes muExamTimerPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,119,87,.08)}50%{box-shadow:0 0 0 5px rgba(217,119,87,.13)}}
+/* Excel import controls stay together above the file picker */
+.admin-qb-import-controls{display:grid;gap:16px}
+.admin-qb-import-selects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;padding:17px;border:1px solid #dedccf;border-radius:13px;background:linear-gradient(135deg,#f8f7ef,#fff)}
+.admin-qb-import-selects label{display:flex;flex-direction:column;gap:7px;min-width:0;color:#263746;font-size:12px;font-weight:850}
+.admin-qb-import-selects select{width:100%;min-height:43px;padding:9px 11px;border:1px solid #d5d8d0;border-radius:8px;background:#fff;color:#253746;font:inherit;font-weight:600}
+.admin-qb-import-selects select:disabled{opacity:.55;cursor:not-allowed}
+.admin-qb-import-selects small{color:#778078;font-size:10px;font-weight:500;line-height:1.45}
+@media(max-width:700px){.mu-student-field-activity{right:-12%;top:18%;width:70%;height:70%;opacity:.4}.mu-student-radar-ring{right:0;top:12%}.mu-student-field-label{display:none}.mu-exam-timer{width:100%;max-width:260px}.admin-qb-import-selects{grid-template-columns:1fr}.admin-qb-import-selects label{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.mu-student-radar-ring,.mu-student-flight,.mu-exam-timer.is-warning{animation:none!important}.mu-exam-time-track i{transition:none!important}}

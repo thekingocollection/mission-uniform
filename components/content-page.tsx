@@ -1,0 +1,4 @@
+import Link from 'next/link'; import {subjects} from '@/lib/data';
+export function PageHero({eyebrow,title,desc}:{eyebrow?:string,title:string,desc:string}){return <section className="page-hero"><span className="eyebrow">{eyebrow||'MISSION UNIFORM OP'}</span><h1>{title}</h1><p>{desc}</p></section>}
+export function SubjectCards(){return <div className="card-grid">{subjects.map(s=><Link className="subject-card" href={'/subjects/'+s.slug} key={s.slug}><span className="subject-icon">✦</span><h3>{s.name}</h3><p>{s.desc}</p><b>Explore subject →</b></Link>)}</div>}
+export function InfoCards({items}:{items:{title:string,desc:string,href:string,tag?:string}[]}){return <div className="card-grid">{items.map(x=><Link className="info-card" href={x.href} key={x.href}><span className="eyebrow">{x.tag||'LEARN & PRACTICE'}</span><h3>{x.title}</h3><p>{x.desc}</p><b>Open →</b></Link>)}</div>}

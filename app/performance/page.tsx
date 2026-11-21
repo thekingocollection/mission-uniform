@@ -1,0 +1,1 @@
+import LocalList from '@/components/local-list'; export default function Page(){return <LocalList kind="performance"/>}

@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default async function Solutions({params}:{params:Promise<{id:string}>}){const {id}=await params;return <section className="panel"><span className="eyebrow">ANSWER EXPLANATIONS</span><h1>Solutions for attempt {id}</h1><p>For demo tests, explanations are shown immediately on the result screen after submission.</p><Link className="btn secondary" href="/test-history">Back to Test History</Link></section>}

@@ -1,0 +1,1 @@
+import TakeTest from "@/components/tests/take-test"; export default async function Page({params}:{params:Promise<{id:string}>}){const {id}=await params;return <TakeTest id={id}/>;}

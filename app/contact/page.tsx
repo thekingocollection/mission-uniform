@@ -1,0 +1,1 @@
+import {PageHero} from '@/components/content-page'; export default function Page(){return <><PageHero title='Contact Us' desc='Get in touch with the Mission Uniform OP team.'/><section className="panel prose"><h2>Contact Us</h2><p>For corrections, suggestions or support, use the contact details configured by the site administrator.</p></section></>}

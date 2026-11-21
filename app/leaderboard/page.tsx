@@ -1,0 +1,1 @@
+import {PageHero} from '@/components/content-page'; export default function Leaderboard(){return <><PageHero title="Leaderboard" desc="A fair leaderboard will appear when verified student attempts are connected."/><section className="panel"><p>No public scores are displayed yet. Connect Supabase and enable verified attempts before publishing rankings.</p></section></>}

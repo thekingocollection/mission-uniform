@@ -1,0 +1,1 @@
+import {PageHero} from '@/components/content-page'; export default function Page(){return <><PageHero title='Notifications' desc='Important platform announcements and exam preparation updates.'/><section className="panel prose"><h2>Notifications</h2><p>No new verified platform notification has been published yet.</p></section></>}

@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default async function ResultPage({params}:{params:Promise<{id:string}>}){const {id}=await params;return <section className="panel"><span className="eyebrow">TEST RESULT</span><h1>Result {id}</h1><p>Open the test history on the same browser to review locally saved demo attempts. Server-synced result details will appear after the secure grading API is connected.</p><Link className="btn primary" href="/test-history">Go to Test History</Link></section>}

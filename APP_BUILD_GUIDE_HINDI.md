@@ -54,9 +54,15 @@ For a release APK, configure signing first; never distribute a debug-signed APK 
 Never commit `.jks`, `.keystore`, passwords or signing secrets to GitHub.
 
 ## GitHub Actions
-The workflow `.github/workflows/android-build.yml` builds a debug APK when manually triggered. Add repository secret `CAPACITOR_SERVER_URL` with the real HTTPS website URL. It uploads the APK as a workflow artifact.
+The workflow `.github/workflows/android-build.yml` builds and uploads a debug APK when manually triggered. Add repository secret `CAPACITOR_SERVER_URL` with the real HTTPS website URL.
 
-For a signed release AAB, create an upload keystore and configure signing securely in Android Studio or a protected CI signing workflow. The current workflow intentionally produces a debug APK only; it does not claim to produce a Play Store-ready signed AAB.
+To also build and upload a signed Play Store AAB, add all four signing secrets in GitHub repository Settings > Secrets and variables > Actions:
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+If the signing secrets are absent, the APK job still runs and the AAB step is skipped. The upload keystore must be generated and securely backed up by the app owner. Never commit the keystore or passwords.
 
 ## Features and limitations
 - Existing Next.js pages, Supabase auth, mock tests and job alerts are reused.

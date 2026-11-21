@@ -74,7 +74,7 @@ begin
      v_cycle:=v_cycle+1;
    end if;
    with chosen as (
-     select q.* from public.pool_questions q
+     select q.*,row_number() over(order by random()) as rn from public.pool_questions q
      where q.pool_id=v_test.pool_id and not exists(
        select 1 from public.student_pool_seen s where s.user_id=v_user and s.pool_id=v_test.pool_id
        and s.pool_question_id=q.id and s.cycle_number=v_cycle
@@ -85,7 +85,7 @@ begin
      select v_user,v_test.pool_id,id,v_cycle from chosen on conflict do nothing returning pool_question_id
    )
    insert into public.test_attempt_questions(attempt_id,question_source,pool_question_id,sort_order,question_snapshot)
-   select v_attempt,'pool',q.id,row_number() over(order by random()),
+   select v_attempt,'pool',q.id,q.rn,
      jsonb_build_object('id',q.id,'question_hi',q.question_hi,'question_or',q.question_or,
       'question_en',q.question_en,'options',q.options,'chapter',q.chapter,'difficulty',q.difficulty,
       'correct_option',q.correct_option,'explanation',coalesce(q.explanation_hi,q.explanation_en,''))

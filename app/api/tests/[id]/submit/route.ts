@@ -1,63 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+async function getUser(req: NextRequest) {
+  const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!token || !url || !key) return null;
+  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await client.auth.getUser(token);
+  return error ? null : data.user;
+}
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const user = await getUser(req);
+    if (!user) return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
+
+    const { id: testId } = await params;
+    const body = await req.json();
+    const attemptId = String(body.attempt_id || "");
+    const answers = body.answers;
+
+    if (!attemptId) return NextResponse.json({ error: "Test attempt ID is missing. Start the test again." }, { status: 400 });
+    if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+      return NextResponse.json({ error: "Invalid answers submitted." }, { status: 400 });
+    }
+
     const db = getServiceSupabase();
+    const { data, error } = await db.rpc("submit_test_attempt", {
+      p_attempt_id: attemptId,
+      p_test_id: testId,
+      p_user_id: user.id,
+      p_answers: answers
+    });
 
-    const { data: test, error } = await db
-      .from("test_papers")
-      .select(
-        "id,title,description,test_type,duration_minutes,total_questions,marks_per_question,negative_marking,status"
-      )
-      .eq("id", id)
-      .eq("status", "published")
-      .maybeSingle();
-
-    if (error || !test) {
-      return NextResponse.json(
-        { error: "Test not found or not published." },
-        { status: 404 }
-      );
+    if (error) {
+      const status = /already been submitted/i.test(error.message) ? 409 : 400;
+      return NextResponse.json({ error: error.message }, { status });
     }
 
-    const { data: links, error: linkError } = await db
-      .from("test_paper_questions")
-      .select(`
-        sort_order,
-        questions (
-          id,
-          question_hi,
-          question_or,
-          question_en,
-          options,
-          chapter,
-          difficulty
-        )
-      `)
-      .eq("test_id", id)
-      .order("sort_order");
-
-    if (linkError) {
-      return NextResponse.json(
-        { error: linkError.message },
-        { status: 500 }
-      );
-    }
-
-    const questions = (links ?? [])
-      .map((item: any) => item.questions)
-      .filter(Boolean);
-
-    return NextResponse.json({ test, questions });
+    return NextResponse.json(data);
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || "Unable to load test." },
-      { status: 500 }
-    );
+    console.error("TEST_SUBMIT_ERROR:", error);
+    return NextResponse.json({ error: error.message || "Unable to submit test." }, { status: 500 });
   }
 }

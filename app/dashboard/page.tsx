@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function Dashboard() {
@@ -14,7 +13,7 @@ export default function Dashboard() {
       const sb = supabaseBrowser();
       if (!sb) throw new Error("Student portal is temporarily unavailable.");
       const { data: { user } } = await sb.auth.getUser();
-      if (!user) throw new Error("Please sign in to view subject mock tests.");
+      if (!user) throw new Error("Please sign in to view your student dashboard.");
       const [{ data: profile }, { count }] = await Promise.all([
         sb.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
         sb.from("test_attempts").select("id", { count: "exact", head: true }).eq("user_id", user.id),
@@ -38,7 +37,7 @@ export default function Dashboard() {
           <p className="mu-student-hero-lead">Har din ki mehnat aapko apne lakshya ke ek kadam kareeb le jaati hai. Aaj khud ko kal se behtar banaiye.</p>
           <div className="mu-student-hero-stats">
             <div><b>{attempts}</b><span>Tests attempted</span></div>
-            <div><b>{subjects.length}</b><span>Subjects available</span></div>
+            <div><b>FREE</b><span>Practice for every student</span></div>
           </div>
         </div>
         <div className="mu-student-emblem" aria-hidden="true">

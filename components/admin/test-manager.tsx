@@ -21,6 +21,7 @@ export default function TestManager() {
   const [examName,setExamName]=useState("Odisha Police Constable");
   const [sessionLabel,setSessionLabel]=useState("");
   const [sourceLabel,setSourceLabel]=useState("Previous Year Question Paper");
+  const [type,setType]=useState("daily");
   const [subject,setSubject]=useState("");
   const [chapter,setChapter]=useState("");
   const [duration,setDuration]=useState(30);

@@ -77,7 +77,7 @@ export function SiteHeader() {
         {signedIn ? (
           <>
             <Link href="/notifications" className={path === "/notifications" ? "active" : ""} onClick={() => setOpen(false)} aria-label={`Notifications${unreadCount ? `, ${unreadCount} unread` : ""}`}>
-              <span className="nav-icon">♧</span> Notifications{unreadCount > 0 && <span className="mu-notification-count">{unreadCount > 99 ? "99+" : unreadCount}</span>}
+              <span className="nav-icon">🔔</span> Notifications{unreadCount > 0 && <span className="mu-notification-count">{unreadCount > 99 ? "99+" : unreadCount}</span>}
             </Link>
             <Link href="/profile" onClick={() => setOpen(false)}>My Profile</Link>
             <button type="button" className="nav-login" onClick={logout}>Logout</button>

@@ -92,6 +92,11 @@ export default function Dashboard() {
       </section>
       {!emailVerified && <section role="status" style={{margin:"18px auto",maxWidth:1100,padding:"16px 18px",border:"1px solid #e7d8ad",borderRadius:12,background:"#fffaf0",color:"#57451e",display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}><div><strong>Email verification pending</strong><p style={{margin:"5px 0 0",fontSize:13}}> {email ? "We will send a secure verification link to " + email + "." : "Verify your email whenever convenient."} You can continue studying and taking every mock test.</p>{verifyMessage && <small>{verifyMessage}</small>}</div><button type="button" onClick={sendVerification} disabled={verifyBusy} style={{padding:"10px 15px",border:0,borderRadius:8,background:"#173b50",color:"#fff",fontWeight:700,cursor:"pointer"}}>{verifyBusy ? "Sending…" : "Verify Email"}</button></section>}
       {emailVerified && <p role="status" style={{margin:"12px auto",maxWidth:1100,color:"#17613b"}}>✓ Email verified</p>}
+      <nav className="mu-dashboard-shortcuts" aria-label="Student shortcuts">
+        <a href="/tests"><span>📝</span><b>Mock Tests</b><small>Practice now</small></a>
+        <a href="/test-history"><span>📊</span><b>Test History</b><small>Review progress</small></a>
+        <a href="/notifications"><span>🔔</span><b>Notifications</b><small>Latest updates</small></a>
+      </nav>
       {studyInsights && <section style={{margin:"20px auto",maxWidth:1100,padding:20,border:"1px solid #d8e1e8",borderRadius:14,background:"#fff"}}>
         <div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",alignItems:"center"}}>
           <div><span style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#9a742b"}}>FREE · NO AI API COST</span><h2 style={{margin:"5px 0",color:"#173b50"}}>Smart Study Insights</h2><p style={{margin:0,color:"#64748b",fontSize:13}}>Aapke mock test results ke basis par preparation guidance.</p></div>

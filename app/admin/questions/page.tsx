@@ -290,7 +290,7 @@ export default function AdminQuestions() {
   async function saveEdit() {
     if (!supabase || !editingQuestion) return;
     if (![editDraft.question_hi, editDraft.question_en, editDraft.question_or].some(v => v.trim()) || editDraft.options.some(v => !v.trim()) || !["A","B","C","D"].includes(editDraft.correct_option)) {
-      setMessage("At least one question language (Hindi, English or Odia), all four options and correct answer are required."); return;
+      setMessage("At least one question language (English or Odia; Hindi is optional), all four options and correct answer are required."); return;
     }
     setBusy(true);
     const { error } = await supabase.from("questions").update({
@@ -400,9 +400,9 @@ export default function AdminQuestions() {
       // English/Odia-only rows from colliding on an empty Hindi value.
       const makeQuestionKeys = (subjectId: string, chapterName: string, values: unknown[]) =>
         values
-          .map(normalize)
-          .filter(Boolean)
-          .map(questionText => `${subjectId}|${normalize(chapterName)}|${questionText}`);
+          .map((value, index) => ({ value: normalize(value), language: ["hi", "or", "en"][index] }))
+          .filter(item => item.value)
+          .map(item => `${subjectId}|${normalize(chapterName)}|${item.language}|${item.value}`);
 
       const existingKeys = new Set(
         questions.flatMap(q =>
@@ -414,14 +414,14 @@ export default function AdminQuestions() {
 
       const seen = new Set<string>();
 
-      const rows = records.map((raw, index) => {
+      const rows = await Promise.all(records.map(async (raw, index) => {
         const data: any = {};
 
         Object.entries(raw).forEach(([key, value]) => {
           data[key.trim().toLowerCase().replace(/[\s-]+/g, "_")] = String(value ?? "").trim();
         });
 
-        const subject = importSubjectId
+        let subject = importSubjectId
           ? subjects.find(s => s.id === importSubjectId)
           : subjects.find(s =>
               normalize(s.name_en) === normalize(data.subject_name) ||
@@ -429,12 +429,40 @@ export default function AdminQuestions() {
               s.id === data.subject_id
             );
 
-        const chapter = importChapterId
+        // If the Excel subject is not in the library yet, create it for this admin import.
+        const subjectLabel = String(data.subject_name || "").trim();
+        if (!subject && !importSubjectId && subjectLabel) {
+          const { data: createdSubject, error: subjectError } = await supabase
+            .from("subjects")
+            .insert({ name_en: subjectLabel, name_hi: null, is_active: true })
+            .select("id,name_en,name_hi")
+            .single();
+          if (!subjectError && createdSubject) {
+            subject = createdSubject as Subject;
+            setSubjects(old => old.some(s => s.id === createdSubject.id) ? old : [...old, createdSubject as Subject]);
+          }
+        }
+
+        let chapter = importChapterId
           ? chapters.find(c => c.id === importChapterId && c.subject_id === subject?.id)
           : chapters.find(c =>
               c.subject_id === subject?.id &&
               normalize(c.name) === normalize(data.chapter)
             );
+
+        // Create a missing chapter under the matched/new subject.
+        const chapterLabel = String(data.chapter || "").trim();
+        if (!chapter && !importChapterId && subject && chapterLabel) {
+          const { data: createdChapter, error: chapterError } = await supabase
+            .from("chapters")
+            .insert({ subject_id: subject.id, name: chapterLabel, is_active: true, sort_order: chapters.length + 1 })
+            .select("id,subject_id,name")
+            .single();
+          if (!chapterError && createdChapter) {
+            chapter = createdChapter as Chapter;
+            setChapters(old => old.some(ch => ch.id === createdChapter.id) ? old : [...old, createdChapter as Chapter]);
+          }
+        }
 
         const options = [
           data.option_a, data.option_b, data.option_c, data.option_d
@@ -450,7 +478,7 @@ export default function AdminQuestions() {
 
         if (!subject) errors.push("Subject not found.");
         if (!chapter) errors.push("Chapter not found for this subject.");
-        if (![data.question_hi, data.question_en, data.question_or].some((v: string) => v?.trim())) errors.push("At least one question language (Hindi, English or Odia) is required.");
+        if (![data.question_hi, data.question_en, data.question_or].some((v: string) => v?.trim())) errors.push("At least one question language (English or Odia; Hindi optional) is required.");
         if (options.some((v: string) => !v)) errors.push("All four options required.");
         if (!correct) errors.push("Correct option must be A/B/C/D.");
         
@@ -488,7 +516,7 @@ export default function AdminQuestions() {
             is_active: true
           }
         };
-      });
+      }));
 
       setPreview(rows);
       const valid = rows.filter(r => r.payload).length;
@@ -691,7 +719,7 @@ export default function AdminQuestions() {
       {editingQuestion && <div className="admin-qb-modal-backdrop" role="presentation">
         <section className="admin-qb-edit-modal" role="dialog" aria-modal="true" aria-label="Edit question">
           <div className="admin-qb-edit-head"><h2>Edit Question</h2><button onClick={()=>setEditingQuestion(null)} aria-label="Close">×</button></div>
-          <label>Question (Hindi)<textarea value={editDraft.question_hi} onChange={e=>setEditDraft(v=>({...v,question_hi:e.target.value}))}/></label>
+          <label>Question (Hindi · Optional)<textarea value={editDraft.question_hi} onChange={e=>setEditDraft(v=>({...v,question_hi:e.target.value}))}/></label>
           <label>Question (English)<textarea value={editDraft.question_en} onChange={e=>setEditDraft(v=>({...v,question_en:e.target.value}))}/></label>
           <label>Question (Odia)<textarea value={editDraft.question_or} onChange={e=>setEditDraft(v=>({...v,question_or:e.target.value}))}/></label>
           <div className="admin-qb-bulk-grid">{editDraft.options.map((value,i)=><label key={i}>Option {["A","B","C","D"][i]}<input value={value} onChange={e=>setEditDraft(v=>({...v,options:v.options.map((x,j)=>j===i?e.target.value:x)}))}/></label>)}</div>
@@ -701,7 +729,7 @@ export default function AdminQuestions() {
       </div>}
 
       <section className="admin-qb-section admin-qb-import" id="qb-import">
-        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Excel/CSV upload karein. Hindi, English, Odia — teeno ya inmein se koi ek language bhi chalegi. Har naya question automatically Unverified mein aayega.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
+        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Language rules: Odia Grammar = Odia only; English Language = English only; all other subjects = English + Odia. Hindi fields optional and may remain blank. Missing subjects/chapters from Excel are created automatically. New questions start as Unverified.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
         <div className="admin-qb-import-controls">
           <div className="admin-qb-import-selects">
             <label>Default Subject
@@ -730,7 +758,7 @@ export default function AdminQuestions() {
           </div>
           <div className="admin-qb-upload-row">
             <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 10 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
-            <div className="admin-qb-upload-info"><b>Language support</b><p>Question Hindi, English aur Odia tino mein de sakte hain, ya sirf ek language mein bhi. Har row mein kam se kam ek question language zaroor bharein. Options A–D aur correct answer required hain.</p><p>Subject, Chapter aur Difficulty upar select kar sakte hain. Jo option blank rahega, uski value Excel se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
+            <div className="admin-qb-upload-info"><b>Language support</b><p>Odia Grammar: Odia only. English Language: English only. All other subjects: English + Odia. Hindi question/explanation fields can stay blank. Options A–D and correct answer are required.</p><p>Subject, Chapter aur Difficulty upar select kar sakte hain. Jo option blank rahega, uski value Excel se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
           </div>
         </div>
         {file && <div className="admin-qb-file-selected">Selected file: <b>{file.name}</b></div>}

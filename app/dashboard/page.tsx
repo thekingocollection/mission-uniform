@@ -21,6 +21,8 @@ export default function Dashboard() {
       ]);
       if (!active) return;
       if (profile?.full_name) setName(profile.full_name);
+      setEmail(profile?.email || user.email || "");
+      setEmailVerified(!!profile?.email_verified);
       setAttempts(count || 0);
     })().catch(() => {
       if (active) setName("Student");

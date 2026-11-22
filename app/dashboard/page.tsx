@@ -31,7 +31,7 @@ export default function Dashboard() {
       setAttempts(count || 0);
       const { data: sessionData } = await sb.auth.getSession();
       if (sessionData.session) {
-        const insightResponse = await fetch("/api/leaderboard", { headers: { Authorization: "Bearer " + sessionData.session.access_token }, cache: "no-store" });
+        const insightResponse = await fetch("/api/study-insights", { headers: { Authorization: "Bearer " + sessionData.session.access_token }, cache: "no-store" });
         if (insightResponse.ok) {
           const insightData = await insightResponse.json();
           if (active) setStudyInsights({ weakAreas: insightData.weakAreas || [], subjectPace: insightData.subjectPace || [] });

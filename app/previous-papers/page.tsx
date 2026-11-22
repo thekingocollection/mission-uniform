@@ -44,7 +44,7 @@ export default function Page() {
     void run();
     return()=>{active=false;};
   },[router]);
-  const years=useMemo(()=>Array.from(new Set(papers.map(p=>p.exam_year).filter(Boolean))).sort((a,b)=>Number(b)-Number(a)),[papers]);
+  const years=useMemo(()=>Array.from(new Set([...papers.map(p=>p.exam_year),...pdfPapers.map(p=>p.exam_year)].filter(Boolean))).sort((a,b)=>Number(b)-Number(a)),[papers,pdfPapers]);
   const visible=year==="all"?papers:papers.filter(p=>String(p.exam_year)===year);
   const visiblePdfs=year==="all"?pdfPapers:pdfPapers.filter(p=>String(p.exam_year)===year);
   if(checking||!authorized)return <main className="panel" style={{padding:40,textAlign:"center"}}>Checking student login...</main>;

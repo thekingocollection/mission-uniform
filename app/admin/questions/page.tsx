@@ -180,6 +180,23 @@ export default function AdminQuestions() {
 
   const pendingCount = questions.filter(q => !q.verified).length;
   const verifiedCount = questions.filter(q => q.verified).length;
+  const smartAudit = useMemo(() => {
+    const seen = new Set<string>();
+    let duplicates = 0, incomplete = 0, invalidKeys = 0;
+    for (const q of questions) {
+      const key = [q.subject_id || "", normalize(q.chapter), normalize(q.question_hi || q.question_en || q.question_or)].join("|");
+      if (key.split("|").pop()) {
+        if (seen.has(key)) duplicates++;
+        else seen.add(key);
+      }
+      const opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
+      const values = opts.map((v:any) => typeof v === "string" ? v.trim() : String(v?.text ?? v?.value ?? "").trim());
+      if (!q.question_hi?.trim() || values.length !== 4 || values.some(v => !v)) incomplete++;
+      if (!["A","B","C","D"].includes(String(q.correct_option || "").toUpperCase())) invalidKeys++;
+    }
+    return { duplicates, incomplete, invalidKeys, scanned: questions.length };
+  }, [questions]);
+
 
   function toggleSelected(id: string) {
     setSelected(old =>

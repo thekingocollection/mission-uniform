@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { filterExamSubjects } from "@/lib/exam-subjects";
 import * as XLSX from "xlsx";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
@@ -46,7 +47,7 @@ export default function TestManager() {
       sb.from("question_pools").select("id,title,total_questions,is_active").eq("is_active",true).order("created_at",{ascending:false})
     ]);
     if(t.error)setMessage(t.error.message); else setTests(t.data||[]);
-    setSubjects(s.data||[]);setBankQuestions(q.data||[]);setPools(p.data||[]);
+    setSubjects(filterExamSubjects(s.data||[]));setBankQuestions(q.data||[]);setPools(p.data||[]);
   }
   useEffect(()=>{void load()},[sb]);
   const chapters=[...new Set(bankQuestions.map(q=>q.chapter).filter(Boolean))] as string[];

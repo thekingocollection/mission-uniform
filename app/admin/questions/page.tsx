@@ -378,8 +378,8 @@ export default function AdminQuestions() {
     setMessage("");
 
     try {
-      if (selectedFile.size > 2 * 1024 * 1024) {
-        throw new Error("Maximum file size is 2 MB.");
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        throw new Error("Maximum file size is 10 MB.");
       }
 
       const buffer = await selectedFile.arrayBuffer();
@@ -454,7 +454,7 @@ export default function AdminQuestions() {
         return {
           row: index + 2,
           subject: subject?.name_en || data.subject_name,
-          chapter: data.chapter,
+          chapter: importChapterId ? (chapter?.name || data.chapter) : data.chapter,
           question: data.question_hi,
           errors,
           payload: errors.length ? null : {
@@ -498,10 +498,10 @@ export default function AdminQuestions() {
     setBusy(true);
 
     let importError: any = null;
-    for (let i = 0; i < valid.length; i += 100) {
-      const { error } = await supabase.from("questions").insert(valid.slice(i, i + 100));
+    for (let i = 0; i < valid.length; i += 250) {
+      const { error } = await supabase.from("questions").insert(valid.slice(i, i + 250));
       if (error) { importError = error; break; }
-      setMessage(`Imported ${Math.min(i + 100, valid.length)} / ${valid.length} questions...`);
+      setMessage(`Imported ${Math.min(i + 250, valid.length)} / ${valid.length} questions...`);
     }
 
     if (importError) {
@@ -717,7 +717,7 @@ export default function AdminQuestions() {
             </label>
           </div>
           <div className="admin-qb-upload-row">
-            <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 2 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
+            <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 10 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
             <div className="admin-qb-upload-info"><b>Before importing</b><p>Upar Subject, Chapter aur Difficulty select kar sakte hain. Jo option blank rahega, uski value Excel columns se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
           </div>
         </div>

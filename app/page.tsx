@@ -49,14 +49,6 @@ export default function HomePage() {
     };
   }, [router]);
 
-  if (checkingAuth) {
-    return <section className="panel" style={{ maxWidth: 520, margin: "48px auto", padding: 32, textAlign: "center" }}>
-      <span className="eyebrow">MISSION UNIFORM OP</span>
-      <h2>Welcome back</h2>
-      <p>Checking your student account…</p>
-    </section>;
-  }
-
   return (
     <main className="mu-home mu-home--defence">
       <section className="mu-defence-hero">

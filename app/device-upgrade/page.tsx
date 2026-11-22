@@ -47,7 +47,7 @@ export default function DeviceUpgradePage() {
     return () => { active = false; };
   }, [router]);
 
-  async function startPayment() {
+  async function leaveUpgrade() {\n    const sb = supabaseBrowser();\n    if (sb) await sb.auth.signOut();\n    window.localStorage.removeItem("mu_pending_device_id");\n    router.replace("/login");\n  }\n\n  async function startPayment() {
     if (!deviceId || busy) return;
     const sb = supabaseBrowser();
     if (!sb) {
@@ -141,7 +141,7 @@ export default function DeviceUpgradePage() {
         <button className="btn primary full" type="button" onClick={() => void startPayment()} disabled={loading || busy || !deviceId}>
           {loading ? "Checking account…" : busy ? "Processing…" : "Pay ₹19 & Register Device"}
         </button>
-        <p className="auth-switch"><button type="button" onClick={() => router.replace("/login")} style={{ border: 0, background: "transparent", color: "#9a7415", cursor: "pointer" }}>← Back to Login</button></p>
+        <p className="auth-switch"><button type="button" onClick={() => void leaveUpgrade()} style={{ border: 0, background: "transparent", color: "#9a7415", cursor: "pointer" }}>Sign out and return to Login</button></p>
       </section>
     </main>
   );

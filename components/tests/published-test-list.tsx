@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Paper = {
   id: string; title: string; description: string | null; test_type: string; chapter?: string | null;
@@ -38,7 +39,10 @@ export default function PublishedTestList({ testType }: { testType?: string }) {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/api/tests" + (testType ? "?type=" + encodeURIComponent(testType) : ""), { cache: "no-store" });
+      const sb = supabaseBrowser();
+      const { data: { session } } = sb ? await sb.auth.getSession() : { data: { session: null } };
+      if (!session) throw new Error("Please login to view tests.");
+      const response = await fetch("/api/tests" + (testType ? "?type=" + encodeURIComponent(testType) : ""), { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Tests load nahi hue.");
       setTests(data.tests || []);

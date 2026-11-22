@@ -3,7 +3,7 @@ import { getServiceSupabase } from "@/lib/server-supabase";
 
 export async function POST(request: NextRequest) {
   try {
-    const accessToken = request.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+    const accessToken = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     const body = await request.json();
     const deviceId = String(body?.device_id || "");
     if (!accessToken || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(deviceId)) {

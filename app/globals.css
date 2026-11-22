@@ -4370,3 +4370,32 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 @media(max-width:650px){.mu-trial-banner{grid-template-columns:1fr;gap:12px;padding:18px}.mu-trial-clock{width:100%;min-width:0}.mu-trial-actions{grid-column:auto;align-items:flex-start;flex-direction:column}.mu-trial-banner--compact{grid-template-columns:1fr}.mu-trial-banner--compact .mu-trial-clock{width:100%;min-width:0}.mu-trial-banner--compact .mu-trial-actions{grid-column:auto}.mu-topic-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-auth-page{margin-top:16px}}
 @media(max-width:370px){.mu-topic-grid{grid-template-columns:1fr}.mu-trial-copy h2{font-size:22px}}
 @media(prefers-reduced-motion:reduce){.mu-trial-banner *{scroll-behavior:auto!important}}
+
+
+/* Admin question bank: compact cards to show more questions per mobile screen */
+.admin-qb-question-list{gap:8px}
+.admin-qb-question{grid-template-columns:20px minmax(0,1fr) auto;gap:8px 10px;padding:10px 12px;border-radius:11px}
+.admin-qb-check{padding-top:2px}
+.admin-qb-check input{width:18px;height:18px}
+.admin-qb-question-meta{gap:5px;margin-bottom:5px}
+.admin-qb-question-meta span{padding:3px 7px;font-size:9px;line-height:1.25}
+.admin-qb-question h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:13px;line-height:1.38}
+.admin-qb-translation{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;margin:3px 0 0!important;font-size:10px;line-height:1.3}
+.admin-qb-question-foot{gap:8px;margin-top:6px;font-size:9px;line-height:1.3}
+.admin-qb-question-foot small{font-size:9px}
+.admin-qb-question-actions{gap:6px}
+.admin-qb-question-actions button{min-height:32px;padding:6px 10px;font-size:10px}
+.admin-qb-verify-mini{min-height:32px;padding:6px 10px;font-size:10px}
+@media(max-width:720px){
+  .admin-qb-question{grid-template-columns:20px minmax(0,1fr);gap:6px 8px;padding:9px 10px}
+  .admin-qb-question-actions{grid-column:2;flex-direction:row;justify-content:flex-start;gap:7px}
+  .admin-qb-question-actions button{min-height:34px}
+}
+@media(max-width:480px){
+  .admin-qb-question{padding:9px;gap:5px 7px}
+  .admin-qb-question-meta{gap:4px;margin-bottom:4px}
+  .admin-qb-question-meta span{padding:3px 6px;font-size:8px}
+  .admin-qb-question h3{font-size:12px;line-height:1.35}
+  .admin-qb-question-foot{gap:7px;margin-top:5px;font-size:9px}
+  .admin-qb-question-actions button{min-height:32px;padding:5px 10px;font-size:10px}
+}

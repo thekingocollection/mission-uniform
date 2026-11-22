@@ -131,6 +131,9 @@ alter table public.student_subject_question_seen enable row level security;
 revoke all on public.student_subject_question_seen from anon,authenticated;
 grant all on public.student_subject_question_seen to service_role;
 
+-- Remove the legacy three-argument overload; PostgREST cannot resolve the two-argument call while both signatures exist.
+drop function if exists public.start_mock_test_attempt(uuid,integer,text);
+
 create or replace function public.start_mock_test_attempt(p_test_id uuid,p_question_count integer default null)
 returns jsonb language plpgsql security definer set search_path=public as $$
 declare

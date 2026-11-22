@@ -65,6 +65,14 @@ export default function SubjectMockTestPage() {
 
   useEffect(() => { void load(); }, []);
 
+  useEffect(() => {
+    if (!trialActive || !trialExpiresAt) return;
+    const expiry = new Date(trialExpiresAt).getTime();
+    const delay = Math.max(0, expiry - Date.now() + 500);
+    const timer = window.setTimeout(() => { void load(); }, Math.min(delay, 2147480000));
+    return () => window.clearTimeout(timer);
+  }, [trialActive, trialExpiresAt]);
+
   const selected = useMemo(() => subjects.find(s => s.subject_id === selectedId), [subjects, selectedId]);
   const maxCount = Math.min(100, selected?.verified_questions || 0);
   const visibleSubjects = subjects.filter(s => `${s.name_en || ""} ${s.name_hi || ""}`.toLowerCase().includes(search.trim().toLowerCase()));

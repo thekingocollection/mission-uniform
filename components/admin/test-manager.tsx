@@ -144,8 +144,19 @@ export default function TestManager() {
   }
   if(!sb)return <section className="panel">Supabase configuration missing.</section>;
   return <div className="admin-tests-page">
-    <section className="panel">
-      <span className="eyebrow">MISSION UNIFORM OP · ADMIN</span><h1>Mock Test Builder</h1>
+    <section className="mu-test-manager-hero">
+      <div><span className="eyebrow">MISSION UNIFORM OP · EXAM CONTROL CENTER</span><h1>Test Management</h1>
+      <p>Create, organize and publish exam papers from one workspace. Keep drafts ready, review question quality and control what students can attempt.</p></div>
+      <div className="mu-test-manager-hero-mark"><span>MUOP</span><b>EXAM<br/>DESK</b><small>ADMIN WORKSPACE</small></div>
+    </section>
+    <section className="mu-test-manager-stats">
+      <article><small>{managePreviousOnly?"PREVIOUS YEAR PAPERS":"REGULAR TEST PAPERS"}</small><b>{visibleTests.length}</b><span>Total papers in this section</span></article>
+      <article><small>PUBLISHED</small><b>{publishedCount}</b><span>Visible to students</span></article>
+      <article><small>DRAFTS</small><b>{draftCount}</b><span>Not yet published</span></article>
+      <article><small>QUESTIONS</small><b>{totalQuestions}</b><span>Across listed papers</span></article>
+    </section>
+    <section className="panel mu-test-manager-builder">
+      <div className="mu-test-section-title"><div><span>01 · BUILD & CONFIGURE</span><h2>Create a Test Paper</h2><p>Choose a source, set exam rules and save as draft or publish.</p></div></div>
       <div className="mu-admin-mode-switch"><button type="button" className={!managePreviousOnly?"active":""} onClick={()=>setManagePreviousOnly(false)}>Regular Mock Tests</button><button type="button" className={managePreviousOnly?"active":""} onClick={()=>{setManagePreviousOnly(true);setIsPreviousYear(true);setMode("manual");setType("full");}}>Previous Year Papers</button></div>
       <p>Daily / full mock tests ke saath year-wise Previous Year Question Papers bhi create aur publish karein.</p>
       <label className="mu-prev-toggle"><input type="checkbox" checked={isPreviousYear||managePreviousOnly} disabled={managePreviousOnly} onChange={e=>{setIsPreviousYear(e.target.checked);if(e.target.checked){setType("full");setMode("manual");}}}/> This is a Previous Year Paper</label>

@@ -20,18 +20,25 @@ export async function GET(req:NextRequest){
       .order("submitted_at",{ascending:false}).limit(300);
     if(error)throw error;
 
-    const {data:allAttempts,error:allError}=await db.from("test_attempts")
-      .select("user_id,test_id,score,correct_count,total_questions,submitted_at")
-      .eq("is_submitted",true).order("submitted_at",{ascending:false}).limit(10000);
-    if(allError)throw allError;
-    const best=new Map<string,any>();
-    for(const a of allAttempts||[]){const k=a.user_id+":"+a.test_id,old=best.get(k);if(!old||Number(a.score||0)>Number(old.score||0))best.set(k,a);}
-    const totals=new Map<string,any>();
-    for(const a of best.values()){const t=totals.get(a.user_id)||{points:0,tests:0,correct:0,questions:0};t.points+=Math.max(0,Number(a.score||0));t.tests++;t.correct+=Number(a.correct_count||0);t.questions+=Number(a.total_questions||0);totals.set(a.user_id,t);}
-    const ids=[...totals.keys()];let profiles:any[]=[];
-    if(ids.length){const {data,error:pe}=await db.from("profiles").select("id,public_display_name").in("id",ids);if(pe)throw pe;profiles=data||[];}
-    const names=new Map(profiles.map(p=>[p.id,p.public_display_name?.trim()||"Cadet "+String(p.id).slice(0,4).toUpperCase()]));
-    const ranked=[...totals.entries()].map(([id,t])=>({user_id:id,name:names.get(id)||"Student Cadet",points:Math.round(t.points*100)/100,tests:t.tests,accuracy:t.questions?Math.round(t.correct/t.questions*100):0})).sort((a,b)=>b.points-a.points||b.tests-a.tests||b.accuracy-a.accuracy).map((r,i)=>({...r,rank:i+1}));
+    const { data: leaderboardRows, error: leaderboardError } = await db.rpc("get_student_leaderboard_v1");
+    if (leaderboardError) throw leaderboardError;
+    const visibleRows: any[] = (leaderboardRows || []).filter((row: any) => Number(row.rank) <= 50 || row.user_id === u.user.id);
+    const ids = [...new Set(visibleRows.map((row: any) => row.user_id))];
+    let profiles: any[] = [];
+    if (ids.length) {
+      const { data, error: profileError } = await db.from("profiles").select("id,public_display_name").in("id", ids);
+      if (profileError) throw profileError;
+      profiles = data || [];
+    }
+    const names = new Map(profiles.map(p => [p.id, p.public_display_name?.trim() || "Cadet " + String(p.id).slice(0, 4).toUpperCase()]));
+    const ranked = visibleRows.map((row: any) => ({
+      user_id: row.user_id,
+      name: names.get(row.user_id) || "Student Cadet",
+      points: Math.round(Number(row.points || 0) * 100) / 100,
+      tests: Number(row.tests || 0),
+      accuracy: Number(row.questions || 0) ? Math.round(Number(row.correct || 0) / Number(row.questions) * 100) : 0,
+      rank: Number(row.rank)
+    })).sort((a: any, b: any) => a.rank - b.rank);
 
     let weakAreas:any[]=[];
     let subjectPace:any[]=[];
@@ -75,7 +82,7 @@ export async function GET(req:NextRequest){
       weakAreas=[...chapterMap.values()].map(x=>({...x,accuracy:x.attempted?Math.round(x.correct/x.attempted*100):0})).filter(x=>x.attempted>=2&&x.accuracy<70).sort((a,b)=>a.accuracy-b.accuracy||b.attempted-a.attempted).slice(0,8);
       subjectPace=[...paceMap.values()].map(x=>({...x,avgSecondsPerQuestion:x.questions?Math.round(x.seconds/x.questions):0})).sort((a,b)=>b.avgSecondsPerQuestion-a.avgSecondsPerQuestion).slice(0,8);
     }
-    return NextResponse.json({top:ranked.slice(0,50),me:ranked.find(r=>r.user_id===u.user.id)||null,weakAreas,subjectPace},{headers:{"Cache-Control":"private, no-store"}});
+    return NextResponse.json({top:top:ranked.filter(r=>r.rank<=50),me:ranked.find(r=>r.user_id===u.user.id)||null,weakAreas,subjectPace},{headers:{"Cache-Control":"private, no-store"}});
   }catch(e:any){
     console.error("LEADERBOARD_ERROR",e);
     return NextResponse.json({error:e.message||"Unable to calculate leaderboard."},{status:500});

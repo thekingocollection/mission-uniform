@@ -49,30 +49,26 @@ on conflict(slug) do update set
 
 -- Create a subject practice paper even when a subject has fewer than 30 questions.
 -- The student chooses a count up to the currently verified question count.
-create or replace function public.ensure_subject_random_practice()
-returns trigger language plpgsql security definer set search_path=public as $$
+-- This legacy trigger function was attached to a row table whose NEW record
+-- does not contain subject_id. Remove every trigger bound to it; subject mock
+-- papers are created explicitly in the set-based INSERT below.
+do $$
 declare
-  v_subject uuid := new.subject_id;
-  v_name text;
+  v_trigger record;
 begin
-  if v_subject is null then return new; end if;
-  select coalesce(name_en,name_hi,'Subject') into v_name
-  from public.subjects where id=v_subject and is_active=true;
-  if v_name is not null and not exists (
-    select 1 from public.test_papers t
-    where t.subject_id=v_subject and t.question_mode='subject_random' and t.status<>'archived'
-  ) then
-    insert into public.test_papers(
-      title,description,test_type,subject_id,duration_minutes,total_questions,
-      marks_per_question,negative_marking,status,created_by,question_mode,pool_id
-    ) values (
-      v_name || ' · Random Mock Test',
-      'Each attempt receives a student-specific random set from the verified subject question bank.',
-      'subject',v_subject,30,30,1,0,'published',null,'subject_random',null
-    );
-  end if;
-  return new;
+  for v_trigger in
+    select n.nspname as schema_name, t.relname as table_name, g.tgname as trigger_name
+    from pg_trigger g
+    join pg_class t on t.oid=g.tgrelid
+    join pg_namespace n on n.oid=t.relnamespace
+    where not g.tgisinternal
+      and g.tgfoid = to_regprocedure('public.ensure_subject_random_practice()')
+  loop
+    execute format('drop trigger %I on %I.%I',
+      v_trigger.trigger_name, v_trigger.schema_name, v_trigger.table_name);
+  end loop;
 end $$;
+drop function if exists public.ensure_subject_random_practice();
 
 insert into public.test_papers(
   title,description,test_type,subject_id,duration_minutes,total_questions,

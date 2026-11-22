@@ -1,3 +1,4 @@
+import { filterExamSubjects } from "@/lib/exam-subjects";
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
@@ -21,10 +22,11 @@ export async function GET(req: NextRequest) {
       db.from("subject_access_settings").select("subject_id,price_paise,duration_days,is_enabled")
     ]);
     if (subjectError) throw subjectError;
+    const allowedSubjects = filterExamSubjects(subjects || []);
     const now = Date.now();
     const accessMap = new Map((accessRows || []).map((a: any) => [a.subject_id, a]));
     const configMap = new Map((configs || []).map((c: any) => [c.subject_id, c]));
-    const output = (subjects || []).map((s: any) => {
+    const output = allowedSubjects.map((s: any) => {
       const cfg: any = configMap.get(s.id) || { price_paise: 2900, duration_days: null, is_enabled: true };
       const access: any = accessMap.get(s.id);
       const hasAccess = !!access && (!access.expires_at || new Date(access.expires_at).getTime() > now);

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const db = getServiceSupabase();
     const { data, error } = await db.auth.getUser(accessToken);
     if (error || !data.user) return NextResponse.json({ error: "Your login session expired. Please log in again." }, { status: 401 });
-    const { data: allowed, error: bindError } = await db.rpc("claim_student_device", {
+    const { data: claimResult, error: bindError } = await db.rpc("claim_student_device_v2", {
       p_user_id: data.user.id,
       p_device_id: deviceId
     });

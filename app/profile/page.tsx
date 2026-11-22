@@ -21,11 +21,11 @@ export default function Profile() {
       if(!sb){router.replace("/login?next=/profile");return;}
       const {data:{user},error}=await sb.auth.getUser();
       if(error||!user){router.replace("/login?next=/profile");return;}
-      const {data}=await sb.from("profiles").select("full_name").eq("id",user.id).maybeSingle();
+      const {data}=await sb.from("profiles").select("full_name,phone,email").eq("id",user.id).maybeSingle();
       if(!active)return;
       setName(data?.full_name||String(user.user_metadata?.full_name||""));
-      setPhone(user.phone||"");
-      setEmail(user.email||"");
+      setPhone(data?.phone||user.phone||"");
+      setEmail(data?.email||user.email||"");
       setLoading(false);
     })();
     return()=>{active=false};

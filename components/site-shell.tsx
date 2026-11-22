@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -50,7 +51,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <Link className="brand" href="/" onClick={() => setOpen(false)}>
-        <span className="brand-mark">MU</span>
+        <Image className="brand-logo" src="/mission-uniform-logo.png" alt="Mission Uniform OP logo" width={54} height={54} priority />
         <span>MISSION <b>UNIFORM OP</b><small>आपकी वर्दी, आपका सपना।</small></span>
       </Link>
       <button className="menu-toggle" onClick={() => setOpen(v => !v)} aria-label="Toggle navigation" aria-expanded={open}>
@@ -142,7 +143,7 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
   if (checking || !allowed) return <main className="mu-access-welcome">
     <section className="mu-access-card">
       <span className="mu-access-kicker">MISSION UNIFORM OP · CADET ENTRY GATE</span>
-      <div className="mu-access-emblem" aria-hidden="true">MU<span>★</span></div>
+      <div className="mu-access-emblem"><Image src="/mission-uniform-logo.png" alt="Mission Uniform OP" width={104} height={104} priority /></div>
       <p className="mu-access-overline">YOUR DREAM. YOUR UNIFORM. YOUR MISSION.</p>
       <h1>{checking ? "Preparing Your Student Portal" : "Your Mission Starts Here"}</h1>
       <p className="mu-access-lead">{checking ? "We are securely checking your student session. Please wait a moment." : "Login to continue your preparation, attempt mock tests and track your progress."}</p>

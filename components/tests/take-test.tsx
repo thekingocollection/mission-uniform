@@ -53,8 +53,10 @@ export default function TakeTest({ id }: { id: string }) {
         const response = await fetch(`/api/tests/${id}/questions`, {
           headers: { Authorization: `Bearer ${session.access_token}` },
         });
-        const data = await response.json();
-
+        const raw = await response.text();
+        let data: any = {};
+        try { data = raw ? JSON.parse(raw) : {}; }
+        catch { throw new Error("Server response invalid. Please refresh and retry."); }
         if (!response.ok) throw new Error(data.error || "Test load nahi hua.");
 
         if (active) {
@@ -138,6 +140,7 @@ export default function TakeTest({ id }: { id: string }) {
 
       setResult(data);
     } catch (e: any) {
+      submittedRef.current = false;
       setError(e.message || "Result save nahi hua.");
     } finally {
       setSaving(false);
@@ -316,6 +319,7 @@ export default function TakeTest({ id }: { id: string }) {
                 Status: <b>{item.status.toUpperCase()}</b>
               </p>
 
+              {(item.chapter || item.difficulty) && <p className="muted">{item.chapter || "General"}{item.difficulty ? " · " + item.difficulty : ""}</p>}
               {item.explanation && (
                 <p><b>Explanation:</b> {item.explanation}</p>
               )}

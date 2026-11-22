@@ -4,7 +4,7 @@ export const EXAM_SUBJECTS = [
   { name: "General Knowledge", aliases: ["generalknowledge", "gk", "generalknowledgeandcurrentaffairs"], slug: "general-knowledge", odia: "ସାଧାରଣ ଜ୍ଞାନ", description: "India, Odisha, world, science and current affairs." },
   { name: "Quantitative Aptitude", aliases: ["quantitativeaptitude", "quantitative", "math", "mathematics", "arithmetic"], slug: "quantitative-aptitude", odia: "ଗଣିତ", description: "Arithmetic and quantitative problem solving." },
   { name: "Reasoning", aliases: ["reasoning", "logicalreasoning", "mentalability"], slug: "reasoning", odia: "ଯୁକ୍ତିତର୍କ", description: "Logical, verbal and non-verbal reasoning." },
-  { name: "Basic Computer Literacy", aliases: ["basiccomputerliteracy", "computerliteracy", "computer", "basiccomputer"], slug: "basic-computer-literacy", odia: "ମୌଳିକ କମ୍ପ୍ୟୁଟର ଜ୍ଞାନ", description: "Basic computer knowledge and digital literacy." }
+  { name: "Basic Computer Literacy", aliases: ["basiccomputerliteracy", "computerliteracy", "computer", "basiccomputer", "computerawareness", "computerknowledge", "basicknowledgeofcomputer", "computerfundamentals", "computerapplications", "informationtechnology", "it"], slug: "basic-computer-literacy", odia: "ମୌଳିକ କମ୍ପ୍ୟୁଟର ଜ୍ଞାନ", description: "Basic computer knowledge and digital literacy." }
 ] as const;
 
 export function normalizeSubjectName(value: unknown): string {

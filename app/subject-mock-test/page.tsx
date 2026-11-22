@@ -10,6 +10,31 @@ type Subject = {
   enabled: boolean; purchased: boolean; expires_at: string | null; can_start: boolean;
 };
 
+
+const ALLOWED_SUBJECTS = [
+  "Odia Grammar",
+  "English Grammar",
+  "General Knowledge",
+  "Quantitative Aptitude",
+  "Reasoning",
+  "Basic Computer Literacy"
+] as const;
+function subjectKey(value: unknown) {
+  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+const SUBJECT_ALIASES: Record<string, string[]> = {
+  "Odia Grammar": ["odiagrammar", "odiyagrammar", "odia"],
+  "English Grammar": ["englishgrammar", "english"],
+  "General Knowledge": ["generalknowledge", "gk", "generalknowledgeandcurrentaffairs"],
+  "Quantitative Aptitude": ["quantitativeaptitude", "quantitative", "math", "mathematics", "arithmetic"],
+  "Reasoning": ["reasoning", "logicalreasoning", "mentalability"],
+  "Basic Computer Literacy": ["basiccomputerliteracy", "computerliteracy", "computer", "basiccomputer"]
+};
+function canonicalSubject(subject: any): typeof ALLOWED_SUBJECTS[number] | null {
+  const keys = [subject?.name_en, subject?.name_hi].map(subjectKey);
+  return ALLOWED_SUBJECTS.find(name => SUBJECT_ALIASES[name].some(alias => keys.includes(alias))) || null;
+}
+
 const PRESETS = [10, 20, 30, 50, 100];
 function durationLabel(days: number | null) { return days === null ? "Lifetime access" : days === 365 ? "1 year access" : days + " days access"; }
 
@@ -40,13 +65,24 @@ export default function SubjectMockTestPage() {
       if (!accessResponse.ok) throw new Error(accessData.error || "Subject access could not be loaded.");
       if (!practiceResponse.ok) throw new Error(practiceData.error || "Mock Test subjects could not be loaded.");
       const practiceMap = new Map<string, any>((practiceData.subjects || []).map((p: any) => [String(p.subject_id), p]));
-      const merged = (accessData.subjects || []).map((s: any) => ({
-        ...s, ...(practiceMap.get(s.id) || {}),
-        id: practiceMap.get(s.id)?.id || "",
-        subject_id: s.id,
-        verified_questions: practiceMap.get(s.id)?.verified_questions || 0
-      })) as Subject[];
-      setSubjects(merged);
+      const merged = (accessData.subjects || [])
+        .map((s: any) => {
+          const canonical = canonicalSubject(s);
+          if (!canonical) return null;
+          const practice = practiceMap.get(s.id) || {};
+          return {
+            ...s, ...practice,
+            name_en: canonical,
+            id: practice.id || "",
+            subject_id: s.id,
+            verified_questions: practice.verified_questions || 0
+          };
+        })
+        .filter(Boolean) as Subject[];
+      const ordered = ALLOWED_SUBJECTS
+        .map(name => merged.find(subject => subject.name_en === name))
+        .filter(Boolean) as Subject[];
+      setSubjects(ordered);
       const requested = new URLSearchParams(window.location.search).get("subject");
       const initial = merged.find(s => s.subject_id === requested) || merged[0];
       if (initial) { setSelectedId(initial.subject_id); setCount(Math.min(30, Math.max(1, initial.verified_questions))); }

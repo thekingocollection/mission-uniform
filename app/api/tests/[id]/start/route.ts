@@ -15,6 +15,18 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     if(!url||!anon)return NextResponse.json({error:"Supabase public key is not configured."},{status:500});
     const studentDb=createClient(url,anon,{global:{headers:{Authorization:"Bearer "+token}},auth:{autoRefreshToken:false,persistSession:false}});
     const {id}=await params;
+    const {data: targetTest,error: targetError}=await service.from("test_papers").select("id,subject_id,question_mode").eq("id",id).eq("status","published").maybeSingle();
+    if(targetError||!targetTest)return NextResponse.json({error:"Test not found or not published."},{status:404});
+    if(targetTest.question_mode==="subject_random"){
+      const [{data:global},{data:setting},{data:access}]=await Promise.all([
+        service.from("subject_access_global").select("all_subjects_enabled").eq("singleton",true).maybeSingle(),
+        service.from("subject_access_settings").select("is_enabled").eq("subject_id",targetTest.subject_id).maybeSingle(),
+        service.from("student_subject_access").select("expires_at").eq("user_id",userData.user.id).eq("subject_id",targetTest.subject_id).maybeSingle()
+      ]);
+      const active=!!access&&(!access.expires_at||new Date(access.expires_at).getTime()>Date.now());
+      if(global?.all_subjects_enabled===false||setting?.is_enabled===false)return NextResponse.json({error:"This subject is currently locked by Admin."},{status:403});
+      if(!active)return NextResponse.json({error:"Unlock this subject to start its mock tests."},{status:402});
+    }
     let body:any={};
     try { body=await req.json(); } catch {}
     const rawCount=body.question_count;

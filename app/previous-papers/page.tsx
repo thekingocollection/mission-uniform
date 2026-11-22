@@ -29,7 +29,8 @@ export default function Page() {
       setAuthorized(true);setChecking(false);
       try{
         const {data:{session}}=await sb.auth.getSession();
-        const headers=session?{Authorization:"Bearer "+session.access_token}:{};
+        const headers: Record<string,string> = {};
+        if(session?.access_token) headers.Authorization="Bearer "+session.access_token;
         const [response,pdfResponse]=await Promise.all([
           fetch("/api/tests?type=full",{headers}),
           fetch("/api/previous-year-papers",{headers})

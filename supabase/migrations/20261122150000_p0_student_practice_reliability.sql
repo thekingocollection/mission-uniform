@@ -15,7 +15,7 @@ with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,
   from canonical c
   join lateral (
     select id from public.subjects s
-    where regexp_replace(lower(coalesce(s.name_en,s.name,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.name_en),'[^a-z0-9]','','g')])
+    where regexp_replace(lower(coalesce(s.name_en,s.name_hi,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.name_en),'[^a-z0-9]','','g')])
        or regexp_replace(lower(coalesce(s.slug,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.slug),'[^a-z0-9]','','g')])
     order by s.sort_order nulls last, s.created_at nulls last
     limit 1
@@ -37,17 +37,17 @@ with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,
   ('reasoning','Reasoning','Reasoning','तर्कशक्ति','ଯୁକ୍ତିତର୍କ','ଯୁକ୍ତିତର୍କ','Logical, verbal and non-verbal reasoning.',5,array['logicalreasoning','mentalability']::text[]),
   ('basic-computer-literacy','Basic Computer Literacy','Basic Computer Literacy','मूल कंप्यूटर साक्षरता','ମୌଳିକ କମ୍ପ୍ୟୁଟର ଜ୍ଞାନ','ମୌଳିକ କମ୍ପ୍ୟୁଟର ଜ୍ଞାନ','Basic computer knowledge and digital literacy.',6,array['computer','computerawareness','computerknowledge','basiccomputer','basiccomputerliteracy','computerliteracy','computerfundamentals','computerapplications','informationtechnology','it']::text[])
 )
-insert into public.subjects(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,is_active,published)
-select c.slug,c.name,c.name_en,c.name_hi,c.name_od,c.name_or,c.description,c.sort_order,true,true
+insert into public.subjects(slug,name_en,name_hi,name_or,description,sort_order,is_active,published)
+select c.slug,c.name_en,c.name_hi,c.name_or,c.description,c.sort_order,true,true
 from canonical c
 where not exists (
   select 1 from public.subjects s
-  where regexp_replace(lower(coalesce(s.name_en,s.name,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.name_en),'[^a-z0-9]','','g')])
+  where regexp_replace(lower(coalesce(s.name_en,s.name_hi,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.name_en),'[^a-z0-9]','','g')])
      or regexp_replace(lower(coalesce(s.slug,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.slug),'[^a-z0-9]','','g')])
 )
 on conflict(slug) do update set
-  name=excluded.name,name_en=excluded.name_en,name_hi=excluded.name_hi,
-  name_od=excluded.name_od,name_or=excluded.name_or,description=excluded.description,
+  name_en=excluded.name_en,name_hi=excluded.name_hi,
+  name_or=excluded.name_or,description=excluded.description,
   sort_order=excluded.sort_order,is_active=true,published=true;
 
 -- Create a subject practice paper even when a subject has fewer than 30 questions.
@@ -81,12 +81,12 @@ insert into public.test_papers(
   title,description,test_type,subject_id,duration_minutes,total_questions,
   marks_per_question,negative_marking,status,created_by,question_mode,pool_id
 )
-select coalesce(s.name_en,s.name_hi,s.name,'Subject') || ' · Random Mock Test',
+select coalesce(s.name_en,s.name_hi,'Subject') || ' · Random Mock Test',
        'Each attempt receives a student-specific random set from the verified subject question bank.',
        'subject',s.id,30,30,1,0,'published',null,'subject_random',null
 from public.subjects s
 where s.is_active=true
-  and regexp_replace(lower(coalesce(s.name_en,s.name,'')),'[^a-z0-9]','','g')
+  and regexp_replace(lower(coalesce(s.name_en,s.name_hi,'')),'[^a-z0-9]','','g')
       = any(array['odiagrammar','englishgrammar','generalknowledge','quantitativeaptitude','reasoning','basiccomputerliteracy'])
   and not exists (
     select 1 from public.test_papers t

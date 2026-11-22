@@ -17,7 +17,6 @@ with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,
     select id from public.subjects s
     where regexp_replace(lower(coalesce(s.name_en,s.name_hi,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.name_en),'[^a-z0-9]','','g')])
        or regexp_replace(lower(coalesce(s.slug,'')),'[^a-z0-9]','','g') = any(c.aliases || array[regexp_replace(lower(c.slug),'[^a-z0-9]','','g')])
-    order by s.sort_order nulls last, s.created_at nulls last
     limit 1
   ) s on true
 )

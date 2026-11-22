@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 type Paper = {
-  id: string; title: string; description: string | null; test_type: string;
+  id: string; title: string; description: string | null; test_type: string; chapter?: string | null;
   question_mode?: string; subject?: { name_en?: string | null; name_hi?: string | null } | null;
   duration_minutes: number; total_questions: number; marks_per_question: number;
   negative_marking: number; is_previous_year?: boolean; exam_year?: number | null;

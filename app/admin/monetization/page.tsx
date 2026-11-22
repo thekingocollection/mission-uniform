@@ -87,7 +87,7 @@ export default function SubjectMonetizationAdmin() {
       <h2>Global Lock / Unlock</h2>
       <p className="admin-muted">Lock All blocks every subject, including students who already purchased access. Unlock All restores access subject to each subject's individual switch and purchase expiry.</p>
       <div className="admin-actions">
-        <button disabled={busy} onClick={() => { setAllEnabled(true); void save({ all_subjects_enabled: true }); }}>Unlock All Subjects</button>
+        <button disabled={busy} onClick={() => { setAllEnabled(true); void save({ all_subjects_enabled: true, unlock_all: true }); }}>Unlock All Subjects</button>
         <button className="danger" disabled={busy} onClick={() => { setAllEnabled(false); void save({ all_subjects_enabled: false }); }}>Lock All Subjects</button>
       </div>
     </section>

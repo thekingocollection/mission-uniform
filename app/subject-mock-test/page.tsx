@@ -20,6 +20,8 @@ export default function SubjectMockTestPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [starting, setStarting] = useState(false);
 
   async function load() {
     setLoading(true); setError("");
@@ -30,8 +32,8 @@ export default function SubjectMockTestPage() {
       if (!session) throw new Error("Please login to view subject mock tests.");
       const headers = { Authorization: "Bearer " + session.access_token };
       const [accessResponse, practiceResponse] = await Promise.all([
-        fetch("/api/subject-access", { headers }),
-        fetch("/api/subject-practice")
+        fetch("/api/subject-access", { headers, cache: "no-store" }),
+        fetch("/api/subject-practice", { cache: "no-store" })
       ]);
       const accessData = await accessResponse.json();
       const practiceData = await practiceResponse.json();
@@ -56,6 +58,9 @@ export default function SubjectMockTestPage() {
 
   const selected = useMemo(() => subjects.find(s => s.subject_id === selectedId), [subjects, selectedId]);
   const maxCount = Math.min(100, selected?.verified_questions || 0);
+  const visibleSubjects = subjects.filter(s => `${s.name_en || ""} ${s.name_hi || ""}`.toLowerCase().includes(search.trim().toLowerCase()));
+  const unlockedCount = subjects.filter(s => s.purchased && s.enabled).length;
+  const availableCount = subjects.filter(s => s.enabled && s.verified_questions > 0).length;
 
   function chooseSubject(id: string) {
     setSelectedId(id);
@@ -111,6 +116,7 @@ export default function SubjectMockTestPage() {
 
   function startTest() {
     if (!selected?.id || !selected.can_start || count < 1 || count > maxCount || !Number.isInteger(count)) return;
+    setStarting(true);
     window.location.href = "/tests/paper/" + selected.id + "?count=" + count;
   }
 
@@ -119,8 +125,8 @@ export default function SubjectMockTestPage() {
       <div className="mu-subject-hero-copy">
         <span className="mu-subject-kicker"><i/> MISSION UNIFORM OP · TRAINING COMMAND</span>
         <h1>Subject Wise <em>Mock Test</em></h1>
-        <p>Subject unlock karke uske available mock tests practice karein. Payment ek baar verify hone ke baad selected duration tak access milega.</p>
-        <div className="mu-subject-hero-tags"><span>✦ VERIFIED QUESTIONS</span><span>✓ SECURE PAYMENT</span><span>◷ ADMIN CONTROLLED ACCESS</span></div>
+        <p>Apna subject chuniye, focused practice kijiye aur har attempt ke baad apni performance improve kijiye. Verified questions se fresh practice set milega.</p>
+        <div className="mu-subject-hero-tags"><span>✦ VERIFIED QUESTIONS</span><span>✓ YOUR OWN PRACTICE PACE</span><span>◷ PROGRESS THROUGH PRACTICE</span></div>
       </div>
       <div className="mu-subject-hero-mark" aria-hidden="true"><div className="mu-subject-orbit orbit-a"/><div className="mu-subject-orbit orbit-b"/><div className="mu-subject-crest"><span>MU</span><b>✦</b><small>TRAINING</small></div></div>
       <div className="mu-subject-hero-foot"><span>INDIVIDUAL SUBJECT TRAINING</span><span>DISCIPLINE · PRACTICE · SUCCESS</span></div>
@@ -128,10 +134,12 @@ export default function SubjectMockTestPage() {
 
     {error && <section className="panel" role="status"><p>{error}</p></section>}
     <section className="mu-subject-section">
-      <div className="mu-subject-section-head"><div><span className="mu-subject-step">01 / SELECT YOUR SUBJECT</span><h2>Choose Training Module</h2><p>Har subject ka price aur access duration Admin control karta hai.</p></div><span className="mu-subject-section-icon">▦</span></div>
+      <div className="mu-subject-section-head"><div><span className="mu-subject-step">01 / YOUR STUDY PLAN</span><h2>Choose a Subject to Focus On</h2><p>Ek time par ek subject par focus karein. Neeche available verified practice modules dekhein.</p></div><span className="mu-subject-section-icon">▦</span></div>
+      {!loading && subjects.length > 0 && <div className="mu-subject-overview"><div><b>{subjects.length}</b><span>Subjects listed</span></div><div><b>{availableCount}</b><span>Ready to practise</span></div><div><b>{unlockedCount}</b><span>Your unlocked subjects</span></div></div>}
+      {!loading && subjects.length > 0 && <label className="mu-subject-search"><span>⌕</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search subject name…" aria-label="Search subjects"/><small>{visibleSubjects.length} results</small></label>
       {loading ? <div className="mu-subject-state">Subjects load ho rahe hain…</div> :
       subjects.length === 0 ? <div className="mu-subject-state">Abhi subjects available nahi hain.</div> :
-      <div className="mu-subject-grid">{subjects.map((s, i) => {
+      <div className="mu-subject-grid">{visibleSubjects.map((s, i) => {
         const active = s.subject_id === selectedId;
         const icons = ["◈","▤","✥","⌘","◎","◇","✦","▧"];
         return <button type="button" key={s.subject_id} aria-pressed={active} className={"mu-subject-card " + (active ? "is-selected" : "")} onClick={() => chooseSubject(s.subject_id)}>
@@ -141,6 +149,7 @@ export default function SubjectMockTestPage() {
           <span className="mu-subject-card-bottom">{!s.enabled ? <><strong>ADMIN LOCKED</strong><i>🔒</i></> : s.purchased ? <><strong>UNLOCKED</strong><i>✓</i></> : <><strong>₹{(s.price_paise / 100).toFixed(0)} · UNLOCK</strong><i>↗</i></>}</span>
         </button>;
       })}</div>}
+      {!loading && subjects.length > 0 && visibleSubjects.length === 0 && <div className="mu-subject-state">No subject matches your search. Try another name.</div>}
     </section>
 
     {selected && <section className="mu-subject-config">
@@ -157,7 +166,8 @@ export default function SubjectMockTestPage() {
             <label className="mu-subject-custom-count"><span>Custom</span><input type="number" min={1} max={maxCount} value={count} onChange={e => setCount(Number(e.target.value))} aria-label="Custom question count"/></label>
           </div>
           <div className="mu-subject-test-summary"><div className="mu-subject-summary-symbol">✦</div><div className="mu-subject-summary-copy"><small>YOUR TEST IS READY</small><b>{selected.name_en || selected.name_hi} Practice</b><span>{count} questions · Random order · Fresh set on every attempt</span></div><div className="mu-subject-summary-count"><b>{count}</b><small>QUESTIONS</small></div></div>
-          <button className="mu-subject-start" disabled={!Number.isInteger(count) || count < 1 || count > maxCount} onClick={startTest}><span>START SUBJECT MOCK TEST</span><b>→</b></button>
+          <button className="mu-subject-start" disabled={starting || !Number.isInteger(count) || count < 1 || count > maxCount} onClick={startTest}><span>{starting ? "PREPARING YOUR TEST…" : "START SUBJECT MOCK TEST"}</span><b>{starting ? "…" : "→"}</b></button>
+          <p className="mu-subject-note">Tip: Start with 10–20 questions if you are learning a chapter. Review mistakes, then try a larger set.</p>
         </>}
       </>}
     </section>}

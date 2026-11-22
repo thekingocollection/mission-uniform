@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { PageHero, InfoCards } from "@/components/content-page";
-import { subjects } from "@/lib/data";
+import { PageHero } from "@/components/content-page";
+import { EXAM_SUBJECTS } from "@/lib/exam-subjects";
 
 export default function SyllabusPage() {
   return <>
@@ -8,9 +8,9 @@ export default function SyllabusPage() {
     <section className="mu-dash-section">
       <div className="mu-section-title"><div><span className="mu-kicker">SUBJECT-WISE STUDY</span><h2>Explore subjects</h2></div></div>
       <div className="mu-feature-grid">
-        {subjects.map((s:any) => <Link className="mu-feature-card" href={"/subjects/"+s.slug} key={s.slug}>
+        {EXAM_SUBJECTS.map((s) => <Link className="mu-feature-card" href={"/subjects/"+s.slug} key={s.slug}>
           <span className="mu-feature-icon blue">📘</span><span className="mu-feature-title">{s.name}</span>
-          <span className="mu-feature-desc">{s.desc}</span><span className="mu-feature-go">View topics <b>↗</b></span>
+          <span className="mu-feature-desc">{s.description}</span><span className="mu-feature-go">View topics <b>↗</b></span>
         </Link>)}
       </div>
     </section>

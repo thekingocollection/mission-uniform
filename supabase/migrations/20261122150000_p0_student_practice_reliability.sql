@@ -94,6 +94,9 @@ where s.is_active=true
   );
 
 -- No paid entitlement is required for student subject-wise practice.
+-- Start all approved subjects unlocked; Super Admin can still use the existing lock controls later.
+update public.subject_access_global set all_subjects_enabled=true where singleton=true;
+update public.subject_access_settings set is_enabled=true;
 -- Admin global/per-subject switches remain available as emergency controls.
 create or replace function public.enforce_subject_access_before_attempt()
 returns trigger language plpgsql security definer set search_path=public as $$

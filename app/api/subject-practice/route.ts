@@ -40,17 +40,16 @@ export async function GET() {
       ]);
       if (countError) throw countError;
       if (testError) throw testError;
-      if (!test || !(count || 0)) return null;
       return {
-        id: test.id,
+        id: test?.id || null,
         subject_id: subject.id,
         name_en: subject.name_en,
         name_hi: subject.name_hi,
-        verified_questions: count || 0
+        verified_questions: test ? (count || 0) : 0
       };
     }));
     return NextResponse.json(
-      { subjects: output.filter(Boolean) },
+      { subjects: output },
       { headers: { "Cache-Control": "private, no-store" } }
     );
   } catch (e: any) {

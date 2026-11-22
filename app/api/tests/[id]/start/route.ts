@@ -1,3 +1,4 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
@@ -10,6 +11,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     const service=getServiceSupabase();
     const {data:userData,error:authError}=await service.auth.getUser(token);
     if(authError||!userData.user)return NextResponse.json({error:"Your login session has expired. Please login again."},{status:401});
+    if (!(await isRegisteredStudentDevice(req, userData.user.id))) return NextResponse.json({error:"This account is not active on this registered device."},{status:403});
     const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anon=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
     if(!url||!anon)return NextResponse.json({error:"Supabase public key is not configured."},{status:500});

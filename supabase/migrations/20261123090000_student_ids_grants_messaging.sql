@@ -15,6 +15,11 @@ from numbered n where p.id = n.id;
 
 create unique index if not exists profiles_student_code_unique on public.profiles(student_code);
 
+-- Continue the yearly sequence after IDs assigned during the backfill.
+select setval('public.muop_student_code_seq', coalesce(max(split_part(student_code, '-', 3)::bigint), 0) + 1, false)
+from public.profiles
+where student_code like 'MUOP-' || to_char(now(), 'YYYY') || '-%';
+
 create or replace function public.assign_muop_student_code()
 returns trigger language plpgsql security definer set search_path=public as $$
 begin

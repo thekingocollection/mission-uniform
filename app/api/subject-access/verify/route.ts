@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     const purchasedAt = new Date();
     const expiresAt = durationDays ? new Date(purchasedAt.getTime() + durationDays * 86400000).toISOString() : null;
     const { error: updateError } = await db.from("subject_payment_transactions").update({
-      status: "paid", razorpay_payment_id, paid_at: purchasedAt.toISOString()
+      status: "paid", razorpay_payment_id, paid_at: purchasedAt.toISOString(), product_name: "Subject Premium", access_duration_days: durationDays, access_expires_at: expiresAt
     }).eq("id", transaction.id).eq("status", "created");
     if (updateError) throw updateError;
     const { error: accessError } = await db.from("student_subject_access").upsert({

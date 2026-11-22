@@ -358,9 +358,9 @@ export default function AdminQuestions() {
     ];
 
     const example = [
-      "Mathematics", "अनुपात", "25 को 2:3 के अनुपात में बांटने पर पहला भाग कितना होगा?",
-      "", "If 25 is divided in the ratio 2:3, what is the first share?",
-      "10", "15", "12", "20", "A", "", "", "", "easy", "Sample"
+      "General Knowledge", "Medieval India", "", "If 25 is divided in the ratio 2:3, what is the first share?",
+      "If 25 is divided in the ratio 2:3, what is the first share? / ୨:୩ ଅନୁପାତରେ ୨୫କୁ ବିଭକ୍ତ କଲେ ପ୍ରଥମ ଅଂଶ କେତେ?",
+      "10 / ୧୦", "15 / ୧୫", "12 / ୧୨", "20 / ୨୦", "A", "", "A ratio divides a quantity into parts. / ଅନୁପାତ ଏକ ପରିମାଣକୁ ଭାଗରେ ବିଭକ୍ତ କରେ।", "A ratio divides a quantity into parts.", "easy", "Sample"
     ];
 
     const sheet = XLSX.utils.aoa_to_sheet([headers, example]);

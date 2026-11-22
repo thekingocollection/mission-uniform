@@ -34,7 +34,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
         return NextResponse.json({error:"One or more selected answers are invalid."},{status:400});
     }
     const {data:test,error:testError}=await db.from("test_papers")
-      .select("marks_per_question,negative_marking").eq("id",id).single();
+      .select("title,marks_per_question,negative_marking").eq("id",id).single();
     if(testError)throw new Error(testError.message);
     let correct=0,wrong=0,skipped=0,score=0;
     const review=rows.map((row:any)=>{
@@ -73,7 +73,18 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
         saved=latest;
       } else saved=updated;
     }
-    return NextResponse.json({success:true,attempt:saved,total,accuracy,review},{headers:{"Cache-Control":"no-store"}});
+    const elapsedSeconds = Math.max(0, Math.floor((new Date(saved.submitted_at || new Date().toISOString()).getTime() - new Date(attempt.started_at).getTime()) / 1000));
+    return NextResponse.json({
+      success:true, attempt:saved, total, accuracy, review,
+      test:{title:test.title,marks_per_question:Number(test.marks_per_question??1),negative_marking:Number(test.negative_marking??0)},
+      summary:{
+        attempted:correct+wrong,
+        unanswered:skipped,
+        positive_marks:Number((correct*Number(test.marks_per_question??1)).toFixed(2)),
+        negative_marks:Number((wrong*Number(test.negative_marking??0)).toFixed(2)),
+        elapsed_seconds:elapsedSeconds
+      }
+    },{headers:{"Cache-Control":"no-store"}});
   }catch(e:any){
     console.error("TEST_SUBMIT_ERROR",e);
     return NextResponse.json({error:e.message||"Unable to submit test."},{status:500});

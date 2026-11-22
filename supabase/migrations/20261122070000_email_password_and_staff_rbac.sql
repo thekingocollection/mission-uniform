@@ -22,3 +22,8 @@ drop policy if exists "attempts own read" on public.attempts;create policy "atte
 drop policy if exists "published jobs visible" on public.job_alerts;drop policy if exists "admin manage jobs" on public.job_alerts;create policy "published jobs or authorized manager" on public.job_alerts for select using(published or public.has_admin_permission('manage_jobs'));create policy "authorized manage jobs" on public.job_alerts for all using(public.has_admin_permission('manage_jobs')) with check(public.has_admin_permission('manage_jobs'));
 drop policy if exists "published notifications visible" on public.notifications;drop policy if exists "admin manage notifications" on public.notifications;create policy "published notifications or authorized manager" on public.notifications for select using(published or public.has_admin_permission('manage_notifications'));create policy "authorized manage notifications" on public.notifications for all using(public.has_admin_permission('manage_notifications')) with check(public.has_admin_permission('manage_notifications'));
 drop policy if exists "admin settings write" on public.site_settings;create policy "authorized settings write" on public.site_settings for all using(public.has_admin_permission('manage_settings')) with check(public.has_admin_permission('manage_settings'));
+
+-- A phone number must identify exactly one student account for mobile + password login.
+create unique index if not exists profiles_phone_unique_idx
+on public.profiles(phone)
+where phone is not null and phone <> '';

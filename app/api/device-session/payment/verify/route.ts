@@ -41,11 +41,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Payment order not found for this device." }, { status: 404 });
     }
 
+    const razorpayAuth = "Basic " + Buffer.from(keyId + ":" + keySecret).toString("base64");
     const razorpayPaymentResponse = await fetch("https://api.razorpay.com/v1/payments/" + encodeURIComponent(payment_id), {
-      headers: { "Authorization": "Basic " + Buffer.from(keyId + ":" + keySecret).toString("base64") },
+      headers: { "Authorization": razorpayAuth },
       cache: "no-store",
     });
-    const razorpayPayment = await razorpayPaymentResponse.json();
+    let razorpayPayment = await razorpayPaymentResponse.json();
+    if (razorpayPaymentResponse.ok &&
+        razorpayPayment.order_id === order_id &&
+        Number(razorpayPayment.amount) === 1900 &&
+        razorpayPayment.currency === "INR" &&
+        razorpayPayment.status === "authorized") {
+      const captureResponse = await fetch("https://api.razorpay.com/v1/payments/" + encodeURIComponent(payment_id) + "/capture", {
+        method: "POST",
+        headers: { "Authorization": razorpayAuth, "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 1900, currency: "INR" }),
+        cache: "no-store",
+      });
+      razorpayPayment = await captureResponse.json();
+    }
     if (!razorpayPaymentResponse.ok ||
         razorpayPayment.order_id !== order_id ||
         Number(razorpayPayment.amount) !== 1900 ||

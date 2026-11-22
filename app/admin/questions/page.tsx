@@ -1,6 +1,6 @@
-import { filterExamSubjects } from "@/lib/exam-subjects";
-
 "use client";
+
+import { filterExamSubjects } from "@/lib/exam-subjects";
 
 import { useEffect, useMemo, useState, ChangeEvent } from "react";
 import * as XLSX from "xlsx";

@@ -1,3 +1,4 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
@@ -9,6 +10,7 @@ export async function POST(req: NextRequest) {
     const { data: authData, error: authError } = await db.auth.getUser(auth.slice(7));
     const user = authData.user;
     if (authError || !user) return NextResponse.json({ error: "Session expired. Please login again." }, { status: 401 });
+    if (!(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
     const { subject_id } = await req.json();
     if (!subject_id) return NextResponse.json({ error: "Subject is required." }, { status: 400 });
     const [{ data: subject }, { data: cfg }, { data: global }] = await Promise.all([

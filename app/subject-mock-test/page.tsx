@@ -147,8 +147,13 @@ export default function SubjectMockTestPage() {
       <div><span>MISSION UNIFORM OP</span><h1>Mock Test</h1></div>
       <label className="mu-fast-search"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search subject..." aria-label="Search subject" /></label>
     </header>
-    <section className="mu-fast-message" role="status">
-      {trialActive ? <>Your 24-hour free trial is active. Access ends: <b>{trialTime}</b>.</> : <>Your free trial has ended. Purchased subjects remain unlocked; unlock other subjects to continue.</>}
+    <section className={trialActive ? "mu-trial-status is-active" : "mu-trial-status is-ended"} role="status" aria-live="polite">
+      <span className="mu-trial-status-icon" aria-hidden="true">{trialActive ? "✦" : "🔒"}</span>
+      <div className="mu-trial-status-copy">
+        <strong>{trialActive ? "YOUR FREE TRIAL IS ACTIVE" : "YOUR FREE TRIAL HAS ENDED"}</strong>
+        <p>{trialActive ? <>Enjoy full subject access until <b>{trialTime}</b>. Keep practising!</> : <>Your purchased subjects are still unlocked. Choose another subject and unlock it to continue your preparation.</>}</p>
+      </div>
+      <span className="mu-trial-status-tag">{trialActive ? "24H ACCESS" : "SUBJECT ACCESS"}</span>
     </section>
     {error && <div className="mu-fast-message" role="alert">{error}</div>}
     {loading ? <div className="mu-fast-empty">Loading subjects...</div> :

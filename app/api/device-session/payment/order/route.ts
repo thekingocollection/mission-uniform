@@ -31,6 +31,12 @@ export async function POST(request: NextRequest) {
     const { data: existing } = await db.from("student_device_bindings")
       .select("device_id").eq("user_id", user.id).eq("device_id", deviceId).maybeSingle();
     if (existing) return NextResponse.json({ error: "This device is already registered." }, { status: 409 });
+    const { count, error: countError } = await db.from("student_device_bindings")
+      .select("device_id", { count: "exact", head: true }).eq("user_id", user.id);
+    if (countError) throw countError;
+    if ((count || 0) < 2) {
+      return NextResponse.json({ error: "You still have a free device slot. No payment is required." }, { status: 409 });
+    }
 
     const receipt = ("mu_device_" + user.id.replace(/-/g, "").slice(0, 12) + "_" + Date.now()).slice(0, 40);
     const razorpayResponse = await fetch("https://api.razorpay.com/v1/orders", {

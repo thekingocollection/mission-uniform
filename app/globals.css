@@ -4446,3 +4446,12 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-access-actions a+ a{border:1px solid rgba(226,199,151,.55);background:transparent;color:#f4dfb8}
 .mu-access-foot{margin-top:24px;color:#a9b7b9;font-size:9px}
 @media(max-width:520px){.mu-access-features{grid-template-columns:1fr}.mu-access-card{padding:26px 20px}.mu-access-actions{flex-direction:column}.mu-access-actions a{width:100%}}
+
+
+/* Auth session redirect state */
+
+.mu-auth-check{min-height:58vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:35px 18px;color:#173747}
+.mu-auth-check-mark{width:76px;height:76px;display:grid;place-items:center;border:2px solid #c8a567;border-radius:50%;margin-bottom:18px;background:#102d3c;color:#f1d8a5;font-weight:900;font-size:25px;box-shadow:0 0 0 7px rgba(200,165,103,.12)}
+.mu-auth-check>span{font-size:10px;letter-spacing:.16em;font-weight:800;color:#9b7942}
+.mu-auth-check h1{font-size:clamp(24px,4vw,34px);margin:12px 0 8px}
+.mu-auth-check p{color:#687982;font-size:14px}

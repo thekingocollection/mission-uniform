@@ -5467,3 +5467,63 @@ body { background:#f5f7f8; color:#183548; }
 @media(prefers-reduced-motion:reduce) {
   .site-header::after,.site-header .nav a.active::after,.site-header .nav a,.mu-menu-lines i { animation:none; transition:none; }
 }
+
+
+/* Homepage motion polish + quick maths formula revision cards */
+.mu-home--defence { overflow:hidden; }
+.mu-home--defence .mu-defence-hero { animation:mu-home-hero-enter .85s cubic-bezier(.2,.8,.2,1) both; }
+.mu-home--defence .mu-defence-copy>* { animation:mu-home-copy-in .65s ease both; }
+.mu-home--defence .mu-defence-copy>*:nth-child(1) { animation-delay:.08s; }
+.mu-home--defence .mu-defence-copy>*:nth-child(2) { animation-delay:.16s; }
+.mu-home--defence .mu-defence-copy>*:nth-child(3) { animation-delay:.24s; }
+.mu-home--defence .mu-defence-copy>*:nth-child(4) { animation-delay:.32s; }
+.mu-home--defence .mu-defence-copy>*:nth-child(5) { animation-delay:.4s; }
+.mu-home--defence .mu-defence-visual { animation:mu-home-visual-in 1s .2s ease both; }
+.mu-home--defence .mu-defence-shield-wrap { animation:mu-home-float 5s ease-in-out infinite; }
+.mu-home--defence .mu-defence-orbit-one { animation:mu-home-orbit 18s linear infinite; }
+.mu-home--defence .mu-defence-orbit-two { animation:mu-home-orbit 25s linear infinite reverse; }
+.mu-home--defence .mu-defence-module { animation:mu-home-card-in .65s ease both; transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease; }
+.mu-home--defence .mu-defence-module:nth-child(2) { animation-delay:.07s; }
+.mu-home--defence .mu-defence-module:nth-child(3) { animation-delay:.14s; }
+.mu-home--defence .mu-defence-module:nth-child(4) { animation-delay:.21s; }
+.mu-home--defence .mu-defence-module:nth-child(5) { animation-delay:.28s; }
+.mu-home--defence .mu-defence-module:nth-child(6) { animation-delay:.35s; }
+.mu-home--defence .mu-defence-module:hover { transform:translateY(-7px); box-shadow:0 18px 34px #102b4020; }
+.mu-home--defence .mu-topic-grid article { transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }
+.mu-home--defence .mu-topic-grid article:hover { transform:translateY(-5px); border-color:#d2ad59; box-shadow:0 12px 24px #102b4014; }
+.mu-maths-formula-section { margin:34px 0; padding:clamp(20px,3vw,30px); border:1px solid #e2d4b3; border-radius:22px; background:linear-gradient(145deg,#fffdf8,#f7f9f8 62%,#fff); box-shadow:0 12px 32px #102b400b; }
+.mu-maths-formula-section .mu-defence-section-head { display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:18px; }
+.mu-maths-formula-section .mu-defence-section-head h2 { margin:7px 0; color:#173448; font-size:clamp(23px,3vw,31px); }
+.mu-maths-formula-section .mu-defence-section-head p { margin:0; color:#647582; font-size:13px; line-height:1.7; }
+.mu-maths-all-link { display:inline-flex; flex:0 0 auto; align-items:center; gap:10px; padding:10px 13px; border:1px solid #ddc78e; border-radius:10px; background:#fffaf0; color:#76591f; font-size:10px; font-weight:950; letter-spacing:.08em; text-decoration:none; transition:transform .2s ease,box-shadow .2s ease; }
+.mu-maths-all-link:hover { transform:translateY(-2px); box-shadow:0 7px 16px #9b792522; }
+.mu-maths-all-link b { font-size:16px; }
+.mu-maths-formula-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.mu-maths-formula-grid article { position:relative; min-width:0; overflow:hidden; padding:17px; border:1px solid #e4e9e9; border-left:3px solid #d2ad59; border-radius:14px; background:#fff; box-shadow:0 5px 16px #102b4008; animation:mu-home-card-in .6s ease both; transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }
+.mu-maths-formula-grid article::after { content:""; position:absolute; top:0; right:0; width:65px; height:65px; border-radius:0 0 0 100%; background:linear-gradient(135deg,#f5e9c8aa,#fff0); pointer-events:none; }
+.mu-maths-formula-grid article:hover { transform:translateY(-4px); border-color:#d2ad59; box-shadow:0 12px 24px #102b4012; }
+.mu-maths-formula-grid article>span { color:#98732a; font-size:9px; font-weight:950; letter-spacing:.13em; }
+.mu-maths-formula-grid article h3 { margin:8px 0 11px; color:#173b50; font-size:17px; }
+.mu-maths-formula-grid article p { margin:0 0 8px; color:#173448; font-size:13px; font-weight:850; line-height:1.55; overflow-wrap:anywhere; }
+.mu-maths-formula-grid article small { display:block; color:#657782; font-size:11px; line-height:1.55; overflow-wrap:anywhere; }
+.mu-maths-note { margin:14px 2px 0; color:#7a6a47; font-size:10px; line-height:1.6; }
+@keyframes mu-home-hero-enter { from { opacity:0; transform:translateY(18px) scale(.99); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes mu-home-copy-in { from { opacity:0; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
+@keyframes mu-home-visual-in { from { opacity:0; transform:scale(.9) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+@keyframes mu-home-float { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-9px) rotate(1deg); } }
+@keyframes mu-home-orbit { to { transform:rotate(360deg); } }
+@keyframes mu-home-card-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:850px) { .mu-maths-formula-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:560px) {
+  .mu-maths-formula-section { padding:17px 13px; margin:24px 0; border-radius:17px; }
+  .mu-maths-formula-section .mu-defence-section-head { align-items:flex-start; flex-direction:column; }
+  .mu-maths-formula-grid { grid-template-columns:1fr; gap:9px; }
+  .mu-maths-formula-grid article { padding:14px; }
+  .mu-maths-formula-grid article h3 { font-size:16px; margin:5px 0 7px; }
+  .mu-maths-formula-grid article p { font-size:12px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .mu-home--defence .mu-defence-hero,.mu-home--defence .mu-defence-copy>*,.mu-home--defence .mu-defence-visual,
+  .mu-home--defence .mu-defence-shield-wrap,.mu-home--defence .mu-defence-orbit-one,.mu-home--defence .mu-defence-orbit-two,
+  .mu-home--defence .mu-defence-module,.mu-maths-formula-grid article { animation:none; transition:none; }
+}

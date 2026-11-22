@@ -22,16 +22,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id).eq("status", "published").maybeSingle();
   if (error || !test) return NextResponse.json({ error: "Test not found or not published." }, { status: 404 });
   if (test.question_mode === "subject_random") {
-    const [{ data: global }, { data: setting }, { data: access }] = await Promise.all([
+    const [{ data: global }, { data: setting }] = await Promise.all([
       db.from("subject_access_global").select("all_subjects_enabled").eq("singleton", true).maybeSingle(),
-      db.from("subject_access_settings").select("is_enabled").eq("subject_id", test.subject_id).maybeSingle(),
-      db.from("student_subject_access").select("expires_at").eq("user_id", userData.user.id).eq("subject_id", test.subject_id).maybeSingle()
+      db.from("subject_access_settings").select("is_enabled").eq("subject_id", test.subject_id).maybeSingle()
     ]);
-    const active = !!access && (!access.expires_at || new Date(access.expires_at).getTime() > Date.now());
-    if (global?.all_subjects_enabled === false || setting?.is_enabled === false) return NextResponse.json({ error: "This subject is currently locked by Admin." }, { status: 403 });
-    if (!active) return NextResponse.json({ error: "Unlock this subject to access its mock tests." }, { status: 402 });
+    if (global?.all_subjects_enabled === false || setting?.is_enabled === false)
+      return NextResponse.json({ error: "This subject is currently unavailable. Please contact Admin." }, { status: 403 });
   }
-  if (test.question_mode === "pool" || test.question_mode === "subject_random") return NextResponse.json({ test, questions: [] });
+  if (test.question_mode === "pool" || test.question_mode === "subject_random") return NextResponse.json({ test, questions: [] }, { headers: { "Cache-Control": "no-store" } });
   const { data: links, error: linkError } = await db.from("test_paper_questions")
     .select("sort_order,questions(id,question_hi,question_or,question_en,options,chapter,difficulty)")
     .eq("test_id", id).order("sort_order");

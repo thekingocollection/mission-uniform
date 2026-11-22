@@ -12,21 +12,37 @@ export async function POST(request: NextRequest) {
     const db = getServiceSupabase();
     const { data, error } = await db.auth.getUser(accessToken);
     if (error || !data.user) return NextResponse.json({ error: "Your login session expired. Please log in again." }, { status: 401 });
+
     const { data: claimResult, error: bindError } = await db.rpc("claim_student_device_v2", {
       p_user_id: data.user.id,
-      p_device_id: deviceId
+      p_device_id: deviceId,
     });
     if (bindError) {
       console.error("DEVICE_BIND_ERROR", bindError);
-      return NextResponse.json({ error: "Secure device binding is not ready. Please contact support." }, { status: 503 });
+      return NextResponse.json({ error: "Device registration service is not ready. Please contact support." }, { status: 503 });
     }
-    if (allowed !== true) {
-      return NextResponse.json({ error: "This student account is already registered on another device. Only the first registered device can use this account. Contact Admin if you changed or lost your device." }, { status: 409 });
+    if (claimResult?.payment_required === true) {
+      return NextResponse.json({
+        payment_required: true,
+        price_paise: 1900,
+        error: "Your two free device slots are already used. Pay ₹19 once to register this additional device.",
+      }, { status: 402 });
     }
-    const response = NextResponse.json({ success: true, message: "This device is securely registered." }, { headers: { "Cache-Control": "no-store" } });
+    if (claimResult?.allowed !== true) {
+      return NextResponse.json({ error: "This device could not be registered. Please contact Admin." }, { status: 409 });
+    }
+
+    const response = NextResponse.json({
+      success: true,
+      message: "This device is securely registered.",
+      device_type: claimResult.free_device ? "free" : claimResult.paid_device ? "paid" : "registered",
+    }, { headers: { "Cache-Control": "no-store" } });
     response.cookies.set("mu_device_id", deviceId, {
-      httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax",
-      path: "/", maxAge: 60 * 60 * 24 * 365
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
     });
     return response;
   } catch (error) {

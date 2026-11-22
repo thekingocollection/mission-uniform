@@ -4426,3 +4426,23 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 
 .mu-auth-forgot{display:flex;justify-content:flex-end;margin:-5px 0 12px;font-size:13px}.mu-auth-forgot a,.mu-admin-login-link a{color:#9a7938;font-weight:800;text-decoration:none}.mu-admin-login-link{margin-top:18px;padding-top:14px;border-top:1px solid #e8e5dc;text-align:center;font-size:13px}
 .mu-password-page{width:min(100% - 28px,560px);margin:48px auto}.mu-password-page .auth-card{padding:clamp(22px,4vw,34px);border:1px solid #ded9c9;border-radius:16px;background:#fff;box-shadow:0 18px 48px rgba(15,35,45,.1)}.mu-password-page label,.mu-staff-form form>label{display:block;margin:14px 0;color:#273b4b;font-size:13px;font-weight:800}.mu-password-page input,.mu-staff-form input[type=email]{display:block;width:100%;min-height:46px;margin-top:7px;padding:10px 12px;border:1px solid #d8dce1;border-radius:9px;background:#fff;color:#1e293b;font:inherit}.mu-auth-success{padding:12px;border:1px solid #b9dec7;border-radius:9px;background:#effaf2;color:#17613b;font-size:13px;line-height:1.5}.mu-staff-page{display:grid;gap:18px}.mu-staff-form form{display:grid;gap:12px}.mu-permission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mu-permission-grid label{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #e1e5e8;border-radius:9px;background:#fbfcfc;font-size:12px;font-weight:750}.mu-permission-grid input{width:17px;height:17px;accent-color:#b99545}@media(max-width:520px){.mu-password-page{margin:24px auto}.mu-permission-grid{grid-template-columns:1fr}}
+
+
+/* Student access welcome / logout fallback */
+
+.mu-access-welcome{min-height:58vh;display:grid;place-items:center;padding:34px 16px;background:radial-gradient(ellipse at 50% 0%,rgba(196,153,76,.14),transparent 55%)}
+.mu-access-card{position:relative;overflow:hidden;width:min(100%,760px);padding:clamp(26px,5vw,54px);border:1px solid rgba(190,153,91,.45);border-radius:24px;background:linear-gradient(145deg,#102c3b,#071923 72%);color:#f7f1e5;text-align:center;box-shadow:0 24px 70px rgba(4,20,29,.22)}
+.mu-access-card:before{content:"";position:absolute;inset:12px;border:1px solid rgba(223,190,125,.18);border-radius:17px;pointer-events:none}
+.mu-access-kicker,.mu-access-overline,.mu-access-foot{display:block;position:relative;letter-spacing:.16em;font-size:10px;font-weight:800;color:#d8b978}
+.mu-access-emblem{position:relative;display:grid;place-items:center;width:82px;height:82px;margin:22px auto 16px;border:2px solid #c8a567;border-radius:50%;font-size:27px;font-weight:900;color:#f6e6c5;box-shadow:0 0 0 6px rgba(200,165,103,.1),inset 0 0 22px rgba(200,165,103,.16)}
+.mu-access-emblem span{position:absolute;right:-4px;top:0;color:#e9c879;font-size:17px}
+.mu-access-card h1{position:relative;margin:10px 0 12px;font-size:clamp(27px,5vw,42px);line-height:1.1;color:#fff}
+.mu-access-lead{position:relative;max-width:550px;margin:0 auto;color:#d2dce0;line-height:1.7;font-size:14px}
+.mu-access-features{position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:26px auto;max-width:570px;text-align:left}
+.mu-access-features span{padding:12px;border:1px solid rgba(231,209,167,.18);border-radius:10px;background:rgba(255,255,255,.045);font-size:12px;color:#f2eadb}
+.mu-access-features b{margin-right:8px;color:#d8b978;font-size:10px}
+.mu-access-actions{position:relative;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:22px 0}
+.mu-access-actions a{padding:13px 18px;border-radius:9px;background:#d6b16d;color:#132b36;text-decoration:none;font-size:11px;font-weight:900;letter-spacing:.08em}
+.mu-access-actions a+ a{border:1px solid rgba(226,199,151,.55);background:transparent;color:#f4dfb8}
+.mu-access-foot{margin-top:24px;color:#a9b7b9;font-size:9px}
+@media(max-width:520px){.mu-access-features{grid-template-columns:1fr}.mu-access-card{padding:26px 20px}.mu-access-actions{flex-direction:column}.mu-access-actions a{width:100%}}

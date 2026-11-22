@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import PremiumTrialBanner from "@/components/premium-trial-banner";
+import { EXAM_SUBJECTS } from "@/lib/exam-subjects";
 
 const studyLinks = [
   { icon: "🎯", title: "Mock Tests", desc: "Practice with exam-style questions and build your confidence.", href: "/tests", tone: "gold", code: "01" },
@@ -109,12 +110,7 @@ export default function HomePage() {
           <div><span className="mu-defence-section-tag">MISSION CONTROL / 02</span><h2>Important exam topics</h2><p>Build strong fundamentals across the key Odisha Police preparation subjects.</p></div>
         </div>
         <div className="mu-topic-grid">
-          <article><b>01</b><span>ODISHA GK</span><small>History · Geography · Culture</small></article>
-          <article><b>02</b><span>ODIA GRAMMAR</span><small>ଶବ୍ଦ · ବାକ୍ୟ · ବ୍ୟାକରଣ</small></article>
-          <article><b>03</b><span>MATHEMATICS</span><small>Arithmetic · Number System</small></article>
-          <article><b>04</b><span>REASONING</span><small>Verbal · Non-Verbal</small></article>
-          <article><b>05</b><span>ENGLISH</span><small>Grammar · Vocabulary</small></article>
-          <article><b>06</b><span>CURRENT AFFAIRS</span><small>Odisha · National Updates</small></article>
+          {EXAM_SUBJECTS.map((subject, index) => <article key={subject.slug}><b>{String(index+1).padStart(2,"0")}</b><span>{subject.name.toUpperCase()}</span><small>{subject.description}</small></article>)}
         </div>
       </section>
 

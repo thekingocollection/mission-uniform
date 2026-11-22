@@ -4,10 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { EXAM_SUBJECTS, getExamSubject } from "@/lib/exam-subjects";
 
-declare global {
-  interface Window { Razorpay?: new (options: any) => { open: () => void; on: (event: string, callback: (response: any) => void) => void }; }
-}
-
 type Subject = {
   id: string; subject_id: string; name_en: string | null; name_hi: string | null;
   verified_questions: number; enabled: boolean; can_start: boolean;
@@ -104,7 +100,11 @@ export default function SubjectMockTestPage() {
         });
       }
       if (!window.Razorpay) throw new Error("Razorpay is unavailable.");
-      const checkout = new window.Razorpay({
+      const RazorpayConstructor = window.Razorpay as unknown as new (options: any) => {
+        open: () => void;
+        on: (event: string, callback: (response: any) => void) => void;
+      };
+      const checkout = new RazorpayConstructor({
         key: order.key_id, amount: order.amount, currency: order.currency, name: "MISSION UNIFORM OP",
         description: order.subject_name + " subject access", order_id: order.order_id,
         handler: async (payment: any) => {

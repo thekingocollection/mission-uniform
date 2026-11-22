@@ -1,3 +1,4 @@
+import { filterExamSubjects } from "@/lib/exam-subjects";
 
 "use client";
 
@@ -87,7 +88,7 @@ export default function AdminQuestions() {
     if (chapterResult.error) throw chapterResult.error;
     if (questionResult.error) throw questionResult.error;
 
-    setSubjects(subjectResult.data || []);
+    setSubjects(filterExamSubjects(subjectResult.data || []));
     setChapters(chapterResult.data || []);
     setQuestions(questionResult.data || []);
   }

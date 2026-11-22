@@ -47,7 +47,14 @@ export default function DeviceUpgradePage() {
     return () => { active = false; };
   }, [router]);
 
-  async function leaveUpgrade() {\n    const sb = supabaseBrowser();\n    if (sb) await sb.auth.signOut();\n    window.localStorage.removeItem("mu_pending_device_id");\n    router.replace("/login");\n  }\n\n  async function startPayment() {
+  async function leaveUpgrade() {
+    const sb = supabaseBrowser();
+    if (sb) await sb.auth.signOut();
+    window.localStorage.removeItem("mu_pending_device_id");
+    router.replace("/login");
+  }
+
+  async function startPayment() {
     if (!deviceId || busy) return;
     const sb = supabaseBrowser();
     if (!sb) {

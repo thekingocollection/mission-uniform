@@ -90,6 +90,23 @@ export default function Dashboard() {
           <small>EK LAKSHYA · EK JUNOON</small>
         </div>
       </section>
+      <section className="mu-odisha-mission-strip">
+        <div className="mu-odisha-map-art" aria-label="Stylized Odisha map illustration">
+          <svg viewBox="0 0 210 230" role="img" aria-hidden="true">
+            <defs><linearGradient id="odishaGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f3d98e"/><stop offset="1" stopColor="#c89b38"/></linearGradient></defs>
+            <path d="M79 8 L105 17 L121 12 L138 28 L157 33 L165 52 L185 62 L176 83 L188 103 L171 119 L178 141 L159 154 L153 174 L132 180 L119 203 L99 195 L82 215 L67 197 L47 194 L40 175 L21 166 L30 145 L16 128 L29 109 L22 89 L40 76 L42 54 L61 45 L62 25 Z" fill="url(#odishaGold)" stroke="#f8e9bd" strokeWidth="3" strokeLinejoin="round"/>
+            <path d="M51 70 L91 80 L132 60 M35 116 L81 122 L151 102 M48 159 L93 147 L159 153 M83 28 L91 80 L81 122 L93 147 L82 197 M132 60 L121 103 L130 145 L119 190" fill="none" stroke="#8d6824" strokeOpacity=".45" strokeWidth="1.5" strokeDasharray="3 4"/>
+            <circle cx="109" cy="110" r="5" fill="#173b50" stroke="#fff" strokeWidth="2"/><circle cx="109" cy="110" r="12" fill="none" stroke="#173b50" strokeOpacity=".55"/>
+            <circle cx="71" cy="151" r="3.5" fill="#173b50"/><circle cx="147" cy="76" r="3.5" fill="#173b50"/><circle cx="132" cy="167" r="3.5" fill="#173b50"/>
+          </svg>
+        </div>
+        <div className="mu-odisha-mission-copy">
+          <span>ODISHA · THE LAND OF COURAGE</span>
+          <h2>Har district se ek naya sapna. Har cadet ka ek hi mission.</h2>
+          <p>Odisha Police ki taiyari ko discipline, practice aur consistency ke saath aage badhaiye. Apne district se shuru kijiye — apni manzil tak pahunchiye.</p>
+          <div className="mu-odisha-pills"><b>ଭୁବନେଶ୍ୱର</b><b>କଟକ</b><b>ସମ୍ବଲପୁର</b><b>ବଲାଙ୍ଗିର</b><b>ବ୍ରହ୍ମପୁର</b></div>
+        </div>
+      </section>
       {!emailVerified && <section role="status" style={{margin:"18px auto",maxWidth:1100,padding:"16px 18px",border:"1px solid #e7d8ad",borderRadius:12,background:"#fffaf0",color:"#57451e",display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}><div><strong>Email verification pending</strong><p style={{margin:"5px 0 0",fontSize:13}}> {email ? "We will send a secure verification link to " + email + "." : "Verify your email whenever convenient."} You can continue studying and taking every mock test.</p>{verifyMessage && <small>{verifyMessage}</small>}</div><button type="button" onClick={sendVerification} disabled={verifyBusy} style={{padding:"10px 15px",border:0,borderRadius:8,background:"#173b50",color:"#fff",fontWeight:700,cursor:"pointer"}}>{verifyBusy ? "Sending…" : "Verify Email"}</button></section>}
       {emailVerified && <p role="status" style={{margin:"12px auto",maxWidth:1100,color:"#17613b"}}>✓ Email verified</p>}
       <nav className="mu-dashboard-shortcuts" aria-label="Student shortcuts">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { SponsorBanner } from "@/components/sponsor-banner";
 
 const links = [
   ["Home", "/", "⌂"],
@@ -164,5 +165,5 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   if (path.startsWith("/admin")) return <>{children}</>;
-  return <><SiteHeader /><main className="main-wrap"><StudentAccessGate>{children}</StudentAccessGate></main><SiteFooter /></>;
+  return <><SiteHeader /><main className="main-wrap"><SponsorBanner placement={path.startsWith("/syllabus") ? "syllabus_top" : "global_top"} /><StudentAccessGate>{children}</StudentAccessGate><SponsorBanner placement="below_content" /></main><SiteFooter /></>;
 }

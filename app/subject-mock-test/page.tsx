@@ -49,7 +49,7 @@ export default function SubjectMockTestPage() {
           const practice = practiceMap.get(s.id) || {};
           return {
             ...s, ...practice,
-            name_en: canonical,
+            name_en: canonical.name,
             id: practice.id || "",
             subject_id: s.id,
             verified_questions: practice.verified_questions || 0

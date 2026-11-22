@@ -42,6 +42,15 @@ export async function PATCH(req: NextRequest) {
       }, { onConflict: "singleton" });
       if (error) throw error;
     }
+    if (body.unlock_all === true) {
+      const { data: subjects, error: subjectError } = await db.from("subjects").select("id").eq("is_active", true);
+      if (subjectError) throw subjectError;
+      const updates = (subjects || []).map((s: any) => ({ subject_id: s.id, is_enabled: true, updated_at: new Date().toISOString() }));
+      if (updates.length) {
+        const { error } = await db.from("subject_access_settings").upsert(updates, { onConflict: "subject_id" });
+        if (error) throw error;
+      }
+    }
     if (Array.isArray(body.subjects)) {
       for (const item of body.subjects) {
         if (!item.subject_id) continue;

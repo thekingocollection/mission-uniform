@@ -32,6 +32,28 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await authUser(req);
+    if (!user) return NextResponse.json({error:"Please sign in."},{status:401});
+    const db = getServiceSupabase();
+    const {data:profile} = await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+    if (profile?.role !== "super_admin") return NextResponse.json({error:"Super admin access required."},{status:403});
+    const body = await req.json();
+    const id = typeof body.id === "string" ? body.id : "";
+    if (!id) return NextResponse.json({error:"Test paper ID is required."},{status:400});
+    const {data:existing,error:readError}=await db.from("test_papers").select("id,title").eq("id",id).maybeSingle();
+    if(readError) return NextResponse.json({error:readError.message},{status:400});
+    if(!existing) return NextResponse.json({error:"Test paper not found."},{status:404});
+    const {error}=await db.from("test_papers").delete().eq("id",id);
+    if(error) return NextResponse.json({error:"Delete blocked: "+error.message+" Check whether attempts or question links depend on this paper."},{status:409});
+    return NextResponse.json({success:true,id});
+  } catch(e:any) {
+    console.error("TEST_DELETE_ERROR",e);
+    return NextResponse.json({error:e.message||"Could not delete test."},{status:500});
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await authUser(req);

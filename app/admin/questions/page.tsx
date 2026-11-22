@@ -552,6 +552,19 @@ export default function AdminQuestions() {
         <div className="admin-qb-metric"><span>▣</span><small>Subjects</small><b>{subjects.length}</b></div>
       </section>
 
+      <section style={{margin:"16px 0",padding:18,border:"1px solid #d9e2ea",borderRadius:14,background:"#fff"}}>
+        <div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",alignItems:"center"}}>
+          <div><span style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#9a742b"}}>FREE · LOCAL CHECK · NO API KEY</span><h2 style={{margin:"5px 0",color:"#173b50"}}>Smart Question Audit</h2><p style={{margin:0,fontSize:13,color:"#64748b"}}>Automatic quality checks. Ye AI-generated verification nahi hai; final answer admin hi verify kare.</p></div>
+          <b style={{color:"#173b50"}}>{smartAudit.scanned} scanned</b>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:10,marginTop:14}}>
+          <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Possible duplicates</small><h2 style={{margin:"4px 0"}}>{smartAudit.duplicates}</h2></div>
+          <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Incomplete questions</small><h2 style={{margin:"4px 0"}}>{smartAudit.incomplete}</h2></div>
+          <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Invalid answer keys</small><h2 style={{margin:"4px 0"}}>{smartAudit.invalidKeys}</h2></div>
+        </div>
+        <p style={{margin:"10px 0 0",fontSize:12,color:"#64748b"}}>Audit page par loaded latest 5,000 records ko scan karta hai. Ye automatically delete ya verify nahi karta.</p>
+      </section>
+
       <section className="admin-qb-section">
         <div className="admin-qb-section-head">
           <div><span className="admin-qb-kicker-dark">01 · SUBJECT LIBRARY</span><h2>Choose a Subject Bank</h2><p>Subject select karte hi usi subject ke questions aur chapters dikhaye jayenge.</p></div>

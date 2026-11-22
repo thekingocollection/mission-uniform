@@ -19,6 +19,8 @@ type ReviewItem = {
   selected: number | null;
   correct_option: string;
   explanation: string;
+  chapter?: string | null;
+  difficulty?: string | null;
   status: "correct" | "wrong" | "skipped";
 };
 

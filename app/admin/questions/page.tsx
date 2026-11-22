@@ -396,9 +396,19 @@ export default function AdminQuestions() {
       if (!records.length) throw new Error("No question rows found.");
       if (records.length > 1000) throw new Error("Maximum 1,000 questions per upload.");
 
+      // Compare every populated language independently. This prevents
+      // English/Odia-only rows from colliding on an empty Hindi value.
+      const makeQuestionKeys = (subjectId: string, chapterName: string, values: unknown[]) =>
+        values
+          .map(normalize)
+          .filter(Boolean)
+          .map(questionText => `${subjectId}|${normalize(chapterName)}|${questionText}`);
+
       const existingKeys = new Set(
-        questions.map(q =>
-          `${q.subject_id}|${normalize(q.chapter)}|${normalize(q.question_hi)}`
+        questions.flatMap(q =>
+          makeQuestionKeys(q.subject_id || "", q.chapter || "", [
+            q.question_hi, q.question_en, q.question_or
+          ])
         )
       );
 
@@ -444,12 +454,14 @@ export default function AdminQuestions() {
         if (options.some((v: string) => !v)) errors.push("All four options required.");
         if (!correct) errors.push("Correct option must be A/B/C/D.");
         
-        const key = `${subject?.id}|${normalize(data.chapter)}|${normalize(data.question_hi)}`;
+        const rowKeys = makeQuestionKeys(subject?.id || "", data.chapter, [
+          data.question_hi, data.question_en, data.question_or
+        ]);
 
-        if (seen.has(key)) errors.push("Duplicate row in this Excel file.");
-        if (existingKeys.has(key)) errors.push("Question already exists in database.");
+        if (rowKeys.some(key => seen.has(key))) errors.push("Duplicate row in this Excel file.");
+        if (rowKeys.some(key => existingKeys.has(key))) errors.push("Question already exists in database.");
 
-        seen.add(key);
+        rowKeys.forEach(key => seen.add(key));
 
         return {
           row: index + 2,

@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Test = { id:string; title:string; test_type:string; duration_minutes:number; total_questions:number; status:string; question_mode?:string; is_previous_year?:boolean; exam_year?:number|null; exam_name?:string|null };
-type Question = { id:string; chapter:string|null; question_hi:string|null; question_or:string|null; question_en:string|null; options:any; correct_option:string; explanation?:string|null };
+type Question = { id:string; subject_id:string|null; chapter:string|null; question_hi:string|null; question_or:string|null; question_en:string|null; options:any; correct_option:string; explanation?:string|null };
 
 export default function TestManager() {
   const sb=useMemo(()=>supabaseBrowser(),[]);
@@ -43,15 +43,19 @@ export default function TestManager() {
     const [t,s,q,p]=await Promise.all([
       sb.from("test_papers").select("id,title,test_type,duration_minutes,total_questions,status,question_mode,is_previous_year,exam_year,exam_name").order("created_at",{ascending:false}),
       sb.from("subjects").select("id,name_en,name_hi").eq("is_active",true),
-      sb.from("questions").select("id,chapter,question_hi,question_or,question_en,options,correct_option,explanation").eq("is_active",true).eq("verified",true).limit(1000),
+      sb.from("questions").select("id,subject_id,chapter,question_hi,question_or,question_en,options,correct_option,explanation").eq("is_active",true).eq("verified",true).limit(1000),
       sb.from("question_pools").select("id,title,total_questions,is_active").eq("is_active",true).order("created_at",{ascending:false})
     ]);
     if(t.error)setMessage(t.error.message); else setTests(t.data||[]);
     setSubjects(filterExamSubjects(s.data||[]));setBankQuestions(q.data||[]);setPools(p.data||[]);
   }
   useEffect(()=>{void load()},[sb]);
-  const chapters=[...new Set(bankQuestions.map(q=>q.chapter).filter(Boolean))] as string[];
-  const visibleBank=bankQuestions.filter(q=>(!chapter||q.chapter===chapter)&&(!search||String(q.question_hi||q.question_en||q.question_or).toLowerCase().includes(search.toLowerCase())));
+  const chapters=[...new Set(bankQuestions.filter(q=>!subject||q.subject_id===subject).map(q=>q.chapter).filter(Boolean))] as string[];
+  const visibleBank=bankQuestions.filter(q=>(!subject||q.subject_id===subject)&&(!chapter||q.chapter===chapter)&&(!search||String(q.question_hi||q.question_en||q.question_or).toLowerCase().includes(search.toLowerCase())));
+  const visibleTests=tests.filter(t=>managePreviousOnly?!!t.is_previous_year:!t.is_previous_year);
+  const publishedCount=visibleTests.filter(t=>t.status==="published").length;
+  const draftCount=visibleTests.filter(t=>t.status==="draft").length;
+  const totalQuestions=visibleTests.reduce((sum,t)=>sum+(Number(t.total_questions)||0),0);
 
   function normalizeSheet(rows:any[]) {
     return rows.map((r,i)=>{
@@ -133,7 +137,6 @@ export default function TestManager() {
     }catch(e:any){setMessage(e.message||"Test save nahi hua.");}
     finally{setBusy(false);}
   }
-  const visibleTests=tests.filter(t=>managePreviousOnly?!!t.is_previous_year:!t.is_previous_year);
   async function updateStatus(id:string,next:string){
     if(!sb)return;
     const {error}=await sb.from("test_papers").update({status:next}).eq("id",id);
@@ -175,15 +178,17 @@ export default function TestManager() {
         </div>
         {fileName&&<p className="muted">File: {fileName}</p>}
         {questionRows.length>0&&<><h3>Uploaded Questions ({questionRows.length})</h3><div className="mu-manual-preview">{questionRows.map((q,i)=><article key={i}><b>Q{i+1}</b><p>{q.question_hi||"Question text"}</p><small>Correct option: {q.correct_option}</small></article>)}</div></>}
-        {questionRows.length===0&&<><h3>Or select from Question Bank ({selected.length} selected)</h3><input className="input" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search verified questions"/>
+        {questionRows.length===0&&<><div className="mu-qbank-select-head"><div><h3>Question Bank</h3><p>Select verified questions for this paper. Subject and chapter filters apply here.</p></div><strong>{selected.length} selected</strong></div>
+          <div className="mu-qbank-tools"><label>Filter subject<select className="input" value={subject} onChange={e=>{setSubject(e.target.value);setChapter("");setSelected([]);}}><option value="">All subjects</option>{subjects.map(s=><option key={s.id} value={s.id}>{s.name_en||s.name_hi}</option>)}</select></label><label>Filter chapter<select className="input" value={chapter} onChange={e=>setChapter(e.target.value)}><option value="">All chapters</option>{chapters.map(c=><option key={c}>{c}</option>)}</select></label><label className="mu-qbank-search">Search question<input className="input" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search verified questions"/></label></div>
+          <div className="mu-qbank-list-meta"><span>{visibleBank.length} matching questions</span><button type="button" onClick={()=>setSelected(old=>visibleBank.every(q=>old.includes(q.id))?old.filter(id=>!visibleBank.some(q=>q.id===id)):[...new Set([...old,...visibleBank.map(q=>q.id)])])}>{visibleBank.length>0&&visibleBank.every(q=>selected.includes(q.id))?"Clear visible selection":"Select all visible"}</button></div>
           <div className="question-select-list">{visibleBank.slice(0,150).map((q,i)=><label className="question-select-row" key={q.id}><input type="checkbox" checked={selected.includes(q.id)} onChange={e=>setSelected(old=>e.target.checked?[...old,q.id]:old.filter(x=>x!==q.id))}/><span><b>{q.question_hi||q.question_en||q.question_or||("Question "+(i+1))}</b><small>{q.chapter||"General"}</small></span></label>)}</div>
         </>}
       </>}
       <button className="btn primary" disabled={busy} onClick={()=>void save()}>{busy?"Saving...":"Save Test Paper"}</button>
       {message&&<p className="bulk-message" role="status">{message}</p>}
     </section>
-    <section className="panel"><h2>{managePreviousOnly?"Previous Year Papers":"Existing Regular Test Papers"}</h2>{visibleTests.length===0?<p>No papers yet.</p>:visibleTests.map(t=><article className="review-item" key={t.id}>
-      <b>{t.is_previous_year?"Previous Year · "+(t.exam_name||"Exam")+" · "+(t.exam_year||"Year"):t.title}</b><p>{t.title} · {t.test_type} · {t.question_mode||"legacy"} · {t.duration_minutes} min · {t.total_questions} questions · {t.status}</p>
+    <section className="panel mu-test-manager-library"><div className="mu-test-section-title"><div><span>02 · PAPER LIBRARY</span><h2>{managePreviousOnly?"Previous Year Papers":"Published & Draft Tests"}</h2><p>Review paper settings and change publication status.</p></div><span className="mu-library-count">{visibleTests.length} PAPERS</span></div>{visibleTests.length===0?<p>No papers yet.</p>:visibleTests.map(t=><article className="review-item mu-test-paper-row" key={t.id}>
+      <div className="mu-test-paper-main"><div><b>{t.is_previous_year?"Previous Year · "+(t.exam_name||"Exam")+" · "+(t.exam_year||"Year"):t.title}</b><p>{t.title}</p></div><span className={"mu-test-status "+(t.status==="published"?"published":t.status==="archived"?"archived":"draft")}>{t.status}</span></div><div className="mu-test-paper-meta"><span>{t.test_type}</span><span>{t.question_mode||"legacy"}</span><span>{t.duration_minutes} min</span><span>{t.total_questions} questions</span></div>
       <div className="result-actions">{t.status!=="published"&&<button className="btn primary" onClick={()=>void updateStatus(t.id,"published")}>Publish</button>}
       {t.status!=="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"archived")}>Archive</button>}
       {t.status==="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"draft")}>Restore draft</button>}</div>

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
 export async function POST(request: NextRequest) {
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
     const response = NextResponse.json({ success: true, message: "This device is securely registered." }, { headers: { "Cache-Control": "no-store" } });
     response.cookies.set("mu_device_id", deviceId, {
-      httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax",
+      httpOnly: false, secure: process.env.NODE_ENV === "production", sameSite: "lax",
       path: "/", maxAge: 60 * 60 * 24 * 365
     });
     return response;

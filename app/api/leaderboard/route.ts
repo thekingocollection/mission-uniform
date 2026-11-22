@@ -13,7 +13,7 @@ export async function GET(req:NextRequest){
     if(ae||!u.user)return NextResponse.json({error:"Session expired."},{status:401});
 
     const {data:attempts,error}=await db.from("test_attempts")
-      .select("id,user_id,test_id,score,correct_count,wrong_count,skipped_count,total_questions,started_at,submitted_at")
+      .select("id,user_id,test_id,score,correct_count,wrong_count,skipped_count,total_questions,started_at,submitted_at,answers")
       .eq("user_id",u.user.id).eq("is_submitted",true)
       .order("submitted_at",{ascending:false}).limit(300);
     if(error)throw error;

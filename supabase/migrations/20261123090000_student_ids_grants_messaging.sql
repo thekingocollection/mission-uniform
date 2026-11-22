@@ -66,6 +66,17 @@ create index if not exists student_messages_broadcast_idx
 
 alter table public.student_access_grant_audit enable row level security;
 alter table public.student_messages enable row level security;
+
+create table if not exists public.student_message_reads (
+  message_id uuid not null references public.student_messages(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  read_at timestamptz not null default now(),
+  primary key(message_id, user_id)
+);
+alter table public.student_message_reads enable row level security;
+revoke all on public.student_message_reads from anon, authenticated;
+grant all on public.student_message_reads to service_role;
+
 revoke all on public.student_access_grant_audit, public.student_messages from anon, authenticated;
 grant all on public.student_access_grant_audit, public.student_messages to service_role;
 

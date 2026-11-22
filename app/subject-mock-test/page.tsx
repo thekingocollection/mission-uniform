@@ -136,7 +136,7 @@ export default function SubjectMockTestPage() {
     <section className="mu-subject-section">
       <div className="mu-subject-section-head"><div><span className="mu-subject-step">01 / YOUR STUDY PLAN</span><h2>Choose a Subject to Focus On</h2><p>Ek time par ek subject par focus karein. Neeche available verified practice modules dekhein.</p></div><span className="mu-subject-section-icon">▦</span></div>
       {!loading && subjects.length > 0 && <div className="mu-subject-overview"><div><b>{subjects.length}</b><span>Subjects listed</span></div><div><b>{availableCount}</b><span>Ready to practise</span></div><div><b>{unlockedCount}</b><span>Your unlocked subjects</span></div></div>}
-      {!loading && subjects.length > 0 && <label className="mu-subject-search"><span>⌕</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search subject name…" aria-label="Search subjects"/><small>{visibleSubjects.length} results</small></label>
+      {!loading && subjects.length > 0 && <label className="mu-subject-search"><span>⌕</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search subject name…" aria-label="Search subjects"/><small>{visibleSubjects.length} results</small></label>}
       {loading ? <div className="mu-subject-state">Subjects load ho rahe hain…</div> :
       subjects.length === 0 ? <div className="mu-subject-state">Abhi subjects available nahi hain.</div> :
       <div className="mu-subject-grid">{visibleSubjects.map((s, i) => {

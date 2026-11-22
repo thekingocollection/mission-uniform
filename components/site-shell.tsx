@@ -8,7 +8,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 const links = [
   ["Home", "/", "⌂"],
   ["Mock Tests", "/tests", "✎"],
-  ["Subject Wise M.Test", "/subject-mock-test", "✦"],
+  ["Special Mock Test", "/subject-mock-test", "✦"],
   ["Syllabus", "/syllabus", "▤"],
   ["Job Alerts", "/job-alerts", "◷"],
   ["Previous Year Questions", "/previous-papers", "▧"],
@@ -144,7 +144,7 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
       <p className="mu-access-lead">{checking ? "We are securely checking your student session. Please wait a moment." : "Login to continue your preparation, attempt mock tests and track your progress."}</p>
       <div className="mu-access-features">
         <span><b>01</b> Odisha Police Mock Tests</span>
-        <span><b>02</b> Subject-wise Practice</span>
+        <span><b>02</b> Special Mock Test Practice</span>
         <span><b>03</b> Syllabus & Previous Papers</span>
         <span><b>04</b> Job Alerts & Progress</span>
       </div>

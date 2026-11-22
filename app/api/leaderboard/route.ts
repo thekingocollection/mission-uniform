@@ -1,3 +1,4 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import {NextRequest,NextResponse} from "next/server";
 import {getServiceSupabase} from "@/lib/server-supabase";
 
@@ -11,6 +12,7 @@ export async function GET(req:NextRequest){
     const db=getServiceSupabase();
     const {data:u,error:ae}=await db.auth.getUser(h.slice(7));
     if(ae||!u.user)return NextResponse.json({error:"Session expired."},{status:401});
+    if (!(await isRegisteredStudentDevice(req, u.user.id))) return NextResponse.json({error:"This account is not active on this registered device."},{status:403});
 
     const {data:attempts,error}=await db.from("test_attempts")
       .select("id,user_id,test_id,score,correct_count,wrong_count,skipped_count,total_questions,started_at,submitted_at,answers")

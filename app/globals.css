@@ -5587,3 +5587,88 @@ body { background:#f5f7f8; color:#183548; }
   .mu-admin-live i,.mu-admin-activity-item,.mu-admin-celebration,.mu-admin-celebration::before,
   .mu-admin-celebration-icon,.mu-money-rain i,.mu-welcome-sparkles { animation:none; }
 }
+
+/* Professional Test Management workspace */
+.admin-tests-page { display:grid; gap:20px; max-width:1240px; margin:0 auto; padding:18px 0 42px; }
+.mu-test-manager-hero { position:relative; display:flex; align-items:center; justify-content:space-between; gap:24px; overflow:hidden; padding:30px clamp(20px,4vw,42px); border:1px solid #d6bd7c; border-radius:22px; background:radial-gradient(circle at 82% 10%,#3b6473 0,#173b50 38%,#102b40 78%); color:#fff; box-shadow:0 18px 42px #102b401c; }
+.mu-test-manager-hero::after { content:""; position:absolute; right:130px; top:-120px; width:300px; height:300px; border:1px solid #e7c97735; border-radius:50%; box-shadow:0 0 0 25px #e7c9770d,0 0 0 55px #e7c97708; pointer-events:none; }
+.mu-test-manager-hero .eyebrow,.mu-test-section-title>div>span { color:#d9bd76; font-size:9px; font-weight:950; letter-spacing:.17em; }
+.mu-test-manager-hero h1 { margin:9px 0 8px; color:#fff; font-size:clamp(28px,4vw,42px); letter-spacing:-.035em; }
+.mu-test-manager-hero p { max-width:650px; margin:0; color:#d8e4e8; font-size:13px; line-height:1.7; }
+.mu-test-manager-hero-mark { position:relative; z-index:1; display:grid; place-items:center; min-width:145px; min-height:130px; padding:15px; border:1px solid #e4c87888; border-radius:18px; background:#ffffff0b; text-align:center; transform:rotate(2deg); }
+.mu-test-manager-hero-mark span { color:#e7c978; font-size:9px; font-weight:950; letter-spacing:.22em; }
+.mu-test-manager-hero-mark b { color:#fff; font-size:27px; line-height:1.05; letter-spacing:.04em; }
+.mu-test-manager-hero-mark small { color:#e2d3a8; font-size:7px; font-weight:900; letter-spacing:.15em; }
+.mu-test-manager-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.mu-test-manager-stats article { display:flex; flex-direction:column; gap:5px; min-width:0; padding:17px 18px; border:1px solid #e2e8e8; border-radius:15px; background:#fff; box-shadow:0 5px 16px #102b4008; }
+.mu-test-manager-stats article small { color:#8b7441; font-size:8px; font-weight:950; letter-spacing:.12em; }
+.mu-test-manager-stats article b { color:#173b50; font-size:29px; line-height:1.1; font-variant-numeric:tabular-nums; }
+.mu-test-manager-stats article span { color:#73828a; font-size:10px; }
+.mu-test-manager-builder,.mu-test-manager-library { padding:clamp(16px,3vw,28px)!important; border:1px solid #e0e6e7!important; border-radius:19px!important; box-shadow:0 8px 24px #102b4009; }
+.mu-test-section-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:17px; }
+.mu-test-section-title h2 { margin:5px 0; color:#173b50; font-size:23px; }
+.mu-test-section-title p { margin:0; color:#73828a; font-size:12px; line-height:1.6; }
+.mu-test-section-title>div>span { color:#98752e; }
+.mu-test-manager-builder .mu-admin-mode-switch { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 18px; padding:5px; border:1px solid #e5e9e8; border-radius:12px; background:#f6f8f7; }
+.mu-test-manager-builder .mu-admin-mode-switch button { min-height:40px; padding:9px 15px; border:1px solid transparent; border-radius:9px; background:transparent; color:#526875; font-size:12px; font-weight:800; cursor:pointer; }
+.mu-test-manager-builder .mu-admin-mode-switch button.active { border-color:#dfc77f; background:#fff; color:#173b50; box-shadow:0 3px 9px #102b4010; }
+.mu-test-manager-builder label { color:#344e5c; font-size:11px; font-weight:800; }
+.mu-test-manager-builder .input { min-height:43px; margin-top:6px; border:1px solid #dce4e5; border-radius:10px; background:#fff; color:#183b4f; font-size:12px; }
+.mu-test-manager-builder .form-grid { gap:13px; margin:15px 0; }
+.mu-test-manager-builder>label { display:block; margin:13px 0; }
+.mu-test-manager-builder .mu-admin-upload-actions { display:flex; flex-wrap:wrap; gap:9px; margin:14px 0; }
+.mu-test-manager-builder .btn { min-height:40px; border-radius:10px; font-size:11px; font-weight:850; }
+.mu-test-manager-builder .btn.primary { padding:12px 22px; background:linear-gradient(135deg,#173f55,#102b40); box-shadow:0 6px 15px #102b4025; }
+.mu-qbank-select-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:18px 0 10px; }
+.mu-qbank-select-head h3 { margin:0 0 4px; color:#173b50; font-size:16px; }
+.mu-qbank-select-head p { margin:0; color:#78868c; font-size:11px; }
+.mu-qbank-select-head>strong { flex:0 0 auto; padding:8px 11px; border:1px solid #e5d39e; border-radius:30px; background:#fff9e9; color:#8a6720; font-size:10px; }
+.mu-qbank-tools { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:10px; padding:13px; border:1px solid #e8eceb; border-radius:13px; background:#f8faf9; }
+.mu-qbank-tools label { display:block; min-width:0; }
+.mu-qbank-list-meta { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:12px 0 7px; color:#74828a; font-size:10px; }
+.mu-qbank-list-meta button { padding:7px 10px; border:1px solid #d9e3e4; border-radius:8px; background:#fff; color:#24536a; font-size:10px; font-weight:850; cursor:pointer; }
+.mu-test-manager-builder .question-select-list { max-height:330px; overflow:auto; border:1px solid #e3e9e9; border-radius:12px; background:#fff; }
+.mu-test-manager-builder .question-select-row { display:flex; align-items:flex-start; gap:11px; padding:11px 13px; border-bottom:1px solid #edf0f0; cursor:pointer; }
+.mu-test-manager-builder .question-select-row:last-child { border-bottom:0; }
+.mu-test-manager-builder .question-select-row:hover { background:#f8faf8; }
+.mu-test-manager-builder .question-select-row input { width:16px; height:16px; margin-top:2px; accent-color:#b58b37; }
+.mu-test-manager-builder .question-select-row span { display:grid; gap:4px; min-width:0; }
+.mu-test-manager-builder .question-select-row b { color:#294654; font-size:11px; font-weight:700; line-height:1.55; }
+.mu-test-manager-builder .question-select-row small { color:#98752e; font-size:9px; }
+.mu-library-count { padding:8px 11px; border:1px solid #dce5e5; border-radius:30px; color:#56707a; font-size:9px; font-weight:950; letter-spacing:.1em; }
+.mu-test-paper-row { margin:10px 0!important; padding:16px!important; border:1px solid #e4e9e9!important; border-radius:13px!important; background:#fff!important; }
+.mu-test-paper-main { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.mu-test-paper-main b { color:#173b50; font-size:13px; }
+.mu-test-paper-main p { margin:4px 0 0; color:#78868c; font-size:10px; }
+.mu-test-status { flex:0 0 auto; padding:6px 9px; border-radius:30px; font-size:8px; font-weight:950; text-transform:uppercase; letter-spacing:.1em; }
+.mu-test-status.published { background:#eaf7ef; color:#28734a; }
+.mu-test-status.draft { background:#fff5df; color:#987020; }
+.mu-test-status.archived { background:#eef1f3; color:#687982; }
+.mu-test-paper-meta { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0; }
+.mu-test-paper-meta span { padding:6px 9px; border:1px solid #e8ecec; border-radius:7px; background:#f8faf9; color:#667780; font-size:9px; font-weight:750; }
+.mu-test-manager-library .result-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.mu-test-manager-library .result-actions .btn { min-height:34px; padding:7px 12px; border-radius:8px; font-size:10px; }
+@media(max-width:760px) {
+ .mu-test-manager-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .mu-qbank-tools { grid-template-columns:1fr 1fr; }
+ .mu-qbank-search { grid-column:1/-1; }
+}
+@media(max-width:520px) {
+ .admin-tests-page { gap:13px; padding:10px 0 28px; }
+ .mu-test-manager-hero { padding:21px 17px; border-radius:17px; }
+ .mu-test-manager-hero-mark { min-width:82px; min-height:90px; padding:8px; }
+ .mu-test-manager-hero-mark b { font-size:19px; }
+ .mu-test-manager-hero-mark small { font-size:6px; }
+ .mu-test-manager-hero h1 { font-size:27px; }
+ .mu-test-manager-hero p { font-size:11px; }
+ .mu-test-manager-stats { gap:8px; }
+ .mu-test-manager-stats article { padding:12px; }
+ .mu-test-manager-stats article b { font-size:24px; }
+ .mu-test-section-title h2 { font-size:19px; }
+ .mu-qbank-tools { grid-template-columns:1fr; }
+ .mu-qbank-search { grid-column:auto; }
+ .mu-test-paper-main { flex-direction:column; gap:7px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .mu-test-manager-hero,.mu-test-manager-stats article { animation:none!important; transition:none!important; }
+}

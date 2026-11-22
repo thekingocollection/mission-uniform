@@ -4777,3 +4777,51 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 @keyframes muCatalogSpin{to{transform:rotate(360deg)}}
 @media(max-width:680px){.mu-catalog-intro{padding:23px 20px}.mu-catalog-emblem{flex-basis:68px;width:68px;height:68px;font-size:18px}.mu-catalog-stats{gap:7px}.mu-catalog-stats>div{align-items:flex-start;flex-direction:column;gap:2px;padding:10px}.mu-catalog-stats b{font-size:19px}.mu-catalog-stats span{font-size:9px}.mu-catalog-grid{grid-template-columns:1fr}.mu-catalog-controls{align-items:stretch;flex-direction:column}.mu-catalog-sort{justify-content:space-between}.mu-catalog-sort select{flex:1}.mu-catalog-results-head>div{align-items:flex-start;flex-direction:column;gap:2px}}
 @media(max-width:420px){.mu-catalog-intro{gap:8px}.mu-catalog-emblem{display:none}.mu-catalog-stats b{font-size:17px}.mu-catalog-stats span{font-size:8px}.mu-catalog-filters button{flex:1 1 auto}}
+
+
+/* MISSION UNIFORM OP — focused mock-test experience */
+.mu-exam-shell { max-width: 1240px; padding-top: 28px; padding-bottom: 56px; }
+.mu-exam-intro, .mu-exam-result { max-width: 920px; margin: 28px auto; padding: clamp(22px, 4vw, 42px); border: 1px solid #e4e8f0; border-top: 4px solid #d4a72c; border-radius: 20px; background: #fff; box-shadow: 0 16px 42px rgba(23,37,84,.08); }
+.mu-exam-intro h1, .mu-exam-result h1 { color: #172554; font-size: clamp(26px, 4vw, 38px); line-height: 1.2; margin: 12px 0; }
+.mu-exam-intro > p { color: #64748b; line-height: 1.75; }
+.mu-exam-intro ul { display: grid; gap: 12px; margin: 24px 0; padding: 20px 24px 20px 42px; border-radius: 14px; background: #f7f8fc; color: #334155; line-height: 1.65; }
+.mu-exam-intro .btn.primary { min-height: 52px; padding: 0 28px; border-radius: 11px; background: #d4a72c; color: #172554; font-weight: 900; box-shadow: 0 7px 18px rgba(212,167,44,.2); }
+.mu-exam-layout { display: grid; gap: 20px; }
+.mu-exam-layout .test-top { align-items: center; gap: 18px; padding: 22px 24px; border: 1px solid rgba(212,167,44,.35); border-radius: 17px; background: linear-gradient(120deg,#172554,#263e75); color: #fff; box-shadow: 0 10px 28px rgba(23,37,84,.12); }
+.mu-exam-layout .test-top h1 { color: #fff; font-size: clamp(21px,3vw,30px); margin: 7px 0; }
+.mu-exam-layout .test-top p { color: #dbeafe; margin: 0; }
+.mu-exam-layout .test-top .eyebrow { color: #f5cf65; }
+.mu-exam-timer { min-width: 190px; padding: 13px 16px; border: 1px solid rgba(245,207,101,.5); border-radius: 13px; background: rgba(8,20,52,.42); color: #fff; }
+.mu-exam-timer-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.mu-exam-timer-top span { color:#f5cf65; font-size:10px; font-weight:800; letter-spacing:1px; }
+.mu-exam-timer-top b { font-size:24px; font-variant-numeric:tabular-nums; }
+.mu-exam-time-track { height:5px; margin-top:10px; overflow:hidden; border-radius:20px; background:rgba(255,255,255,.2); }
+.mu-exam-time-track i { display:block; height:100%; border-radius:20px; background:#f5cf65; transition:width .4s linear; }
+.mu-exam-timer.is-warning { border-color:#fca5a5; background:#7f1d1d; }
+.mu-exam-timer.is-warning .mu-exam-time-track i { background:#fecaca; }
+.mu-exam-question, .mu-exam-palette { border:1px solid #e3e8f1; border-radius:17px; background:#fff; box-shadow:0 8px 26px rgba(23,37,84,.055); }
+.mu-exam-question { padding:clamp(18px,3vw,30px); }
+.mu-exam-question .question-meta { display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-bottom:22px; }
+.mu-exam-question .question-meta span { padding:7px 11px; border-radius:30px; background:#f1f5f9; color:#475569; font-size:11px; font-weight:800; }
+.mu-exam-question h2 { color:#172554; font-size:clamp(19px,2.4vw,25px); line-height:1.65; margin:0 0 15px; }
+.mu-exam-question .muted { color:#64748b; line-height:1.65; }
+.mu-exam-question .options { display:grid; gap:11px; margin:24px 0; }
+.mu-exam-question .option { display:flex; align-items:center; gap:13px; width:100%; min-height:58px; padding:13px 16px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; color:#24324f; text-align:left; line-height:1.55; transition:border-color .18s,background .18s,transform .18s; }
+.mu-exam-question .option:hover { border-color:#c59a2c; background:#fffcf3; }
+.mu-exam-question .option.selected { border:2px solid #c59a2c; background:#fff8e5; color:#172554; font-weight:700; }
+.mu-exam-question .option > span { display:grid; place-items:center; flex:0 0 32px; width:32px; height:32px; border-radius:9px; background:#eef2f7; color:#172554; font-weight:900; }
+.mu-exam-question .option.selected > span { background:#172554; color:#f5cf65; }
+.mu-exam-question .question-actions { display:flex; flex-wrap:wrap; gap:10px; padding-top:18px; border-top:1px solid #edf0f5; }
+.mu-exam-question .question-actions .btn { min-height:44px; border-radius:10px; }
+.mu-exam-palette { align-self:start; padding:20px; }
+.mu-exam-palette h3 { margin:0; color:#172554; font-size:18px; }
+.mu-exam-palette .palette-grid { grid-template-columns:repeat(5,minmax(34px,1fr)); gap:8px; }
+.mu-exam-palette .palette-grid button { min-height:40px; border-radius:9px; font-weight:800; }
+.mu-exam-palette .palette-grid button.current { outline:2px solid #172554; outline-offset:2px; background:#172554; color:#f5cf65; }
+.mu-exam-palette .palette-grid button.answered { background:#dcfce7; border-color:#16a34a; color:#166534; }
+.mu-exam-palette .palette-grid button.marked { box-shadow:inset 0 -4px #eab308; }
+.mu-exam-palette .btn.danger { min-height:46px; border-radius:10px; background:#991b1b; color:#fff; }
+.mu-exam-result .score-ring { border-color:#d4a72c; color:#172554; }
+.mu-exam-result .test-result-grid > div { border-radius:13px; background:#f8fafc; }
+@media (min-width:900px) { .mu-exam-layout .test-grid { grid-template-columns:minmax(0,1fr) 320px; gap:20px; align-items:start; } .mu-exam-palette { position:sticky; top:94px; } }
+@media (max-width:650px) { .mu-exam-shell { padding-top:16px; } .mu-exam-layout .test-top { padding:18px; } .mu-exam-timer { width:100%; } .mu-exam-question .question-actions .btn { flex:1 1 42%; } .mu-exam-palette { padding:16px; } }

@@ -1,3 +1,4 @@
+import { filterExamSubjects } from "@/lib/exam-subjects";
 import { NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
@@ -13,14 +14,15 @@ export async function GET() {
       .eq("is_active", true)
       .order("name_en");
     if (error) throw error;
-    if (!subjects?.length) {
+    const examSubjects = filterExamSubjects(subjects || []);
+    if (!examSubjects.length) {
       return NextResponse.json({ subjects: [] }, { headers: { "Cache-Control": "private, no-store" } });
     }
 
     // Run each subject's two small metadata queries concurrently.
     // The old implementation waited for each subject in sequence, making
     // the student page progressively slower as subjects were added.
-    const output = await Promise.all(subjects.map(async (subject) => {
+    const output = await Promise.all(examSubjects.map(async (subject) => {
       const [{ count, error: countError }, { data: test, error: testError }] = await Promise.all([
         db.from("questions")
           .select("id", { count: "exact", head: true })

@@ -37,6 +37,7 @@ export default function TakeTest({ id }: { id: string }) {
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewFilter, setReviewFilter] = useState<"all" | "correct" | "wrong" | "skipped">("all");
   const [flypastRun, setFlypastRun] = useState(0);
   const [error, setError] = useState("");
 
@@ -260,91 +261,94 @@ export default function TakeTest({ id }: { id: string }) {
   if (result) {
     const attempt = result.attempt;
     const review: ReviewItem[] = result.review || [];
-    const item = review[reviewIndex];
+    const summary = result.summary || {};
+    const filteredReview = reviewFilter === "all" ? review : review.filter((entry) => entry.status === reviewFilter);
+    const safeReviewIndex = Math.min(reviewIndex, Math.max(0, filteredReview.length - 1));
+    const item = filteredReview[safeReviewIndex];
+    const elapsed = Number(summary.elapsed_seconds || 0);
+    const elapsedLabel = `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`;
+    const correctPercent = result.total ? Math.round((Number(attempt.correct_count || 0) / result.total) * 100) : 0;
 
     return (
       <main className="content-wrap mu-exam-shell">
-        <section className="panel result-panel mu-exam-result">
-          <span className="eyebrow">MISSION UNIFORM OP · RESULT</span>
+        <section className="panel result-panel mu-exam-result mu-result-dashboard">
+          <span className="eyebrow">MISSION UNIFORM OP · PERFORMANCE REPORT</span>
           <h1>Test Completed!</h1>
-
-          <div className="score-ring">
-            {attempt.score}
-            <small> Score</small>
+          <p className="muted">{result.test?.title || test.title}</p>
+          <div className="mu-result-hero">
+            <div className="score-ring">
+              {attempt.score}
+              <small>Score</small>
+            </div>
+            <div className="mu-result-percent">
+              <strong>{result.accuracy}%</strong>
+              <span>Accuracy</span>
+              <div className="mu-result-progress"><i style={{ width: `${Math.max(0, Math.min(100, Number(result.accuracy || 0)))}%` }} /></div>
+              <small>{correctPercent}% questions correct</small>
+            </div>
           </div>
-
           <div className="test-result-grid">
-            <div><b>{result.total}</b><span>Total</span></div>
+            <div><b>{result.total}</b><span>Total Questions</span></div>
+            <div><b>{summary.attempted ?? (Number(attempt.correct_count || 0) + Number(attempt.wrong_count || 0))}</b><span>Attempted</span></div>
             <div><b>{attempt.correct_count}</b><span>Correct</span></div>
             <div><b>{attempt.wrong_count}</b><span>Wrong</span></div>
-            <div><b>{attempt.skipped_count}</b><span>Skipped</span></div>
+            <div><b>{attempt.skipped_count}</b><span>Unanswered</span></div>
+            <div><b>{elapsedLabel}</b><span>Time Taken</span></div>
+            <div><b>{summary.positive_marks ?? "—"}</b><span>Positive Marks</span></div>
+            <div><b>{summary.negative_marks ?? "—"}</b><span>Negative Marks</span></div>
           </div>
-
-          <p>Accuracy: <b>{result.accuracy}%</b></p>
-          <p>Your result has been saved to your account.</p>
+          <p className="mu-result-note">Your result has been saved to your account. Review each answer below to learn from mistakes.</p>
+          <div className="mu-result-links">
+            <a className="btn secondary" href="/test-history">View Test History</a>
+            <a className="btn primary" href="/tests">Explore More Tests</a>
+          </div>
         </section>
 
-        <section className="panel">
-          <h2>Answer Review</h2>
-          <p>Question {reviewIndex + 1} of {review.length}</p>
-
-          {item && (
-            <article className="review-item">
-              <h3>{item.question}</h3>
-
-              {item.options.map((option, i) => (
-                <p
-                  key={i}
-                  className={
-                    String(i) === String(item.selected)
-                      ? "selected"
-                      : ""
-                  }
-                >
-                  {String.fromCharCode(65 + i)}. {option}
-                  {String(i) === String(
-                    ["A", "B", "C", "D"].indexOf(
-                      String(item.correct_option).toUpperCase()
-                    )
-                  ) ? " ✓ Correct answer" : ""}
-                </p>
-              ))}
-
-              <p>
-                Your answer:{" "}
-                {item.selected === null
-                  ? "Not answered"
-                  : item.options[item.selected]}
-              </p>
-
-              <p>
-                Status: <b>{item.status.toUpperCase()}</b>
-              </p>
-
-              {(item.chapter || item.difficulty) && <p className="muted">{item.chapter || "General"}{item.difficulty ? " · " + item.difficulty : ""}</p>}
-              {item.explanation && (
-                <p><b>Explanation:</b> {item.explanation}</p>
-              )}
-            </article>
-          )}
-
-          <div className="question-actions">
-            <button
-              className="btn secondary"
-              disabled={reviewIndex === 0}
-              onClick={() => setReviewIndex((i) => i - 1)}
-            >
-              Previous
-            </button>
-
-            <button
-              className="btn primary"
-              disabled={reviewIndex >= review.length - 1}
-              onClick={() => setReviewIndex((i) => i + 1)}
-            >
-              Next
-            </button>
+        <section className="panel mu-answer-review">
+          <div className="mu-review-heading">
+            <div><span className="eyebrow">LEARN FROM YOUR ATTEMPT</span><h2>Answer Review</h2></div>
+            <span className="muted">{filteredReview.length} question(s)</span>
           </div>
+          <div className="mu-review-filters" role="group" aria-label="Filter answer review">
+            {(["all", "correct", "wrong", "skipped"] as const).map((filter) => {
+              const count = filter === "all" ? review.length : review.filter((entry) => entry.status === filter).length;
+              return <button key={filter} type="button" className={reviewFilter === filter ? "active" : ""} onClick={() => { setReviewFilter(filter); setReviewIndex(0); }}>
+                {filter === "all" ? "All" : filter === "skipped" ? "Unanswered" : filter[0].toUpperCase() + filter.slice(1)} <b>{count}</b>
+              </button>;
+            })}
+          </div>
+          {item ? (
+            <>
+              <div className="mu-review-question-count">Question {safeReviewIndex + 1} of {filteredReview.length}</div>
+              <article className={`review-item mu-review-card status-${item.status}`}>
+                <div className="mu-review-tags">
+                  <span className={`mu-status-tag ${item.status}`}>{item.status === "skipped" ? "UNANSWERED" : item.status.toUpperCase()}</span>
+                  {item.chapter && <span>{item.chapter}</span>}
+                  {item.difficulty && <span>{item.difficulty}</span>}
+                </div>
+                <h3>{item.question}</h3>
+                <div className="mu-review-options">
+                  {item.options.map((option, i) => {
+                    const isCorrect = i === ["A", "B", "C", "D"].indexOf(String(item.correct_option).toUpperCase());
+                    const isSelected = item.selected === i;
+                    return <div key={i} className={`mu-review-option ${isCorrect ? "is-correct" : ""} ${isSelected && !isCorrect ? "is-wrong" : ""}`}>
+                      <b>{String.fromCharCode(65 + i)}</b><span>{option}</span>
+                      {isCorrect && <strong>Correct answer</strong>}
+                      {isSelected && <em>Your answer</em>}
+                    </div>;
+                  })}
+                </div>
+                <div className="mu-review-explanation">
+                  <b>Explanation</b>
+                  <p>{item.explanation || "Explanation is not available for this question yet."}</p>
+                </div>
+              </article>
+              <div className="question-actions mu-review-navigation">
+                <button className="btn secondary" disabled={safeReviewIndex === 0} onClick={() => setReviewIndex((i) => Math.max(0, i - 1))}>Previous</button>
+                <button className="btn primary" disabled={safeReviewIndex >= filteredReview.length - 1} onClick={() => setReviewIndex((i) => Math.min(filteredReview.length - 1, i + 1))}>Next</button>
+              </div>
+            </>
+          ) : <p className="muted">No questions in this category.</p>}
         </section>
       </main>
     );

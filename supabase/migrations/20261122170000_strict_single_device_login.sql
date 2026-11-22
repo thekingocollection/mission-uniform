@@ -46,3 +46,19 @@ as $$
 $$;
 revoke all on function public.check_student_device(uuid) from public, anon;
 grant execute on function public.check_student_device(uuid) to authenticated;
+
+
+create or replace function public.verify_student_device(p_user_id uuid, p_device_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1 from public.student_device_bindings b
+    where b.user_id = p_user_id and b.device_id = p_device_id
+  );
+$$;
+revoke all on function public.verify_student_device(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.verify_student_device(uuid, uuid) to service_role;

@@ -57,6 +57,10 @@ export default function AdminQuestions() {
   const [preview, setPreview] = useState<any[]>([]);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [editDraft, setEditDraft] = useState({ question_hi: "", question_en: "", question_or: "", options: ["", "", "", ""], correct_option: "A", difficulty: "medium", chapter: "" });
+  const [bulkDraft, setBulkDraft] = useState({ subject_id: "", chapter: "", difficulty: "", verified: "", is_active: "" });
+
 
   async function loadData() {
     if (!supabase) return;
@@ -252,6 +256,79 @@ export default function AdminQuestions() {
         item.id === q.id ? { ...item, is_active: !q.is_active } : item
       )
     );
+  }
+
+
+  function beginEdit(q: Question) {
+    const opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
+    setEditingQuestion(q);
+    setEditDraft({
+      question_hi: q.question_hi || "", question_en: q.question_en || "", question_or: q.question_or || "",
+      options: [0,1,2,3].map(i => { const v:any = opts[i]; return typeof v === "string" ? v : String(v?.text ?? v?.value ?? ""); }),
+      correct_option: String(q.correct_option || "A").toUpperCase(), difficulty: q.difficulty || "medium", chapter: q.chapter || ""
+    });
+  }
+
+  async function saveEdit() {
+    if (!supabase || !editingQuestion) return;
+    if (!editDraft.question_hi.trim() || editDraft.options.some(v => !v.trim()) || !["A","B","C","D"].includes(editDraft.correct_option)) {
+      setMessage("Hindi question, all four options and correct answer are required."); return;
+    }
+    setBusy(true);
+    const { error } = await supabase.from("questions").update({
+      question_hi: editDraft.question_hi.trim(), question_en: editDraft.question_en.trim() || null,
+      question_or: editDraft.question_or.trim() || null, options: editDraft.options,
+      correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null
+    }).eq("id", editingQuestion.id);
+    if (error) setMessage("Save failed: " + error.message);
+    else {
+      setQuestions(old => old.map(q => q.id === editingQuestion.id ? { ...q, question_hi: editDraft.question_hi.trim(), question_en: editDraft.question_en.trim() || null, question_or: editDraft.question_or.trim() || null, options: editDraft.options, correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null } : q));
+      setEditingQuestion(null); setMessage("Question updated.");
+    }
+    setBusy(false);
+  }
+
+  async function bulkDelete() {
+    if (!supabase || !selected.length) return;
+    if (!window.confirm("Permanently delete " + selected.length + " selected questions? This cannot be undone.")) return;
+    setBusy(true);
+    const ids = [...selected];
+    const { error } = await supabase.from("questions").delete().in("id", ids);
+    if (error) setMessage("Delete failed: " + error.message);
+    else { setQuestions(old => old.filter(q => !ids.includes(q.id))); setSelected([]); setMessage(ids.length + " questions deleted."); }
+    setBusy(false);
+  }
+
+  async function bulkUpdate() {
+    if (!supabase || !selected.length) return;
+    const patch:any = {};
+    if (bulkDraft.subject_id) patch.subject_id = bulkDraft.subject_id;
+    if (bulkDraft.chapter.trim()) patch.chapter = bulkDraft.chapter.trim();
+    if (bulkDraft.difficulty) patch.difficulty = bulkDraft.difficulty;
+    if (bulkDraft.verified !== "") patch.verified = bulkDraft.verified === "true";
+    if (bulkDraft.is_active !== "") patch.is_active = bulkDraft.is_active === "true";
+    if (!Object.keys(patch).length) { setMessage("Choose at least one bulk update field."); return; }
+    if (!window.confirm("Apply these changes to " + selected.length + " selected questions?")) return;
+    setBusy(true);
+    const ids = [...selected];
+    const { error } = await supabase.from("questions").update(patch).in("id", ids);
+    if (error) setMessage("Bulk update failed: " + error.message);
+    else {
+      setQuestions(old => old.map(q => ids.includes(q.id) ? { ...q, ...patch } : q));
+      setSelected([]); setBulkDraft({ subject_id:"", chapter:"", difficulty:"", verified:"", is_active:"" });
+      setMessage(ids.length + " questions updated.");
+    }
+    setBusy(false);
+  }
+
+  async function bulkSetActive(value:boolean) {
+    if (!supabase || !selected.length) return;
+    if (!window.confirm((value ? "Publish " : "Unpublish ") + selected.length + " selected questions?")) return;
+    setBusy(true); const ids=[...selected];
+    const {error}=await supabase.from("questions").update({is_active:value}).in("id",ids);
+    if(error) setMessage(error.message);
+    else { setQuestions(old=>old.map(q=>ids.includes(q.id)?{...q,is_active:value}:q)); setSelected([]); setMessage(ids.length+" questions updated."); }
+    setBusy(false);
   }
 
   function downloadTemplate() {
@@ -504,9 +581,24 @@ export default function AdminQuestions() {
             <button className="admin-qb-light-btn" onClick={selectVisible}>Select Visible</button>
             {statusFilter !== "verified" && <button className="admin-qb-verify-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(true)}>✓ Verify Selected</button>}
             {statusFilter !== "pending" && <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(false)}>Move to Unverified</button>}
+            <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkSetActive(true)}>Publish Selected</button>
+            <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkSetActive(false)}>Unpublish Selected</button>
+            <button className="admin-qb-danger-btn" disabled={busy || !selected.length} onClick={() => void bulkDelete()}>Delete Selected</button>
             <button className="admin-qb-reset" onClick={() => setSelected([])}>Clear</button>
           </div>
         </div>
+
+        {selected.length > 0 && <div className="admin-qb-bulk-editor">
+          <b>Bulk update · {selected.length} selected</b>
+          <div className="admin-qb-bulk-grid">
+            <label>Move to subject<select value={bulkDraft.subject_id} onChange={e=>setBulkDraft(v=>({...v,subject_id:e.target.value}))}><option value="">No change</option>{subjects.map(s=><option key={s.id} value={s.id}>{s.name_en}</option>)}</select></label>
+            <label>Set chapter<input value={bulkDraft.chapter} onChange={e=>setBulkDraft(v=>({...v,chapter:e.target.value}))} placeholder="Leave blank for no change"/></label>
+            <label>Difficulty<select value={bulkDraft.difficulty} onChange={e=>setBulkDraft(v=>({...v,difficulty:e.target.value}))}><option value="">No change</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
+            <label>Verification<select value={bulkDraft.verified} onChange={e=>setBulkDraft(v=>({...v,verified:e.target.value}))}><option value="">No change</option><option value="true">Verified</option><option value="false">Unverified</option></select></label>
+            <label>Visibility<select value={bulkDraft.is_active} onChange={e=>setBulkDraft(v=>({...v,is_active:e.target.value}))}><option value="">No change</option><option value="true">Active</option><option value="false">Inactive</option></select></label>
+            <button className="admin-qb-verify-btn" disabled={busy} onClick={()=>void bulkUpdate()}>Apply Bulk Update</button>
+          </div>
+        </div>}
 
         <div className="admin-qb-question-list">
           {filteredQuestions.map((q, index) => (
@@ -544,7 +636,7 @@ export default function AdminQuestions() {
               </div>
               <div className="admin-qb-question-actions">
                 {!q.verified && <button className="admin-qb-verify-mini" disabled={busy} onClick={() => void verifyOne(q)}>Verify</button>}
-                <button className="admin-qb-light-btn" disabled={busy} onClick={() => void toggleActive(q)}>{q.is_active ? "Unpublish" : "Publish"}</button>
+                <button className="admin-qb-light-btn" disabled={busy} onClick={() => beginEdit(q)}>Edit</button><button className="admin-qb-light-btn" disabled={busy} onClick={() => void toggleActive(q)}>{q.is_active ? "Unpublish" : "Publish"}</button>
               </div>
             </article>
           ))}
@@ -552,6 +644,18 @@ export default function AdminQuestions() {
         </div>
         <p className="admin-qb-footnote">Latest 5,000 records are loaded for this screen. Verification status is controlled by the admin; only active, verified questions are eligible for student mock tests.</p>
       </section>
+
+      {editingQuestion && <div className="admin-qb-modal-backdrop" role="presentation">
+        <section className="admin-qb-edit-modal" role="dialog" aria-modal="true" aria-label="Edit question">
+          <div className="admin-qb-edit-head"><h2>Edit Question</h2><button onClick={()=>setEditingQuestion(null)} aria-label="Close">×</button></div>
+          <label>Question (Hindi)<textarea value={editDraft.question_hi} onChange={e=>setEditDraft(v=>({...v,question_hi:e.target.value}))}/></label>
+          <label>Question (English)<textarea value={editDraft.question_en} onChange={e=>setEditDraft(v=>({...v,question_en:e.target.value}))}/></label>
+          <label>Question (Odia)<textarea value={editDraft.question_or} onChange={e=>setEditDraft(v=>({...v,question_or:e.target.value}))}/></label>
+          <div className="admin-qb-bulk-grid">{editDraft.options.map((value,i)=><label key={i}>Option {["A","B","C","D"][i]}<input value={value} onChange={e=>setEditDraft(v=>({...v,options:v.options.map((x,j)=>j===i?e.target.value:x)}))}/></label>)}</div>
+          <div className="admin-qb-bulk-grid"><label>Correct answer<select value={editDraft.correct_option} onChange={e=>setEditDraft(v=>({...v,correct_option:e.target.value}))}>{["A","B","C","D"].map(x=><option key={x}>{x}</option>)}</select></label><label>Chapter<input value={editDraft.chapter} onChange={e=>setEditDraft(v=>({...v,chapter:e.target.value}))}/></label><label>Difficulty<select value={editDraft.difficulty} onChange={e=>setEditDraft(v=>({...v,difficulty:e.target.value}))}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label></div>
+          <div className="admin-qb-import-actions"><button className="admin-qb-verify-btn" disabled={busy} onClick={()=>void saveEdit()}>{busy?"Saving...":"Save Changes"}</button><button className="admin-qb-light-btn" onClick={()=>setEditingQuestion(null)}>Cancel</button></div>
+        </section>
+      </div>}
 
       <section className="admin-qb-section admin-qb-import" id="qb-import">
         <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Excel/CSV upload karein. Har naya question automatically Unverified mein aayega.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>

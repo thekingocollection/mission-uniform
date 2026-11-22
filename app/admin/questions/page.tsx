@@ -112,11 +112,11 @@ export default function AdminQuestions() {
 
       const { data: profile, error } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role,permissions,is_blocked")
         .eq("id", auth.user.id)
         .maybeSingle();
 
-      const allowed = !error && profile?.role === "super_admin";
+      const allowed = !error && !profile?.is_blocked && (profile?.role === "super_admin" || (profile?.role === "staff_admin" && Boolean((profile?.permissions as Record<string, boolean> | null)?.manage_questions)));
 
       if (!alive) return;
 

@@ -5288,3 +5288,53 @@ body { background:#f5f7f8; color:#183548; }
 @media(prefers-reduced-motion:reduce) {
   .mu-trial-status,.mu-trial-status::before,.mu-trial-status-icon { animation:none; }
 }
+
+
+/* Animated exam arena highlight for the published tests catalogue */
+.mu-tests-hero {
+  position:relative; display:flex; align-items:center; justify-content:space-between; gap:28px;
+  min-height:270px; margin:0 0 22px; padding:clamp(25px,4vw,43px);
+  overflow:hidden; isolation:isolate; border:1px solid #d8b85f; border-radius:23px;
+  color:#fff; background:linear-gradient(112deg,#0d293d 0%,#16465b 58%,#253d52 100%);
+  box-shadow:0 17px 42px #102b4026; animation:mu-tests-rise .65s cubic-bezier(.2,.8,.2,1) both;
+}
+.mu-tests-hero::before {
+  content:""; position:absolute; inset:-70%; z-index:-1; pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0 35%,#e9c66b18 43%,transparent 52% 100%);
+  animation:mu-tests-rotate 18s linear infinite;
+}
+.mu-tests-hero::after {
+  content:""; position:absolute; top:0; bottom:0; left:-45%; width:35%; z-index:-1;
+  background:linear-gradient(90deg,transparent,#ffffff16,transparent); transform:skewX(-18deg);
+  animation:mu-tests-sweep 6s ease-in-out infinite;
+}
+.mu-tests-hero-copy { position:relative; z-index:1; max-width:760px; }
+.mu-tests-hero .mu-catalog-kicker { display:inline-flex; align-items:center; gap:9px; color:#f2d58e; font-size:10px; font-weight:950; letter-spacing:.18em; }
+.mu-tests-hero .mu-catalog-kicker i { width:8px; height:8px; border-radius:50%; background:#80e0b2; box-shadow:0 0 0 5px #80e0b222,0 0 13px #80e0b2; animation:mu-tests-live 1.8s ease-in-out infinite; }
+.mu-tests-hero h1 { margin:17px 0 12px; color:#fff; font-size:clamp(30px,4.8vw,49px); line-height:1.08; letter-spacing:-.04em; font-weight:950; }
+.mu-tests-hero h1 em { color:#f1d48a; font-style:normal; text-shadow:0 0 25px #eac66b25; }
+.mu-tests-hero-copy>p { max-width:670px; margin:0; color:#d6e4e9; font-size:14px; line-height:1.8; }
+.mu-tests-hero-pills { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+.mu-tests-hero-pills span { padding:8px 11px; border:1px solid #ffffff2b; border-radius:30px; background:#ffffff0d; color:#f4e5bd; font-size:10px; font-weight:800; backdrop-filter:blur(5px); }
+.mu-tests-hero-emblem { position:relative; z-index:1; display:flex; flex:0 0 205px; flex-direction:column; align-items:center; justify-content:center; width:205px; height:205px; border:1px solid #e5c574a8; border-radius:50%; background:radial-gradient(circle,#28586a 0,#15394d 63%,#102b40 100%); box-shadow:0 0 0 9px #ffffff08,0 0 0 10px #e5c57440,0 0 42px #e5c57425; }
+.mu-tests-hero-emblem>b { color:#f2d58e; font-size:56px; line-height:1; letter-spacing:-.06em; text-shadow:0 4px 18px #0006; }
+.mu-tests-hero-emblem>small { margin-top:7px; color:#fff; font-size:9px; font-weight:900; line-height:1.4; letter-spacing:.16em; text-align:center; }
+.mu-tests-hero-emblem>i { margin-top:12px; color:#e9cc83; font-size:7px; font-style:normal; font-weight:900; letter-spacing:.12em; }
+.mu-tests-orbit { position:absolute; top:18px; right:33px; color:#ffe7a2; font-size:24px; animation:mu-tests-orbit 5s ease-in-out infinite; }
+.mu-tests-hero-glow { position:absolute; right:7%; bottom:-100px; width:300px; height:180px; z-index:-1; border-radius:50%; background:#e7bf5a22; filter:blur(45px); }
+@keyframes mu-tests-rise { from { opacity:0; transform:translateY(13px); } to { opacity:1; transform:translateY(0); } }
+@keyframes mu-tests-rotate { to { transform:rotate(360deg); } }
+@keyframes mu-tests-sweep { 0%,58% { left:-45%; } 82%,100% { left:125%; } }
+@keyframes mu-tests-live { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.55; transform:scale(.78); } }
+@keyframes mu-tests-orbit { 0%,100% { transform:translateY(0) rotate(0); } 50% { transform:translateY(8px) rotate(25deg); } }
+@media(max-width:650px) {
+  .mu-tests-hero { min-height:0; padding:25px 20px; }
+  .mu-tests-hero-emblem { display:none; }
+  .mu-tests-hero h1 { font-size:clamp(29px,8vw,39px); }
+  .mu-tests-hero-copy>p { font-size:13px; }
+  .mu-tests-hero-pills { gap:6px; }
+  .mu-tests-hero-pills span { font-size:9px; padding:7px 9px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .mu-tests-hero,.mu-tests-hero::before,.mu-tests-hero::after,.mu-tests-hero .mu-catalog-kicker i,.mu-tests-orbit { animation:none; }
+}

@@ -478,8 +478,16 @@ export default function AdminQuestions() {
 
         if (!subject) errors.push("Subject not found.");
         if (!chapter) errors.push("Chapter not found for this subject.");
-        if (![data.question_hi, data.question_en, data.question_or].some((v: string) => v?.trim())) errors.push("At least one question language (English or Odia; Hindi optional) is required.");
+        const subjectName = normalize(subject?.name_en || data.subject_name);
+        const isOdiaGrammar = subjectName.includes("odia grammar");
+        const isEnglishLanguage = subjectName === "english language";
+        if (isOdiaGrammar && !data.question_or) errors.push("Odia Grammar requires question_or only.");
+        else if (isEnglishLanguage && !data.question_en) errors.push("English Language requires question_en only.");
+        else if (!isOdiaGrammar && !isEnglishLanguage && (!data.question_en || !data.question_or)) errors.push("This subject requires both English and Odia questions.");
+        if (isOdiaGrammar && data.question_en) errors.push("Odia Grammar questions must be Odia only; leave English blank.");
+        if (isEnglishLanguage && data.question_or) errors.push("English Language questions must be English only; leave Odia blank.");
         if (options.some((v: string) => !v)) errors.push("All four options required.");
+        if (!isOdiaGrammar && !isEnglishLanguage && options.some((v: string) => !String(v).includes("/"))) errors.push("For bilingual subjects, each option must use English / ଓଡ଼ିଆ in the same cell.");
         if (!correct) errors.push("Correct option must be A/B/C/D.");
         
         const rowKeys = makeQuestionKeys(subject?.id || "", data.chapter, [

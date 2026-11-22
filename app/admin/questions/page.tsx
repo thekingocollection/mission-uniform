@@ -22,7 +22,7 @@ type Question = {
   id: string;
   subject_id: string | null;
   chapter: string | null;
-  question_hi: string;
+  question_hi: string | null;
   question_or: string | null;
   question_en: string | null;
   options: any;
@@ -191,7 +191,7 @@ export default function AdminQuestions() {
       }
       const opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
       const values = opts.map((v:any) => typeof v === "string" ? v.trim() : String(v?.text ?? v?.value ?? "").trim());
-      if (!q.question_hi?.trim() || values.length !== 4 || values.some(v => !v)) incomplete++;
+      if (![q.question_hi, q.question_en, q.question_or].some(v => v?.trim()) || values.length !== 4 || values.some(v => !v)) incomplete++;
       if (!["A","B","C","D"].includes(String(q.correct_option || "").toUpperCase())) invalidKeys++;
     }
     return { duplicates, incomplete, invalidKeys, scanned: questions.length };
@@ -289,18 +289,18 @@ export default function AdminQuestions() {
 
   async function saveEdit() {
     if (!supabase || !editingQuestion) return;
-    if (!editDraft.question_hi.trim() || editDraft.options.some(v => !v.trim()) || !["A","B","C","D"].includes(editDraft.correct_option)) {
-      setMessage("Hindi question, all four options and correct answer are required."); return;
+    if (![editDraft.question_hi, editDraft.question_en, editDraft.question_or].some(v => v.trim()) || editDraft.options.some(v => !v.trim()) || !["A","B","C","D"].includes(editDraft.correct_option)) {
+      setMessage("At least one question language (Hindi, English or Odia), all four options and correct answer are required."); return;
     }
     setBusy(true);
     const { error } = await supabase.from("questions").update({
-      question_hi: editDraft.question_hi.trim(), question_en: editDraft.question_en.trim() || null,
+      question_hi: editDraft.question_hi.trim() || null, question_en: editDraft.question_en.trim() || null,
       question_or: editDraft.question_or.trim() || null, options: editDraft.options,
       correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null
     }).eq("id", editingQuestion.id);
     if (error) setMessage("Save failed: " + error.message);
     else {
-      setQuestions(old => old.map(q => q.id === editingQuestion.id ? { ...q, question_hi: editDraft.question_hi.trim(), question_en: editDraft.question_en.trim() || null, question_or: editDraft.question_or.trim() || null, options: editDraft.options, correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null } : q));
+      setQuestions(old => old.map(q => q.id === editingQuestion.id ? { ...q, question_hi: editDraft.question_hi.trim() || null, question_en: editDraft.question_en.trim() || null, question_or: editDraft.question_or.trim() || null, options: editDraft.options, correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null } : q));
       setEditingQuestion(null); setMessage("Question updated.");
     }
     setBusy(false);
@@ -440,7 +440,7 @@ export default function AdminQuestions() {
 
         if (!subject) errors.push("Subject not found.");
         if (!chapter) errors.push("Chapter not found for this subject.");
-        if (!data.question_hi) errors.push("Hindi question required.");
+        if (![data.question_hi, data.question_en, data.question_or].some((v: string) => v?.trim())) errors.push("At least one question language (Hindi, English or Odia) is required.");
         if (options.some((v: string) => !v)) errors.push("All four options required.");
         if (!correct) errors.push("Correct option must be A/B/C/D.");
         
@@ -455,12 +455,12 @@ export default function AdminQuestions() {
           row: index + 2,
           subject: subject?.name_en || data.subject_name,
           chapter: importChapterId ? (chapter?.name || data.chapter) : data.chapter,
-          question: data.question_hi,
+          question: data.question_hi || data.question_en || data.question_or,
           errors,
           payload: errors.length ? null : {
             subject_id: subject!.id,
             chapter: chapter!.name,
-            question_hi: data.question_hi,
+            question_hi: data.question_hi || null,
             question_or: data.question_or || null,
             question_en: data.question_en || null,
             options,
@@ -689,7 +689,7 @@ export default function AdminQuestions() {
       </div>}
 
       <section className="admin-qb-section admin-qb-import" id="qb-import">
-        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Excel/CSV upload karein. Har naya question automatically Unverified mein aayega.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
+        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Excel/CSV upload karein. Hindi, English, Odia — teeno ya inmein se koi ek language bhi chalegi. Har naya question automatically Unverified mein aayega.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
         <div className="admin-qb-import-controls">
           <div className="admin-qb-import-selects">
             <label>Default Subject
@@ -718,7 +718,7 @@ export default function AdminQuestions() {
           </div>
           <div className="admin-qb-upload-row">
             <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 10 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
-            <div className="admin-qb-upload-info"><b>Before importing</b><p>Upar Subject, Chapter aur Difficulty select kar sakte hain. Jo option blank rahega, uski value Excel columns se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
+            <div className="admin-qb-upload-info"><b>Language support</b><p>Question Hindi, English aur Odia tino mein de sakte hain, ya sirf ek language mein bhi. Har row mein kam se kam ek question language zaroor bharein. Options A–D aur correct answer required hain.</p><p>Subject, Chapter aur Difficulty upar select kar sakte hain. Jo option blank rahega, uski value Excel se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
           </div>
         </div>
         {file && <div className="admin-qb-file-selected">Selected file: <b>{file.name}</b></div>}

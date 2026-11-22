@@ -1,8 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import PremiumTrialBanner from "@/components/premium-trial-banner";
+import { EXAM_SUBJECTS } from "@/lib/exam-subjects";
+
+type StudyInsights = { weakAreas: any[]; subjectPace: any[] };
+
+const practiceLinks = [
+  { href: "/subject-mock-test", icon: "📝", title: "Subject-wise Mock Tests", odia: "ବିଷୟଭିତ୍ତିକ ମକ୍ ଟେଷ୍ଟ", detail: "Choose a subject and practise with timed questions.", detailOd: "ବିଷୟ ବାଛନ୍ତୁ ଏବଂ ସମୟସୀମା ମଧ୍ୟରେ ପ୍ରଶ୍ନ ଅଭ୍ୟାସ କରନ୍ତୁ।" },
+  { href: "/tests", icon: "📋", title: "Special Mock Tests", odia: "ସ୍ୱତନ୍ତ୍ର ମକ୍ ଟେଷ୍ଟ", detail: "Attempt practice papers published by the admin.", detailOd: "ଆଡମିନ୍ ପ୍ରକାଶ କରିଥିବା ଅଭ୍ୟାସ ପ୍ରଶ୍ନପତ୍ର ଦିଅନ୍ତୁ।" },
+  { href: "/previous-papers", icon: "📚", title: "Previous Year Papers", odia: "ପୂର୍ବ ବର୍ଷର ପ୍ରଶ୍ନପତ୍ର", detail: "Practise with previous examination questions.", detailOd: "ପୂର୍ବ ପରୀକ୍ଷାର ପ୍ରଶ୍ନ ଅଭ୍ୟାସ କରନ୍ତୁ।" },
+  { href: "/syllabus", icon: "📖", title: "Exam Syllabus", odia: "ପରୀକ୍ଷା ପାଠ୍ୟକ୍ରମ", detail: "Check subjects and topics before you prepare.", detailOd: "ପ୍ରସ୍ତୁତି ପୂର୍ବରୁ ବିଷୟ ଓ ଅଧ୍ୟାୟ ଦେଖନ୍ତୁ।" },
+  { href: "/test-history", icon: "📊", title: "My Test History", odia: "ମୋ ଟେଷ୍ଟ ଇତିହାସ", detail: "Review your completed tests and scores.", detailOd: "ଆପଣଙ୍କ ଦିଆଯାଇଥିବା ଟେଷ୍ଟ ଓ ନମ୍ବର ଦେଖନ୍ତୁ।" },
+  { href: "/leaderboard", icon: "🏆", title: "Performance Analysis", odia: "ପ୍ରଦର୍ଶନ ବିଶ୍ଳେଷଣ", detail: "Review your preparation and identify areas to improve.", detailOd: "ନିଜ ପ୍ରସ୍ତୁତି ଯାଞ୍ଚ କରନ୍ତୁ ଏବଂ ଉନ୍ନତି ଆବଶ୍ୟକ ଥିବା ବିଷୟ ଚିହ୍ନଟ କରନ୍ତୁ।" },
+];
 
 export default function Dashboard() {
   const [name, setName] = useState("Student");
@@ -11,7 +24,7 @@ export default function Dashboard() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState("");
-  const [studyInsights, setStudyInsights] = useState<{weakAreas:any[];subjectPace:any[]}|null>(null);
+  const [studyInsights, setStudyInsights] = useState<StudyInsights | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -31,10 +44,13 @@ export default function Dashboard() {
       setAttempts(count || 0);
       const { data: sessionData } = await sb.auth.getSession();
       if (sessionData.session) {
-        const insightResponse = await fetch("/api/study-insights", { headers: { Authorization: "Bearer " + sessionData.session.access_token }, cache: "no-store" });
-        if (insightResponse.ok) {
-          const insightData = await insightResponse.json();
-          if (active) setStudyInsights({ weakAreas: insightData.weakAreas || [], subjectPace: insightData.subjectPace || [] });
+        const response = await fetch("/api/study-insights", {
+          headers: { Authorization: "Bearer " + sessionData.session.access_token },
+          cache: "no-store",
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (active) setStudyInsights({ weakAreas: data.weakAreas || [], subjectPace: data.subjectPace || [] });
         }
       }
     })().catch(() => {
@@ -53,7 +69,7 @@ export default function Dashboard() {
       if (!session) throw new Error("Please sign in again to verify your email.");
       const response = await fetch("/api/email-verification/send", {
         method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: "Bearer " + session.access_token },
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Could not send the verification email.");
@@ -66,70 +82,128 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="mu-student-home">
-      <section className="mu-student-hero">
-        <div className="mu-student-hero-copy">
-          <span className="mu-kicker">MISSION UNIFORM OP · YOUR PREPARATION ZONE</span>
+    <div className="mu-student-home" style={{ maxWidth: 1160, margin: "0 auto" }}>
+      <section className="mu-student-hero" style={{ minHeight: 0 }}>
+        <div className="mu-student-hero-copy" style={{ maxWidth: 760 }}>
+          <span className="mu-kicker">MISSION UNIFORM OP · ODISHA POLICE EXAM PREPARATION</span>
           <p className="mu-student-greeting">WELCOME BACK, {name.toUpperCase()}</p>
-          <h1>Vardi ka sapna hai,<br /><em>toh haar maanna mana hai.</em></h1>
-          <p className="mu-student-hero-lead">Har din ki mehnat aapko apne lakshya ke ek kadam kareeb le jaati hai. Aaj khud ko kal se behtar banaiye.</p>
+          <h1>Prepare with practice.<br /><em>Be ready for the uniform.</em></h1>
+          <p className="mu-student-hero-lead">
+            Build your exam readiness with subject-wise mock tests, previous year papers and performance review.
+            <br />
+            <span lang="or">ବିଷୟଭିତ୍ତିକ ମକ୍ ଟେଷ୍ଟ, ପୂର୍ବ ବର୍ଷର ପ୍ରଶ୍ନପତ୍ର ଓ ପ୍ରଦର୍ଶନ ବିଶ୍ଳେଷଣ ମାଧ୍ୟମରେ ପରୀକ୍ଷା ପାଇଁ ପ୍ରସ୍ତୁତ ହୁଅନ୍ତୁ।</span>
+          </p>
           <div className="mu-student-hero-stats">
-            <div><b>{attempts}</b><span>Tests attempted</span></div>
-            <div><b>FREE</b><span>Practice for every student</span></div>
+            <div><b>{attempts}</b><span>Tests attempted · ଦିଆଯାଇଥିବା ଟେଷ୍ଟ</span></div>
+            <div><b>FREE</b><span>Practice access · ମାଗଣା ଅଭ୍ୟାସ</span></div>
+          </div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}>
+            <Link href="/subject-mock-test" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 18px", borderRadius: 9, background: "#e8bd62", color: "#172f42", fontWeight: 800, textDecoration: "none" }}>
+              Start Mock Test <span lang="or">· ଟେଷ୍ଟ ଆରମ୍ଭ କରନ୍ତୁ</span> →
+            </Link>
+            <Link href="/syllabus" style={{ display: "inline-flex", alignItems: "center", padding: "12px 18px", borderRadius: 9, border: "1px solid rgba(255,255,255,.45)", color: "white", fontWeight: 700, textDecoration: "none" }}>
+              View Syllabus · ପାଠ୍ୟକ୍ରମ
+            </Link>
           </div>
         </div>
         <div className="mu-student-field-activity" aria-hidden="true">
           <span className="mu-student-radar-ring ring-one" />
           <span className="mu-student-radar-ring ring-two" />
           <span className="mu-student-flight-path" />
-          <span className="mu-student-flight">✈</span>
-          <span className="mu-student-field-label">FIELD STATUS · ACTIVE</span>
-        </div>
-        <div className="mu-student-emblem" aria-hidden="true">
-          <div className="mu-student-emblem-ring"><span>DISCIPLINE</span><b>MU</b><span>DEDICATION</span></div>
-          <small>EK LAKSHYA · EK JUNOON</small>
+          <span className="mu-student-flight">✦</span>
+          <span className="mu-student-field-label">EXAM PRACTICE · ACTIVE</span>
         </div>
       </section>
-      <section className="mu-odisha-mission-strip">
-        <div className="mu-odisha-map-art" aria-label="Stylized Odisha map illustration">
-          <svg viewBox="0 0 210 230" role="img" aria-hidden="true">
-            <defs><linearGradient id="odishaGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f3d98e"/><stop offset="1" stopColor="#c89b38"/></linearGradient></defs>
-            <path d="M79 8 L105 17 L121 12 L138 28 L157 33 L165 52 L185 62 L176 83 L188 103 L171 119 L178 141 L159 154 L153 174 L132 180 L119 203 L99 195 L82 215 L67 197 L47 194 L40 175 L21 166 L30 145 L16 128 L29 109 L22 89 L40 76 L42 54 L61 45 L62 25 Z" fill="url(#odishaGold)" stroke="#f8e9bd" strokeWidth="3" strokeLinejoin="round"/>
-            <path d="M51 70 L91 80 L132 60 M35 116 L81 122 L151 102 M48 159 L93 147 L159 153 M83 28 L91 80 L81 122 L93 147 L82 197 M132 60 L121 103 L130 145 L119 190" fill="none" stroke="#8d6824" strokeOpacity=".45" strokeWidth="1.5" strokeDasharray="3 4"/>
-            <circle cx="109" cy="110" r="5" fill="#173b50" stroke="#fff" strokeWidth="2"/><circle cx="109" cy="110" r="12" fill="none" stroke="#173b50" strokeOpacity=".55"/>
-            <circle cx="71" cy="151" r="3.5" fill="#173b50"/><circle cx="147" cy="76" r="3.5" fill="#173b50"/><circle cx="132" cy="167" r="3.5" fill="#173b50"/>
-          </svg>
+
+      {!emailVerified && (
+        <section role="status" style={{ margin: "18px auto", padding: "14px 16px", border: "1px solid #e7d8ad", borderRadius: 12, background: "#fffaf0", color: "#57451e", display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}>
+          <div>
+            <strong>Email verification pending · ଇମେଲ୍ ଯାଞ୍ଚ ବାକି ଅଛି</strong>
+            <p style={{ margin: "5px 0 0", fontSize: 13 }}>{email ? "Verification link: " + email + "." : "Verify your email when convenient."} You can continue practising. <span lang="or">ଇମେଲ୍ ଯାଞ୍ଚ ନକରିଥିଲେ ମଧ୍ୟ ଅଭ୍ୟାସ ଜାରି ରଖିପାରିବେ।</span></p>
+            {verifyMessage && <small>{verifyMessage}</small>}
+          </div>
+          <button type="button" onClick={sendVerification} disabled={verifyBusy} style={{ padding: "10px 15px", border: 0, borderRadius: 8, background: "#173b50", color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+            {verifyBusy ? "Sending…" : "Verify Email · ଇମେଲ୍ ଯାଞ୍ଚ"}
+          </button>
+        </section>
+      )}
+      {emailVerified && <p role="status" style={{ margin: "12px 0", color: "#17613b" }}>✓ Email verified · ଇମେଲ୍ ଯାଞ୍ଚ ହୋଇଛି</p>}
+
+      <section style={{ margin: "26px 0 12px" }}>
+        <div style={{ marginBottom: 14 }}>
+          <span className="mu-kicker" style={{ color: "#9a742b" }}>YOUR EXAM PRACTICE</span>
+          <h2 style={{ margin: "5px 0", color: "#173b50" }}>Choose your preparation area</h2>
+          <p style={{ margin: 0, color: "#64748b" }} lang="or">ଆପଣଙ୍କ ପ୍ରସ୍ତୁତି ପାଇଁ ବିଷୟ କିମ୍ବା ଅଭ୍ୟାସ ବିଭାଗ ବାଛନ୍ତୁ।</p>
         </div>
-        <div className="mu-odisha-mission-copy">
-          <span>ODISHA · THE LAND OF COURAGE</span>
-          <h2>Har district se ek naya sapna. Har cadet ka ek hi mission.</h2>
-          <p>Odisha Police ki taiyari ko discipline, practice aur consistency ke saath aage badhaiye. Apne district se shuru kijiye — apni manzil tak pahunchiye.</p>
-          <div className="mu-odisha-pills"><b>ଭୁବନେଶ୍ୱର</b><b>କଟକ</b><b>ସମ୍ବଲପୁର</b><b>ବଲାଙ୍ଗିର</b><b>ବ୍ରହ୍ମପୁର</b></div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 12 }}>
+          {practiceLinks.map(item => (
+            <Link key={item.href} href={item.href} style={{ display: "block", padding: 17, border: "1px solid #dce4ea", borderRadius: 13, background: "#fff", color: "#173b50", textDecoration: "none", boxShadow: "0 5px 18px rgba(20,45,65,.045)" }}>
+              <span style={{ fontSize: 25 }}>{item.icon}</span>
+              <h3 style={{ margin: "9px 0 3px", fontSize: 17 }}>{item.title}</h3>
+              <b style={{ display: "block", color: "#8a6729", fontSize: 13, fontWeight: 700 }} lang="or">{item.odia}</b>
+              <p style={{ margin: "9px 0 4px", color: "#64748b", fontSize: 13, lineHeight: 1.5 }}>{item.detail}</p>
+              <p style={{ margin: 0, color: "#64748b", fontSize: 12, lineHeight: 1.5 }} lang="or">{item.detailOd}</p>
+              <span style={{ display: "inline-block", marginTop: 12, fontWeight: 800, fontSize: 13 }}>Open section →</span>
+            </Link>
+          ))}
         </div>
       </section>
-      {!emailVerified && <section role="status" style={{margin:"18px auto",maxWidth:1100,padding:"16px 18px",border:"1px solid #e7d8ad",borderRadius:12,background:"#fffaf0",color:"#57451e",display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}><div><strong>Email verification pending</strong><p style={{margin:"5px 0 0",fontSize:13}}> {email ? "We will send a secure verification link to " + email + "." : "Verify your email whenever convenient."} You can continue studying and taking every mock test.</p>{verifyMessage && <small>{verifyMessage}</small>}</div><button type="button" onClick={sendVerification} disabled={verifyBusy} style={{padding:"10px 15px",border:0,borderRadius:8,background:"#173b50",color:"#fff",fontWeight:700,cursor:"pointer"}}>{verifyBusy ? "Sending…" : "Verify Email"}</button></section>}
-      {emailVerified && <p role="status" style={{margin:"12px auto",maxWidth:1100,color:"#17613b"}}>✓ Email verified</p>}
-      <nav className="mu-dashboard-shortcuts" aria-label="Student shortcuts">
-        <a href="/tests"><span>📝</span><b>Mock Tests</b><small>Practice now</small></a>
-        <a href="/test-history"><span>📊</span><b>Test History</b><small>Review progress</small></a>
-        <a href="/notifications"><span>🔔</span><b>Notifications</b><small>Latest updates</small></a>
-      </nav>
-      {studyInsights && <section style={{margin:"20px auto",maxWidth:1100,padding:20,border:"1px solid #d8e1e8",borderRadius:14,background:"#fff"}}>
-        <div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",alignItems:"center"}}>
-          <div><span style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#9a742b"}}>FREE · NO AI API COST</span><h2 style={{margin:"5px 0",color:"#173b50"}}>Smart Study Insights</h2><p style={{margin:0,color:"#64748b",fontSize:13}}>Aapke mock test results ke basis par preparation guidance.</p></div>
-          <a href="/leaderboard" style={{color:"#173b50",fontWeight:700}}>Full analysis →</a>
+
+      <section style={{ margin: "28px 0", padding: 20, borderRadius: 14, background: "#f4f7f9", border: "1px solid #e0e7ec" }}>
+        <h2 style={{ margin: "0 0 5px", color: "#173b50" }}>Exam subjects · ପରୀକ୍ଷାର ବିଷୟଗୁଡ଼ିକ</h2>
+        <p style={{ margin: "0 0 14px", color: "#64748b", fontSize: 13 }}>Select a subject to open its practice section. <span lang="or">ଅଭ୍ୟାସ ପାଇଁ ଏକ ବିଷୟ ବାଛନ୍ତୁ।</span></p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(175px,1fr))", gap: 9 }}>
+          {EXAM_SUBJECTS.map(subject => (
+            <Link key={subject.slug} href={"/subjects/" + subject.slug} style={{ padding: "12px 13px", background: "#fff", border: "1px solid #dce4ea", borderRadius: 10, textDecoration: "none", color: "#173b50" }}>
+              <b>{subject.name}</b>
+              <span style={{ display: "block", marginTop: 4, fontSize: 13, color: "#8a6729" }} lang="or">{subject.odia}</span>
+            </Link>
+          ))}
         </div>
-        {studyInsights.weakAreas.length ? <div style={{marginTop:16}}><b>Improve these chapters</b><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:10,marginTop:9}}>{studyInsights.weakAreas.slice(0,4).map((item:any,i:number)=><div key={i} style={{padding:12,borderRadius:10,background:"#fff8ed",border:"1px solid #f0dfbf"}}><b>{item.chapter}</b><p style={{margin:"4px 0",fontSize:12,color:"#64748b"}}>{item.subject}</p><strong style={{color:"#9a4d20"}}>{item.accuracy}% accuracy</strong><small style={{display:"block",color:"#64748b"}}>{item.attempted} questions attempted</small></div>)}</div></div>
-        : <p style={{marginTop:14,color:"#64748b"}}>Abhi weak chapter identify nahi hua. Kam se kam 2 questions per chapter attempt karein; phir analysis dikhne lagega.</p>}
-        {studyInsights.subjectPace.length>0 && <p style={{margin:"14px 0 0",fontSize:13,color:"#475569"}}><b>Speed tip:</b> {studyInsights.subjectPace[0].subject} mein average {studyInsights.subjectPace[0].avgSecondsPerQuestion} seconds/question lag rahe hain. Regular timed practice karein.</p>}
-      </section>}
+      </section>
+
+      {studyInsights && (
+        <section style={{ margin: "20px 0", padding: 20, border: "1px solid #d8e1e8", borderRadius: 14, background: "#fff" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, color: "#9a742b" }}>YOUR TEST PERFORMANCE</span>
+              <h2 style={{ margin: "5px 0", color: "#173b50" }}>Smart Study Insights · ଅଧ୍ୟୟନ ବିଶ୍ଳେଷଣ</h2>
+              <p style={{ margin: 0, color: "#64748b", fontSize: 13 }}>Guidance based on your mock test attempts. <span lang="or">ଆପଣଙ୍କ ମକ୍ ଟେଷ୍ଟ ଫଳାଫଳ ଆଧାରିତ ପରାମର୍ଶ।</span></p>
+            </div>
+            <Link href="/leaderboard" style={{ color: "#173b50", fontWeight: 700 }}>View analysis →</Link>
+          </div>
+          {studyInsights.weakAreas.length ? (
+            <div style={{ marginTop: 16 }}>
+              <b>Chapters to improve · ଉନ୍ନତି ଆବଶ୍ୟକ ଅଧ୍ୟାୟ</b>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 10, marginTop: 9 }}>
+                {studyInsights.weakAreas.slice(0, 4).map((item: any, i: number) => (
+                  <div key={i} style={{ padding: 12, borderRadius: 10, background: "#fff8ed", border: "1px solid #f0dfbf" }}>
+                    <b>{item.chapter}</b><p style={{ margin: "4px 0", fontSize: 12, color: "#64748b" }}>{item.subject}</p>
+                    <strong style={{ color: "#9a4d20" }}>{item.accuracy}% accuracy</strong>
+                    <small style={{ display: "block", color: "#64748b" }}>{item.attempted} questions attempted</small>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p style={{ marginTop: 14, color: "#64748b" }}>Complete more chapter questions to see your improvement areas. <span lang="or">ନିଜର ଉନ୍ନତି ଦେଖିବା ପାଇଁ ଅଧିକ ପ୍ରଶ୍ନ ଅଭ୍ୟାସ କରନ୍ତୁ।</span></p>
+          )}
+          {studyInsights.subjectPace.length > 0 && (
+            <p style={{ margin: "14px 0 0", fontSize: 13, color: "#475569" }}>
+              <b>Speed tip · ଗତି ପରାମର୍ଶ:</b> {studyInsights.subjectPace[0].subject} — {studyInsights.subjectPace[0].avgSecondsPerQuestion} seconds per question on average.
+            </p>
+          )}
+        </section>
+      )}
+
       <PremiumTrialBanner />
-      <section className="mu-student-quote">
-        <span>AAJ KA SANKALP</span>
-        <h2>“Selection ek din mein nahi hota, lekin har din ki taiyari se zaroor hoti hai.”</h2>
-        <p>Focus rakhiye. Practice kijiye. Apne aap par bharosa rakhiye.</p>
+
+      <section className="mu-student-quote" style={{ marginTop: 26 }}>
+        <span>YOUR DAILY TARGET · ଆଜିର ଲକ୍ଷ୍ୟ</span>
+        <h2>Practise every day. Review every score. Improve every attempt.</h2>
+        <p lang="or">ପ୍ରତିଦିନ ଅଭ୍ୟାସ କରନ୍ତୁ। ପ୍ରତ୍ୟେକ ଫଳାଫଳ ଯାଞ୍ଚ କରନ୍ତୁ। ପ୍ରତ୍ୟେକ ଚେଷ୍ଟାରେ ଉନ୍ନତି କରନ୍ତୁ।</p>
       </section>
-      <p className="mu-student-signoff">MISSION UNIFORM OP <span>·</span> Your Dream. Your Uniform. Your Mission.</p>
+      <p className="mu-student-signoff">MISSION UNIFORM OP <span>·</span> Odisha Police Exam Preparation · ଓଡ଼ିଶା ପୋଲିସ୍ ପରୀକ୍ଷା ପ୍ରସ୍ତୁତି</p>
     </div>
   );
 }

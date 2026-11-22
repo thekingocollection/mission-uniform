@@ -24,7 +24,7 @@ with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,
 update public.subjects s
 set is_active=true, published=true,
     name_en=e.name_en, name_hi=e.name_hi, name_or=e.name_or,
-    name=e.name, name_od=e.name_od, description=e.description, sort_order=e.sort_order
+    description=e.description, sort_order=e.sort_order
 from existing_matches e
 where s.id=e.subject_id;
 

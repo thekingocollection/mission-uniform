@@ -13,6 +13,8 @@ export default function StudentsPage(){
 
  async function findGiftStudent(){setGiftLookupBusy(true);setGiftStudent(null);setMsg("");try{const id=giftStudentId.trim().toUpperCase();if(!id)throw new Error("Student ID enter karein.");const d=await request("GET",undefined,id);const found=(d.students||[]).find((s:Student)=>(s.student_code||"").toUpperCase()===id);if(!found)throw new Error("Is Student ID ka account nahi mila.");setGiftStudent(found);if(d.subjects?.length&&!giftSubjectId)setGiftSubjectId(d.subjects[0].id);}catch(e:any){setMsg(e.message||"Student nahi mila.");}finally{setGiftLookupBusy(false);}}
 
+
+ // Export the complete student directory as an XLSX workbook.
  async function exportExcel(){
   setExporting(true);setMsg("");
   try{

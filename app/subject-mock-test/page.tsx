@@ -37,7 +37,7 @@ export default function SubjectMockTestPage() {
       const practiceData = await practiceResponse.json();
       if (!accessResponse.ok) throw new Error(accessData.error || "Subject access could not be loaded.");
       if (!practiceResponse.ok) throw new Error(practiceData.error || "Practice subjects could not be loaded.");
-      const practiceMap = new Map((practiceData.subjects || []).map((p: any) => [p.subject_id, p]));
+      const practiceMap = new Map<string, any>((practiceData.subjects || []).map((p: any) => [String(p.subject_id), p]));
       const merged = (accessData.subjects || []).map((s: any) => ({
         ...s, ...(practiceMap.get(s.id) || {}),
         id: practiceMap.get(s.id)?.id || "",

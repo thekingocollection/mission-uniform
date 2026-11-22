@@ -14,6 +14,9 @@ const links = [
   ["Previous Year Questions", "/previous-papers", "▧"],
   ["Dashboard", "/dashboard", "▦"],
   ["Leaderboard", "/leaderboard", "♛"],
+  ["Test History", "/test-history", "◷"],
+  ["Notifications", "/notifications", "♧"],
+  ["My Profile", "/profile", "◎"],
 ];
 
 const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms", "/forgot-password", "/reset-password"];
@@ -64,7 +67,7 @@ export function SiteHeader() {
         })}
         {signedIn ? (
           <>
-            <Link href="/profile" onClick={() => setOpen(false)}>My Profile</Link>
+            
             <button type="button" className="nav-login" onClick={logout}>Logout</button>
           </>
         ) : (

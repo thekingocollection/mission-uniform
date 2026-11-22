@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Shell } from '@/components/site-shell';
+import { MissionLoader } from '@/components/mission-loader';
 
 export const metadata: Metadata = {
   title: 'MISSION UNIFORM OP | Free Exam Preparation',
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <MissionLoader />
         <Shell>{children}</Shell>
       </body>
     </html>

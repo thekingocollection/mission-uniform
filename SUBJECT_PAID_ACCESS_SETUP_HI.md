@@ -45,3 +45,9 @@ Only Super Admin can edit monetization controls. Staff roles are intentionally d
 - Existing free tests outside the subject-random practice flow are unchanged.
 - This implementation does not make all mock tests paid; it protects subject-random mock tests only.
 - Payment and live deployment must be tested on Razorpay Test Mode and the production Supabase project before announcing paid access.
+
+
+## 24-hour new-student trial update
+Also run `supabase/migrations/20261122220000_student_24h_trial_access.sql` in Supabase SQL Editor after the original subject paid-access migration. The 24-hour trial is calculated from each student's Supabase Auth account creation time. New students can start subject-wise mock tests during that window; after expiry, only subjects with an active purchased entitlement (or subjects the Admin sets to ₹0) remain accessible. No manual approval is required after a successful, server-verified Razorpay payment.
+
+The site middleware now redirects unauthenticated visitors to `/login` for protected pages. Login, signup, password reset, and the additional-device payment page remain available without an active student session. Admin pages retain their separate admin authentication.

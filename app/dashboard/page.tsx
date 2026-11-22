@@ -6,7 +6,11 @@ import PremiumTrialBanner from "@/components/premium-trial-banner";
 
 export default function Dashboard() {
   const [name, setName] = useState("Student");
-  const [attempts, setAttempts] = useState(0);\n  const [email, setEmail] = useState("");\n  const [emailVerified, setEmailVerified] = useState(false);\n  const [verifyBusy, setVerifyBusy] = useState(false);\n  const [verifyMessage, setVerifyMessage] = useState("");
+  const [attempts, setAttempts] = useState(0);
+  const [email, setEmail] = useState("");
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [verifyMessage, setVerifyMessage] = useState("");
 
   useEffect(() => {
     let active = true;

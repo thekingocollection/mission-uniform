@@ -4825,3 +4825,35 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-exam-result .test-result-grid > div { border-radius:13px; background:#f8fafc; }
 @media (min-width:900px) { .mu-exam-layout .test-grid { grid-template-columns:minmax(0,1fr) 320px; gap:20px; align-items:start; } .mu-exam-palette { position:sticky; top:94px; } }
 @media (max-width:650px) { .mu-exam-shell { padding-top:16px; } .mu-exam-layout .test-top { padding:18px; } .mu-exam-timer { width:100%; } .mu-exam-question .question-actions .btn { flex:1 1 42%; } .mu-exam-palette { padding:16px; } }
+
+
+/* Compact subject-wise mock test flow */
+.mu-subject-fast { max-width:1100px; padding-top:24px; padding-bottom:48px; }
+.mu-fast-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; }
+.mu-fast-heading > div > span { color:#a17a18; font-size:10px; font-weight:900; letter-spacing:1.5px; }
+.mu-fast-heading h1 { margin:4px 0 0; color:#172554; font-size:clamp(25px,4vw,34px); }
+.mu-fast-search input { width:min(280px,42vw); min-height:42px; padding:0 13px; border:1px solid #dbe2ed; border-radius:10px; background:#fff; color:#172554; outline:none; }
+.mu-fast-search input:focus { border-color:#c49a2c; box-shadow:0 0 0 3px rgba(212,167,44,.13); }
+.mu-fast-subjects { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:11px; }
+.mu-fast-subject { display:flex; flex-direction:column; align-items:flex-start; gap:7px; min-height:78px; padding:15px 16px; border:1px solid #e0e6ef; border-radius:12px; background:#fff; color:#172554; text-align:left; cursor:pointer; transition:.15s ease; }
+.mu-fast-subject:hover { border-color:#c49a2c; transform:translateY(-1px); }
+.mu-fast-subject.active { border:2px solid #c49a2c; padding:14px 15px; background:#fff9e9; box-shadow:0 4px 13px rgba(23,37,84,.06); }
+.mu-fast-subject b { font-size:14px; line-height:1.35; }
+.mu-fast-subject small { color:#64748b; font-size:11px; }
+.mu-fast-controls { margin-top:18px; padding:19px; border:1px solid #e0e6ef; border-radius:14px; background:#fff; box-shadow:0 7px 22px rgba(23,37,84,.045); }
+.mu-fast-count-title { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:13px; color:#172554; }
+.mu-fast-count-title span { color:#64748b; font-size:12px; }
+.mu-fast-counts { display:flex; flex-wrap:wrap; gap:9px; }
+.mu-fast-counts button, .mu-fast-counts label { min-width:62px; min-height:44px; display:flex; align-items:center; justify-content:center; padding:0 13px; border:1px solid #dbe2ed; border-radius:9px; background:#fff; color:#172554; font-weight:800; cursor:pointer; }
+.mu-fast-counts button.active { border-color:#172554; background:#172554; color:#f5cf65; }
+.mu-fast-counts label { gap:7px; cursor:default; font-size:11px; color:#64748b; }
+.mu-fast-counts input { width:55px; border:0; outline:0; color:#172554; font-size:14px; font-weight:800; }
+.mu-fast-primary { min-height:44px; padding:0 18px; border:0; border-radius:9px; background:#d4a72c; color:#172554; font-weight:900; cursor:pointer; }
+.mu-fast-primary:disabled { opacity:.55; cursor:not-allowed; }
+.mu-fast-start { width:100%; margin-top:15px; min-height:50px; font-size:15px; }
+.mu-fast-unlock { display:flex; align-items:center; justify-content:space-between; gap:15px; }
+.mu-fast-unlock > div { display:flex; flex-direction:column; gap:5px; color:#172554; }
+.mu-fast-unlock small { color:#64748b; font-size:12px; }
+.mu-fast-locked, .mu-fast-empty { padding:15px; border-radius:10px; background:#f8fafc; color:#64748b; }
+.mu-fast-message { margin-bottom:14px; padding:12px 14px; border:1px solid #f0d6a2; border-radius:9px; background:#fffbeb; color:#854d0e; font-size:13px; }
+@media(max-width:600px) { .mu-fast-heading { align-items:stretch; flex-direction:column; } .mu-fast-search input { width:100%; } .mu-fast-subjects { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .mu-fast-subject { min-height:72px; padding:12px; } .mu-fast-subject.active { padding:11px; } .mu-fast-controls { padding:14px; } .mu-fast-count-title { align-items:flex-start; flex-direction:column; gap:4px; } .mu-fast-unlock { align-items:stretch; flex-direction:column; } .mu-fast-unlock .mu-fast-primary { width:100%; } }

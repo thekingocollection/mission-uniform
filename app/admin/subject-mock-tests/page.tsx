@@ -1,3 +1,4 @@
+import { filterExamSubjects } from "@/lib/exam-subjects";
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -28,7 +29,7 @@ export default function SubjectMockTestsAdmin() {
       setLoading(false);
       return;
     }
-    const subjects = (subjectResult.data || []) as Subject[];
+    const subjects = filterExamSubjects((subjectResult.data || []) as Subject[]);
     const tests = (testResult.data || []) as Test[];
     const counts = await Promise.all(subjects.map(subject =>
       sb.from("questions").select("id", { count: "exact", head: true })

@@ -140,7 +140,21 @@ export default function TestManager() {
   async function updateStatus(id:string,next:string){
     if(!sb)return;
     const {error}=await sb.from("test_papers").update({status:next}).eq("id",id);
-    setMessage(error?.message||"Status updated.");await load();
+    setMessage(error?.message||(next==="archived"?"Test hidden from students.":"Test status updated."));await load();
+  }
+  async function deleteTest(id:string,title:string){
+    if(!sb||!window.confirm('Permanently delete "'+title+'"? This cannot be undone.'))return;
+    setBusy(true);setMessage("");
+    try{
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session)throw new Error("Admin session nahi mila. Dobara login karein.");
+      const response=await fetch("/api/tests",{method:"DELETE",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify({id})});
+      const data=await response.json();
+      if(!response.ok)throw new Error(data.error||"Test delete nahi hua.");
+      setTests(old=>old.filter(t=>t.id!==id));
+      setMessage("Test paper permanently deleted.");
+    }catch(e:any){setMessage(e.message||"Test delete nahi hua.");}
+    finally{setBusy(false);}
   }
   if(!sb)return <section className="panel">Supabase configuration missing.</section>;
   return <div className="admin-tests-page">
@@ -198,11 +212,11 @@ export default function TestManager() {
       <button className="btn primary" disabled={busy} onClick={()=>void save()}>{busy?"Saving...":"Save Test Paper"}</button>
       {message&&<p className="bulk-message" role="status">{message}</p>}
     </section>
-    <section className="panel mu-test-manager-library"><div className="mu-test-section-title"><div><span>02 · PAPER LIBRARY</span><h2>{managePreviousOnly?"Previous Year Papers":"Published & Draft Tests"}</h2><p>Review paper settings and change publication status.</p></div><span className="mu-library-count">{visibleTests.length} PAPERS</span></div>{visibleTests.length===0?<p>No papers yet.</p>:visibleTests.map(t=><article className="review-item mu-test-paper-row" key={t.id}>
+    <section className="panel mu-test-manager-library"><div className="mu-test-section-title"><div><span>02 · PAPER LIBRARY</span><h2>{managePreviousOnly?"Previous Year Papers":"Published & Draft Tests"}</h2><p>Hide papers from students, restore them, or permanently delete a paper.</p></div><span className="mu-library-count">{visibleTests.length} PAPERS</span></div>{visibleTests.length===0?<p>No papers yet.</p>:visibleTests.map(t=><article className="review-item mu-test-paper-row" key={t.id}>
       <div className="mu-test-paper-main"><div><b>{t.is_previous_year?"Previous Year · "+(t.exam_name||"Exam")+" · "+(t.exam_year||"Year"):t.title}</b><p>{t.title}</p></div><span className={"mu-test-status "+(t.status==="published"?"published":t.status==="archived"?"archived":"draft")}>{t.status}</span></div><div className="mu-test-paper-meta"><span>{t.test_type}</span><span>{t.question_mode||"legacy"}</span><span>{t.duration_minutes} min</span><span>{t.total_questions} questions</span></div>
       <div className="result-actions">{t.status!=="published"&&<button className="btn primary" onClick={()=>void updateStatus(t.id,"published")}>Publish</button>}
-      {t.status!=="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"archived")}>Archive</button>}
-      {t.status==="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"draft")}>Restore draft</button>}</div>
+      {t.status!=="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"archived")}>Hide from students</button>}
+      {t.status==="archived"&&<button className="btn secondary" onClick={()=>void updateStatus(t.id,"draft")}>Show again</button>}</div>
     </article>)}</section>
   </div>;
 }

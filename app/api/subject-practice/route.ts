@@ -25,35 +25,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ subjects: [] }, { headers: { "Cache-Control": "private, no-store" } });
     }
 
-    // Run each subject's two small metadata queries concurrently.
-    // The old implementation waited for each subject in sequence, making
-    // the student page progressively slower as subjects were added.
-    const output = await Promise.all(examSubjects.map(async (subject) => {
-      const [{ count, error: countError }, { data: test, error: testError }] = await Promise.all([
-        db.from("questions")
-          .select("id", { count: "exact", head: true })
-          .eq("subject_id", subject.id)
-          .eq("is_active", true)
-          .eq("verified", true),
-        db.from("test_papers")
-          .select("id")
-          .eq("subject_id", subject.id)
-          .eq("question_mode", "subject_random")
-          .eq("status", "published")
-          .eq("is_previous_year", false)
-          .limit(1)
-          .maybeSingle()
-      ]);
-      if (countError) throw countError;
-      if (testError) throw testError;
+    const { data: catalog, error: catalogError } = await db.rpc("get_subject_practice_catalog_v1");
+    if (catalogError) throw catalogError;
+    const catalogMap = new Map((catalog || []).map((row: any) => [row.subject_id, row]));
+    const output = examSubjects.map((subject: any) => {
+      const row: any = catalogMap.get(subject.id) || {};
       return {
-        id: test?.id || null,
+        id: row.test_id || null,
         subject_id: subject.id,
         name_en: subject.name_en,
         name_hi: subject.name_hi,
-        verified_questions: count || 0
+        verified_questions: Number(row.verified_questions || 0)
       };
-    }));
+    });
     return NextResponse.json(
       { subjects: output },
       { headers: { "Cache-Control": "private, no-store" } }

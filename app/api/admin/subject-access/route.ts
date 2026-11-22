@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
+const ALLOWED_SUBJECTS = new Set([
+  "odishagk",
+  "generalknowledge",
+  "reasoning",
+  "mathematics",
+  "quantitativeaptitude",
+  "odiagrammar",
+  "odia",
+  "english",
+  "englishgrammar"
+]);
+
+function normalizeSubject(value: unknown) {
+  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function isAllowedSubject(subject: any) {
+  return ALLOWED_SUBJECTS.has(normalizeSubject(subject.name_en)) ||
+    ALLOWED_SUBJECTS.has(normalizeSubject(subject.name_hi));
+}
+
 async function admin(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) return null;
@@ -11,20 +32,25 @@ async function admin(req: NextRequest) {
   return profile?.role === "super_admin" && !profile.is_blocked ? data.user : null;
 }
 
+async function getAllowedSubjects(db: ReturnType<typeof getServiceSupabase>) {
+  const { data, error } = await db.from("subjects").select("id,name_en,name_hi").eq("is_active", true).order("name_en");
+  if (error) throw error;
+  return (data || []).filter(isAllowedSubject);
+}
+
 export async function GET(req: NextRequest) {
   try {
     if (!await admin(req)) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
     const db = getServiceSupabase();
-    const [{ data: subjects, error }, { data: configs }, { data: global }] = await Promise.all([
-      db.from("subjects").select("id,name_en,name_hi").eq("is_active", true).order("name_en"),
+    const [{ data: configs }, { data: global }, subjects] = await Promise.all([
       db.from("subject_access_settings").select("subject_id,price_paise,duration_days,is_enabled"),
-      db.from("subject_access_global").select("all_subjects_enabled").eq("singleton", true).maybeSingle()
+      db.from("subject_access_global").select("all_subjects_enabled").eq("singleton", true).maybeSingle(),
+      getAllowedSubjects(db)
     ]);
-    if (error) throw error;
     const map = new Map((configs || []).map((c: any) => [c.subject_id, c]));
     return NextResponse.json({
       all_subjects_enabled: global?.all_subjects_enabled !== false,
-      subjects: (subjects || []).map((s: any) => ({ ...s, ...(map.get(s.id) || { price_paise: 2900, duration_days: null, is_enabled: true }) }))
+      subjects: subjects.map((s: any) => ({ ...s, ...(map.get(s.id) || { price_paise: 2900, duration_days: null, is_enabled: true }) }))
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Could not load access settings." }, { status: 500 });
@@ -36,6 +62,9 @@ export async function PATCH(req: NextRequest) {
     if (!await admin(req)) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
     const db = getServiceSupabase();
     const body = await req.json();
+    const subjects = await getAllowedSubjects(db);
+    const allowedIds = new Set(subjects.map((s: any) => s.id));
+
     if (typeof body.all_subjects_enabled === "boolean") {
       const { error } = await db.from("subject_access_global").upsert({
         singleton: true, all_subjects_enabled: body.all_subjects_enabled, updated_at: new Date().toISOString()
@@ -43,9 +72,7 @@ export async function PATCH(req: NextRequest) {
       if (error) throw error;
     }
     if (body.unlock_all === true) {
-      const { data: subjects, error: subjectError } = await db.from("subjects").select("id").eq("is_active", true);
-      if (subjectError) throw subjectError;
-      const updates = (subjects || []).map((s: any) => ({ subject_id: s.id, is_enabled: true, updated_at: new Date().toISOString() }));
+      const updates = subjects.map((s: any) => ({ subject_id: s.id, is_enabled: true, updated_at: new Date().toISOString() }));
       if (updates.length) {
         const { error } = await db.from("subject_access_settings").upsert(updates, { onConflict: "subject_id" });
         if (error) throw error;
@@ -53,7 +80,7 @@ export async function PATCH(req: NextRequest) {
     }
     if (Array.isArray(body.subjects)) {
       for (const item of body.subjects) {
-        if (!item.subject_id) continue;
+        if (!item.subject_id || !allowedIds.has(item.subject_id)) continue;
         const price = Number(item.price_paise);
         const duration = item.duration_days === null || item.duration_days === "" ? null : Number(item.duration_days);
         if (!Number.isInteger(price) || price < 0 || (duration !== null && (!Number.isInteger(duration) || duration < 1))) {
@@ -67,9 +94,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
     if (body.bulk) {
-      const { data: subjects, error: subjectError } = await db.from("subjects").select("id").eq("is_active", true);
-      if (subjectError) throw subjectError;
-      const updates = (subjects || []).map((s: any) => ({
+      const updates = subjects.map((s: any) => ({
         subject_id: s.id,
         price_paise: body.bulk.price_paise === undefined ? 2900 : Number(body.bulk.price_paise),
         duration_days: body.bulk.duration_days === undefined ? null : body.bulk.duration_days,
@@ -81,7 +106,7 @@ export async function PATCH(req: NextRequest) {
         if (error) throw error;
       }
     }
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, subject_count: subjects.length });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Could not save access settings." }, { status: 500 });
   }

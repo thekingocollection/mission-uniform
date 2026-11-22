@@ -5001,3 +5001,78 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-dashboard-shortcuts b { font-size:14px; }
 .mu-dashboard-shortcuts small { color:#64748b; font-size:12px; }
 @media(max-width:600px) { .mu-dashboard-shortcuts { grid-template-columns:1fr; } }
+
+
+/* MISSION UNIFORM - animated bullet-style progress indicator */
+.mu-mission-loader {
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  overflow: hidden;
+  background: rgba(23,37,84,.13);
+  pointer-events: none;
+}
+.mu-loader-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #172554, #d4a72c, #172554);
+  transform-origin: left;
+  animation: mu-loader-progress 1.35s ease-in-out infinite;
+}
+.mu-loader-projectile {
+  position: absolute;
+  top: 0;
+  right: 8%;
+  width: 25px;
+  height: 5px;
+  border-radius: 50% 2px 2px 50%;
+  background: linear-gradient(90deg, #fff7c2, #f5b923 55%, #fff);
+  box-shadow: 0 0 8px 3px rgba(245,185,35,.7);
+  animation: mu-loader-shot .65s linear infinite;
+}
+.mu-loader-flash {
+  position: absolute;
+  top: -4px;
+  right: 8%;
+  width: 15px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffe88a;
+  filter: blur(4px);
+  animation: mu-loader-muzzle .65s ease-out infinite;
+}
+.mu-loader-caption {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  padding: 7px 11px;
+  border: 1px solid rgba(212,167,44,.55);
+  border-radius: 20px;
+  background: #172554;
+  color: #f5cf65;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  box-shadow: 0 5px 16px rgba(23,37,84,.2);
+}
+@keyframes mu-loader-progress {
+  0% { transform: scaleX(.08); opacity:.75; }
+  45% { transform: scaleX(.72); opacity:1; }
+  100% { transform: scaleX(1); opacity:.9; }
+}
+@keyframes mu-loader-shot {
+  0% { transform: translateX(0); opacity:1; }
+  100% { transform: translateX(-105vw); opacity:0; }
+}
+@keyframes mu-loader-muzzle {
+  0%,100% { opacity:0; transform:scale(.5); }
+  15% { opacity:1; transform:scale(1.5); }
+  45% { opacity:.15; transform:scale(.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mu-loader-track,.mu-loader-projectile,.mu-loader-flash { animation-duration: 3s; }
+}

@@ -7,8 +7,8 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 
 const links = [
   ["Home", "/", "⌂"],
-  ["Special Mock Test", "/tests", "✎"],
   ["Mock Test", "/subject-mock-test", "✦"],
+  ["Special Mock Test", "/tests", "✎"],
   ["Syllabus", "/syllabus", "▤"],
   ["Job Alerts", "/job-alerts", "◷"],
   ["Previous Year Questions", "/previous-papers", "▧"],

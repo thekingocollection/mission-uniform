@@ -1,3 +1,4 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import { filterExamSubjects } from "@/lib/exam-subjects";
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
@@ -14,6 +15,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getUser(req);
     if (!user) return NextResponse.json({ error: "Please sign in." }, { status: 401 });
+    if (!(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
     const db = getServiceSupabase();
     const [{ data: subjects, error: subjectError }, { data: global }, { data: configs }] = await Promise.all([
       db.from("subjects").select("id,name_en,name_hi").eq("is_active", true).order("name_en"),

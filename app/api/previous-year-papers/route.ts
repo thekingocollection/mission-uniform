@@ -26,10 +26,11 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getUser(req);
     if (!user) return NextResponse.json({ error: "Please login." }, { status: 401 });
-    if (!(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
     const db = getServiceSupabase();
     const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    const admin = profile?.role === "super_admin" && req.nextUrl.searchParams.get("admin") === "1";
+    const isAdmin = profile?.role === "super_admin";
+    if (!isAdmin && !(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
+    const admin = isAdmin && req.nextUrl.searchParams.get("admin") === "1";
     let query = db.from("previous_year_papers").select("id,title,exam_name,exam_year,session_label,description,source_label,pdf_url,pdf_file_name,status,created_at").order("exam_year", { ascending: false }).order("created_at", { ascending: false });
     if (!admin) query = query.eq("status", "published");
     const { data, error } = await query.limit(300);

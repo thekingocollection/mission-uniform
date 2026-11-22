@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [emailVerified, setEmailVerified] = useState(false);
   const [verifyBusy, setVerifyBusy] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState("");
+  const [studyInsights, setStudyInsights] = useState<{weakAreas:any[];subjectPace:any[]}|null>(null);
 
   useEffect(() => {
     let active = true;
@@ -28,6 +29,14 @@ export default function Dashboard() {
       setEmail(profile?.email || user.email || "");
       setEmailVerified(!!profile?.email_verified);
       setAttempts(count || 0);
+      const { data: sessionData } = await sb.auth.getSession();
+      if (sessionData.session) {
+        const insightResponse = await fetch("/api/leaderboard", { headers: { Authorization: "Bearer " + sessionData.session.access_token }, cache: "no-store" });
+        if (insightResponse.ok) {
+          const insightData = await insightResponse.json();
+          if (active) setStudyInsights({ weakAreas: insightData.weakAreas || [], subjectPace: insightData.subjectPace || [] });
+        }
+      }
     })().catch(() => {
       if (active) setName("Student");
     });
@@ -83,6 +92,15 @@ export default function Dashboard() {
       </section>
       {!emailVerified && <section role="status" style={{margin:"18px auto",maxWidth:1100,padding:"16px 18px",border:"1px solid #e7d8ad",borderRadius:12,background:"#fffaf0",color:"#57451e",display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}><div><strong>Email verification pending</strong><p style={{margin:"5px 0 0",fontSize:13}}> {email ? "We will send a secure verification link to " + email + "." : "Verify your email whenever convenient."} You can continue studying and taking every mock test.</p>{verifyMessage && <small>{verifyMessage}</small>}</div><button type="button" onClick={sendVerification} disabled={verifyBusy} style={{padding:"10px 15px",border:0,borderRadius:8,background:"#173b50",color:"#fff",fontWeight:700,cursor:"pointer"}}>{verifyBusy ? "Sending…" : "Verify Email"}</button></section>}
       {emailVerified && <p role="status" style={{margin:"12px auto",maxWidth:1100,color:"#17613b"}}>✓ Email verified</p>}
+      {studyInsights && <section style={{margin:"20px auto",maxWidth:1100,padding:20,border:"1px solid #d8e1e8",borderRadius:14,background:"#fff"}}>
+        <div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",alignItems:"center"}}>
+          <div><span style={{fontSize:11,fontWeight:800,letterSpacing:1,color:"#9a742b"}}>FREE · NO AI API COST</span><h2 style={{margin:"5px 0",color:"#173b50"}}>Smart Study Insights</h2><p style={{margin:0,color:"#64748b",fontSize:13}}>Aapke mock test results ke basis par preparation guidance.</p></div>
+          <a href="/leaderboard" style={{color:"#173b50",fontWeight:700}}>Full analysis →</a>
+        </div>
+        {studyInsights.weakAreas.length ? <div style={{marginTop:16}}><b>Improve these chapters</b><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:10,marginTop:9}}>{studyInsights.weakAreas.slice(0,4).map((item:any,i:number)=><div key={i} style={{padding:12,borderRadius:10,background:"#fff8ed",border:"1px solid #f0dfbf"}}><b>{item.chapter}</b><p style={{margin:"4px 0",fontSize:12,color:"#64748b"}}>{item.subject}</p><strong style={{color:"#9a4d20"}}>{item.accuracy}% accuracy</strong><small style={{display:"block",color:"#64748b"}}>{item.attempted} questions attempted</small></div>)}</div></div>
+        : <p style={{marginTop:14,color:"#64748b"}}>Abhi weak chapter identify nahi hua. Kam se kam 2 questions per chapter attempt karein; phir analysis dikhne lagega.</p>}
+        {studyInsights.subjectPace.length>0 && <p style={{margin:"14px 0 0",fontSize:13,color:"#475569"}}><b>Speed tip:</b> {studyInsights.subjectPace[0].subject} mein average {studyInsights.subjectPace[0].avgSecondsPerQuestion} seconds/question lag rahe hain. Regular timed practice karein.</p>}
+      </section>}
       <PremiumTrialBanner />
       <section className="mu-student-quote">
         <span>AAJ KA SANKALP</span>

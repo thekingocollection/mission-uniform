@@ -82,7 +82,7 @@ export async function GET(req:NextRequest){
       weakAreas=[...chapterMap.values()].map(x=>({...x,accuracy:x.attempted?Math.round(x.correct/x.attempted*100):0})).filter(x=>x.attempted>=2&&x.accuracy<70).sort((a,b)=>a.accuracy-b.accuracy||b.attempted-a.attempted).slice(0,8);
       subjectPace=[...paceMap.values()].map(x=>({...x,avgSecondsPerQuestion:x.questions?Math.round(x.seconds/x.questions):0})).sort((a,b)=>b.avgSecondsPerQuestion-a.avgSecondsPerQuestion).slice(0,8);
     }
-    return NextResponse.json({top:top:ranked.filter(r=>r.rank<=50),me:ranked.find(r=>r.user_id===u.user.id)||null,weakAreas,subjectPace},{headers:{"Cache-Control":"private, no-store"}});
+    return NextResponse.json({top:ranked.filter(r=>r.rank<=50),me:ranked.find(r=>r.user_id===u.user.id)||null,weakAreas,subjectPace},{headers:{"Cache-Control":"private, no-store"}});
   }catch(e:any){
     console.error("LEADERBOARD_ERROR",e);
     return NextResponse.json({error:e.message||"Unable to calculate leaderboard."},{status:500});

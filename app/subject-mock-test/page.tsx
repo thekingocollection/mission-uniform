@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { EXAM_SUBJECTS, getExamSubject } from "@/lib/exam-subjects";
 
 declare global { interface Window { Razorpay?: any } }
 type Subject = {
@@ -10,30 +11,6 @@ type Subject = {
   enabled: boolean; purchased: boolean; expires_at: string | null; can_start: boolean;
 };
 
-
-const ALLOWED_SUBJECTS = [
-  "Odia Grammar",
-  "English Grammar",
-  "General Knowledge",
-  "Quantitative Aptitude",
-  "Reasoning",
-  "Basic Computer Literacy"
-] as const;
-function subjectKey(value: unknown) {
-  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-const SUBJECT_ALIASES: Record<string, string[]> = {
-  "Odia Grammar": ["odiagrammar", "odiyagrammar", "odia"],
-  "English Grammar": ["englishgrammar", "english"],
-  "General Knowledge": ["generalknowledge", "gk", "generalknowledgeandcurrentaffairs"],
-  "Quantitative Aptitude": ["quantitativeaptitude", "quantitative", "math", "mathematics", "arithmetic"],
-  "Reasoning": ["reasoning", "logicalreasoning", "mentalability"],
-  "Basic Computer Literacy": ["basiccomputerliteracy", "computerliteracy", "computer", "basiccomputer"]
-};
-function canonicalSubject(subject: any): typeof ALLOWED_SUBJECTS[number] | null {
-  const keys = [subject?.name_en, subject?.name_hi].map(subjectKey);
-  return ALLOWED_SUBJECTS.find(name => SUBJECT_ALIASES[name].some(alias => keys.includes(alias))) || null;
-}
 
 const PRESETS = [10, 20, 30, 50, 100];
 function durationLabel(days: number | null) { return days === null ? "Lifetime access" : days === 365 ? "1 year access" : days + " days access"; }
@@ -67,7 +44,7 @@ export default function SubjectMockTestPage() {
       const practiceMap = new Map<string, any>((practiceData.subjects || []).map((p: any) => [String(p.subject_id), p]));
       const merged = (accessData.subjects || [])
         .map((s: any) => {
-          const canonical = canonicalSubject(s);
+          const canonical = getExamSubject(s.name_en) || getExamSubject(s.name_hi);
           if (!canonical) return null;
           const practice = practiceMap.get(s.id) || {};
           return {
@@ -79,8 +56,8 @@ export default function SubjectMockTestPage() {
           };
         })
         .filter(Boolean) as Subject[];
-      const ordered = ALLOWED_SUBJECTS
-        .map(name => merged.find(subject => subject.name_en === name))
+      const ordered = EXAM_SUBJECTS
+        .map(subject => merged.find(item => item.name_en === subject.name))
         .filter(Boolean) as Subject[];
       setSubjects(ordered);
       const requested = new URLSearchParams(window.location.search).get("subject");

@@ -43,6 +43,7 @@ export default function AdminQuestions() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
+  const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
 
   const [subjectFilter, setSubjectFilter] = useState("");
   const [chapterFilter, setChapterFilter] = useState("");
@@ -513,8 +514,32 @@ export default function AdminQuestions() {
               <label className="admin-qb-check"><input type="checkbox" checked={selected.includes(q.id)} onChange={() => toggleSelected(q.id)} /><span /></label>
               <div className="admin-qb-question-body">
                 <div className="admin-qb-question-meta"><span>{subjects.find(s => s.id === q.subject_id)?.name_en || "Subject not set"}</span><span>{q.chapter || "No chapter"}</span><span className={q.difficulty === "easy" ? "easy" : q.difficulty === "hard" ? "hard" : ""}>{q.difficulty || "medium"}</span></div>
-                <h3>{q.question_hi || q.question_en || q.question_or || "Question text unavailable"}</h3>
+                <button
+                  type="button"
+                  className="admin-qb-question-toggle"
+                  aria-expanded={expandedQuestion === q.id}
+                  onClick={() => setExpandedQuestion(current => current === q.id ? null : q.id)}
+                >
+                  <span className="admin-qb-question-title">{q.question_hi || q.question_en || q.question_or || "Question text unavailable"}</span>
+                  <span className="admin-qb-expand-indicator">{expandedQuestion === q.id ? "− Hide details" : "+ View options"}</span>
+                </button>
                 {q.question_en && q.question_hi && <p className="admin-qb-translation">{q.question_en}</p>}
+                {expandedQuestion === q.id && (
+                  <div className="admin-qb-answer-panel">
+                    <div className="admin-qb-answer-heading">ANSWER OPTIONS</div>
+                    <div className="admin-qb-options-grid">
+                      {(Array.isArray(q.options) ? q.options : Object.values(q.options || {})).map((option: any, optionIndex: number) => {
+                        const optionLabel = ["A", "B", "C", "D"][optionIndex] || String(optionIndex + 1);
+                        const optionText = typeof option === "string" ? option : String(option?.text ?? option?.value ?? "");
+                        const isCorrect = String(q.correct_option).toUpperCase() === optionLabel || String(q.correct_option) === String(optionIndex + 1);
+                        return <div className={`admin-qb-option ${isCorrect ? "is-correct" : ""}`} key={optionIndex}>
+                          <b>{optionLabel}</b><span>{optionText}</span>{isCorrect && <em>Correct answer</em>}
+                        </div>;
+                      })}
+                    </div>
+                    <div className="admin-qb-answer-key">Correct option: <strong>{q.correct_option}</strong></div>
+                  </div>
+                )}
                 <div className="admin-qb-question-foot"><span className={q.verified ? "status-good" : "status-wait"}>{q.verified ? "✓ Verified" : "◷ Awaiting verification"}</span><span className={q.is_active ? "status-good" : "status-muted"}>{q.is_active ? "● Active" : "○ Inactive"}</span><small>#{index + 1}</small></div>
               </div>
               <div className="admin-qb-question-actions">

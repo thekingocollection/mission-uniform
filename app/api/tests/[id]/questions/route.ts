@@ -1,3 +1,4 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
@@ -14,6 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const authClient = createClient(url, anon, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data: userData, error: authError } = await authClient.auth.getUser(token);
   if (authError || !userData.user) return NextResponse.json({ error: "Please login to access this test." }, { status: 401 });
+  if (!(await isRegisteredStudentDevice(req, userData.user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
 
   const { id } = await params;
   const db = getServiceSupabase();

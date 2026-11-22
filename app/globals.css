@@ -4857,3 +4857,19 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-fast-locked, .mu-fast-empty { padding:15px; border-radius:10px; background:#f8fafc; color:#64748b; }
 .mu-fast-message { margin-bottom:14px; padding:12px 14px; border:1px solid #f0d6a2; border-radius:9px; background:#fffbeb; color:#854d0e; font-size:13px; }
 @media(max-width:600px) { .mu-fast-heading { align-items:stretch; flex-direction:column; } .mu-fast-search input { width:100%; } .mu-fast-subjects { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .mu-fast-subject { min-height:72px; padding:12px; } .mu-fast-subject.active { padding:11px; } .mu-fast-controls { padding:14px; } .mu-fast-count-title { align-items:flex-start; flex-direction:column; gap:4px; } .mu-fast-unlock { align-items:stretch; flex-direction:column; } .mu-fast-unlock .mu-fast-primary { width:100%; } }
+
+/* Question Bank + bulk management controls */
+.admin-qb-bulk-editor{margin:14px 0;padding:16px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;color:#172554}
+.admin-qb-bulk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.admin-qb-bulk-grid label,.admin-qb-edit-modal label{display:flex;flex-direction:column;gap:6px;color:#475569;font-size:12px;font-weight:700}
+.admin-qb-bulk-grid input,.admin-qb-bulk-grid select,.admin-qb-edit-modal input,.admin-qb-edit-modal select,.admin-qb-edit-modal textarea{width:100%;min-width:0;min-height:40px;padding:9px 10px;border:1px solid #dbe2ed;border-radius:8px;background:#fff;color:#172554;font:inherit}
+.admin-qb-danger-btn{padding:9px 13px;border:1px solid #efcaca;border-radius:8px;background:#fff1f1;color:#991b1b;font-weight:800;cursor:pointer}
+.admin-qb-danger-btn:disabled{opacity:.5;cursor:not-allowed}
+.admin-qb-modal-backdrop{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:18px;background:rgba(10,20,44,.62)}
+.admin-qb-edit-modal{width:min(760px,100%);max-height:90vh;overflow:auto;padding:22px;border:1px solid #e4d6ae;border-radius:16px;background:#fff;box-shadow:0 25px 80px rgba(0,0,0,.25);display:grid;gap:13px}
+.admin-qb-edit-head{display:flex;align-items:center;justify-content:space-between}
+.admin-qb-edit-head h2{margin:0;color:#172554}
+.admin-qb-edit-head button{width:36px;height:36px;border:0;border-radius:8px;background:#f1f5f9;color:#172554;font-size:24px;cursor:pointer}
+.admin-qb-edit-modal textarea{min-height:70px;resize:vertical}
+.admin-qb-question-actions{display:flex;flex-wrap:wrap;gap:6px}
+@media(max-width:650px){.admin-qb-bulk-grid{grid-template-columns:1fr 1fr}.admin-qb-edit-modal{padding:16px}.admin-qb-question-actions{flex-direction:column}}

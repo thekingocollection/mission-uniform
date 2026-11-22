@@ -48,19 +48,19 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="site-header">
+    <header className={open ? "site-header mu-nav-open" : "site-header"}>
       <Link className="brand" href="/" onClick={() => setOpen(false)}>
         <span>MISSION <b>UNIFORM OP</b><small>आपकी वर्दी, आपका सपना।</small></span>
       </Link>
-      <button className="menu-toggle" onClick={() => setOpen(v => !v)} aria-label="Toggle navigation" aria-expanded={open}>
-        {open ? "✕" : "☰"}
+      <button className={open ? "menu-toggle is-open" : "menu-toggle"} onClick={() => setOpen(v => !v)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="mu-primary-navigation">
+        <span className="mu-menu-lines" aria-hidden="true"><i /><i /><i /></span><span className="mu-menu-label">{open ? "CLOSE" : "MENU"}</span>
       </button>
-      <nav className={open ? "nav open" : "nav"}>
+      <nav id="mu-primary-navigation" className={open ? "nav open" : "nav"} aria-label="Main navigation">
         {links.map(([name, href, icon]) => {
           const target = name === "Home" && signedIn ? "/dashboard" : href;
           const label = name === "Home" && signedIn ? "My Home" : name;
           return (
-            <Link key={href} href={target} className={path === target ? "active" : ""} onClick={() => setOpen(false)}>
+            <Link key={href} href={target} className={path === target || (target !== "/" && path.startsWith(target + "/")) ? "active" : ""} aria-current={path === target ? "page" : undefined} onClick={() => setOpen(false)}>
               <span className="nav-icon">{icon}</span>{label}
             </Link>
           );

@@ -60,3 +60,49 @@ select id from public.subjects
 on conflict(subject_id) do nothing;
 
 commit;
+
+
+-- Enforce access at the database boundary too, so students cannot bypass the API
+-- by calling start_mock_test_attempt directly from the browser.
+create or replace function public.enforce_subject_access_before_attempt()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_user uuid := auth.uid();
+  v_subject uuid;
+  v_mode text;
+  v_all_enabled boolean;
+  v_subject_enabled boolean;
+  v_expires_at timestamptz;
+begin
+  if auth.role() = 'service_role' then return new; end if;
+  select subject_id, question_mode into v_subject, v_mode
+  from public.test_papers where id = new.test_id and status = 'published';
+  if v_mode <> 'subject_random' then return new; end if;
+  if v_user is null then raise exception 'Authentication required'; end if;
+
+  select all_subjects_enabled into v_all_enabled
+  from public.subject_access_global where singleton = true;
+  select is_enabled into v_subject_enabled
+  from public.subject_access_settings where subject_id = v_subject;
+  if coalesce(v_all_enabled, true) = false or coalesce(v_subject_enabled, true) = false then
+    raise exception 'This subject is currently locked by Admin';
+  end if;
+
+  select expires_at into v_expires_at
+  from public.student_subject_access
+  where user_id = v_user and subject_id = v_subject;
+  if not found or (v_expires_at is not null and v_expires_at <= now()) then
+    raise exception 'Unlock this subject to start its mock tests';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_enforce_subject_access_before_attempt on public.test_attempts;
+create trigger trg_enforce_subject_access_before_attempt
+before insert on public.test_attempts
+for each row execute function public.enforce_subject_access_before_attempt();

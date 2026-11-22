@@ -114,6 +114,28 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="mu-maths-formula-section">
+        <div className="mu-defence-section-head">
+          <div><span className="mu-defence-section-tag">QUICK REVISION / MATHEMATICS</span><h2>Important Maths Formulas</h2><p>Roz revision kijiye — Odisha Police exam ke liye useful basic formulas ek jagah.</p></div>
+          <Link className="mu-maths-all-link" href="/subject-mock-test">PRACTISE MATHS <b>↗</b></Link>
+        </div>
+        <div className="mu-maths-formula-grid">
+          <article><span>01 / PERCENTAGE</span><h3>प्रतिशत</h3><p>Percentage = (Value ÷ Total) × 100</p><small>x% of y = (x × y) ÷ 100</small></article>
+          <article><span>02 / PROFIT & LOSS</span><h3>लाभ और हानि</h3><p>Profit = Selling Price − Cost Price</p><small>Loss = Cost Price − Selling Price</small></article>
+          <article><span>03 / SIMPLE INTEREST</span><h3>साधारण ब्याज</h3><p>SI = (P × R × T) ÷ 100</p><small>Amount = Principal + SI</small></article>
+          <article><span>04 / AVERAGE</span><h3>औसत</h3><p>Average = Sum of observations ÷ Number</p><small>Total = Average × Number</small></article>
+          <article><span>05 / SPEED & DISTANCE</span><h3>चाल, समय और दूरी</h3><p>Speed = Distance ÷ Time</p><small>Distance = Speed × Time</small></article>
+          <article><span>06 / RATIO</span><h3>अनुपात</h3><p>a : b = a ÷ b</p><small>Share = (Ratio part ÷ Total parts) × Total</small></article>
+          <article><span>07 / TIME & WORK</span><h3>समय और कार्य</h3><p>1 day's work = 1 ÷ Total days</p><small>Combined work = Sum of individual work rates</small></article>
+          <article><span>08 / RECTANGLE</span><h3>आयत</h3><p>Area = Length × Breadth</p><small>Perimeter = 2 × (Length + Breadth)</small></article>
+          <article><span>09 / SQUARE</span><h3>वर्ग</h3><p>Area = Side²</p><small>Perimeter = 4 × Side</small></article>
+          <article><span>10 / CIRCLE</span><h3>वृत्त</h3><p>Area = πr²</p><small>Circumference = 2πr</small></article>
+          <article><span>11 / ALGEBRA</span><h3>बीजगणित</h3><p>(a + b)² = a² + 2ab + b²</p><small>(a − b)² = a² − 2ab + b²</small></article>
+          <article><span>12 / TRIANGLE</span><h3>त्रिभुज</h3><p>Area = ½ × Base × Height</p><small>Sum of angles = 180°</small></article>
+        </div>
+        <p className="mu-maths-note">Note: π ≈ 22/7 or 3.14 · P = Principal · R = Rate (% per year) · T = Time (years) · r = Radius</p>
+      </section>
+
       <section className="mu-defence-briefing">
         <div className="mu-defence-section-head">
           <div><span className="mu-defence-section-tag">MISSION CONTROL / 01</span><h2>Your preparation command center</h2><p>Choose your next training module and keep moving forward.</p></div>

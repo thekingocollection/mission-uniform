@@ -485,8 +485,11 @@ export default function AdminQuestions() {
         if (isOdiaGrammar && !data.question_or) errors.push("Odia Grammar requires question_or only.");
         else if (isEnglishLanguage && !data.question_en) errors.push("English Language requires question_en only.");
         else if (!isOdiaGrammar && !isEnglishLanguage && (!data.question_en || !data.question_or)) errors.push("This subject requires both English and Odia questions.");
-        if (isOdiaGrammar && data.question_en) errors.push("Odia Grammar questions must be Odia only; leave English blank.");
-        if (isEnglishLanguage && data.question_or) errors.push("English Language questions must be English only; leave Odia blank.");
+        if (isOdiaGrammar && (data.question_en || data.explanation_en)) errors.push("Odia Grammar must be Odia only; leave English fields blank.");
+        if (isEnglishLanguage && (data.question_or || data.explanation_or)) errors.push("English Language must be English only; leave Odia fields blank.");
+        if (isOdiaGrammar && !data.explanation_or) errors.push("Odia Grammar requires an Odia explanation.");
+        if (isEnglishLanguage && !data.explanation_en) errors.push("English Language requires an English explanation.");
+        if (!isOdiaGrammar && !isEnglishLanguage && (!data.explanation_en || !data.explanation_or)) errors.push("This subject requires both English and Odia explanations.");
         if (options.some((v: string) => !v)) errors.push("All four options required.");
         if (!isOdiaGrammar && !isEnglishLanguage && options.some((v: string) => !String(v).includes("/"))) errors.push("For bilingual subjects, each option must use English / ଓଡ଼ିଆ in the same cell.");
         if (!correct) errors.push("Correct option must be A/B/C/D.");

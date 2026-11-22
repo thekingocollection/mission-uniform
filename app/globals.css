@@ -5076,3 +5076,112 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   .mu-loader-track,.mu-loader-projectile,.mu-loader-flash { animation-duration: 3s; }
 }
+
+
+/* =========================================================
+   MISSION UNIFORM OP · STUDENT EXPERIENCE REFRESH 2026
+   Calm exam-prep interface · Odisha identity · responsive
+========================================================= */
+:root { --mu-ink:#173448; --mu-navy:#102b40; --mu-gold:#d2ad59; --mu-paper:#f5f7f8; --mu-muted:#647582; }
+body { background:#f5f7f8; color:#183548; }
+.site-header { background:linear-gradient(105deg,#102b40,#17445a); border-bottom:3px solid #d2ad59; padding:12px clamp(14px,3vw,44px); }
+.brand-mark { border-radius:14px; background:linear-gradient(145deg,#f4dda0,#c79a3d); color:#173448; border:2px solid #fff0c7; box-shadow:0 5px 16px #071e2d55; }
+.nav { gap:4px; }
+.nav a { border-radius:9px; padding:10px 11px; font-size:12px; }
+.nav a.active { background:#ffffff1c; color:#f6d88f; box-shadow:inset 0 -2px #d2ad59; }
+.nav a.nav-register { background:#e2bf6c; color:#173448; font-weight:900; }
+.nav a.nav-login { background:#ffffff12; border:1px solid #ffffff38; color:#fff; }
+.main-wrap { width:min(1240px,94%); padding:28px 0 52px; }
+.footer { background:#102b40; border-top:3px solid #d2ad59; }
+.page-hero { background:linear-gradient(120deg,#102b40,#1b4b62); border:1px solid #d6b767; box-shadow:0 14px 34px #12344718; }
+.panel,.mu-dash-section,.mu-study-tip { border:1px solid #e1e8eb; border-radius:18px; box-shadow:0 8px 26px #1434470a; }
+.btn.primary { background:#d2ad59; color:#173448; }
+.btn.primary:hover { background:#e4c77e; transform:translateY(-1px); }
+.card-grid { gap:16px; }
+.subject-card,.info-card { border-radius:17px; border:1px solid #e0e7e9; border-bottom:3px solid #d2ad59; box-shadow:0 8px 22px #1434470b; }
+.subject-card:hover,.info-card:hover { border-color:#d2ad59; box-shadow:0 16px 32px #14344716; }
+.mu-dashboard-shortcuts a { border-color:#dfe7e9; box-shadow:0 6px 18px #14344709; }
+.mu-dashboard-shortcuts a:hover { border-color:#d2ad59; box-shadow:0 10px 22px #14344714; }
+.mu-student-home { max-width:1180px; margin:0 auto; }
+.mu-student-hero { border:1px solid #d5b45e; border-radius:24px; box-shadow:0 18px 45px #102b4022; }
+.mu-student-hero h1 { letter-spacing:-.035em; }
+.mu-student-quote { border:1px solid #e5d5aa; border-radius:18px; box-shadow:0 8px 24px #1434470a; }
+.mu-student-signoff { letter-spacing:.08em; }
+.mu-odisha-mission-strip { display:grid; grid-template-columns:190px minmax(0,1fr); gap:25px; align-items:center; margin:22px auto; padding:22px 28px; max-width:1100px; overflow:hidden; border:1px solid #e4d3a7; border-radius:20px; background:linear-gradient(110deg,#fffdf7,#fff 62%,#f5f8f7); box-shadow:0 10px 28px #1734480b; }
+.mu-odisha-map-art { display:grid; place-items:center; min-height:190px; border-radius:16px; background:radial-gradient(circle,#fff2cc 0,#fff8e8 52%,#f7f8f5 100%); }
+.mu-odisha-map-art svg { width:145px; height:160px; filter:drop-shadow(0 8px 8px #8e6c2833); }
+.mu-odisha-mission-copy>span { color:#9b7428; font-size:10px; font-weight:900; letter-spacing:.17em; }
+.mu-odisha-mission-copy h2 { margin:8px 0; color:#173448; font-size:clamp(20px,3vw,28px); line-height:1.25; }
+.mu-odisha-mission-copy p { max-width:740px; margin:0; color:#60727d; line-height:1.75; font-size:14px; }
+.mu-odisha-pills { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+.mu-odisha-pills b { padding:6px 10px; border:1px solid #e7ddc4; border-radius:30px; background:#fff; color:#536671; font-size:11px; }
+.mu-study-page { max-width:1180px; margin:0 auto; padding:8px 0 42px; }
+.mu-study-hero { position:relative; display:grid; grid-template-columns:minmax(0,1fr) 220px; align-items:center; gap:28px; overflow:hidden; padding:38px; border:1px solid #d7b866; border-radius:23px; background:linear-gradient(120deg,#102b40,#1b4c62); color:#fff; box-shadow:0 16px 38px #102b4020; }
+.mu-study-kicker,.mu-study-section-head>div>span,.mu-study-tip>span { color:#e5c875; font-size:10px; font-weight:900; letter-spacing:.17em; }
+.mu-study-hero h1 { margin:13px 0; color:#fff; font-size:clamp(30px,4.8vw,48px); line-height:1.12; letter-spacing:-.035em; }
+.mu-study-hero h1 em { color:#f0d48a; font-style:normal; }
+.mu-study-hero p { max-width:690px; color:#dbe7eb; line-height:1.8; }
+.mu-study-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.mu-study-actions a { padding:11px 15px; border-radius:10px; background:#e3c372; color:#173448; text-decoration:none; font-size:13px; font-weight:900; }
+.mu-study-actions a+ a { border:1px solid #ffffff65; background:#ffffff12; color:#fff; }
+.mu-study-odisha { display:flex; flex-direction:column; align-items:center; gap:5px; padding:16px; border:1px solid #ffffff30; border-radius:18px; background:#ffffff0d; }
+.mu-study-odisha>span { color:#f2d78f; font-size:10px; font-weight:900; letter-spacing:.2em; }
+.mu-study-odisha svg { width:145px; height:155px; filter:drop-shadow(0 8px 10px #061c2c88); }
+.mu-study-odisha>b { color:#fff; font-size:10px; letter-spacing:.12em; }
+.mu-study-odisha>small { color:#cbd9de; font-size:9px; letter-spacing:.18em; }
+.mu-study-section-head { display:flex; align-items:end; justify-content:space-between; gap:15px; margin:30px 0 16px; }
+.mu-study-section-head>div>span { color:#9a742a; }
+.mu-study-section-head h2 { margin:5px 0; color:#173448; font-size:26px; }
+.mu-study-section-head p { margin:0; color:#657782; font-size:13px; }
+.mu-study-count { display:flex; flex-direction:column; align-items:center; padding:9px 16px; border:1px solid #e4d7b7; border-radius:13px; background:#fffdf7; }
+.mu-study-count b { color:#173448; font-size:25px; }
+.mu-study-count small { color:#99752f; font-size:9px; font-weight:900; letter-spacing:.1em; }
+.mu-study-subject-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.mu-study-subject-card { display:flex; flex-direction:column; min-height:210px; padding:19px; border:1px solid #e1e8eb; border-bottom:3px solid #d2ad59; border-radius:16px; background:#fff; color:#173448; text-decoration:none; box-shadow:0 7px 20px #14344709; transition:.18s ease; }
+.mu-study-subject-card:hover { transform:translateY(-3px); border-color:#d2ad59; box-shadow:0 13px 26px #14344713; }
+.mu-study-number { color:#9b7a37; font-size:10px; font-weight:900; letter-spacing:.12em; }
+.mu-study-book { display:grid; place-items:center; width:39px; height:39px; margin:12px 0 7px; border-radius:11px; background:#edf3f4; color:#17475d; font-size:20px; }
+.mu-study-subject-card h3 { margin:3px 0 6px; font-size:17px; }
+.mu-study-subject-card p { margin:0 0 16px; color:#697b85; font-size:12px; line-height:1.6; }
+.mu-study-open { display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:11px; border-top:1px solid #edf0ef; color:#98732a; font-size:10px; font-weight:900; letter-spacing:.1em; }
+.mu-study-tip { margin-top:22px; padding:23px; background:linear-gradient(110deg,#fff,#fffaf0); }
+.mu-study-tip>span { color:#98732a; }
+.mu-study-tip h2 { margin:8px 0; color:#173448; }
+.mu-study-tip p { color:#627580; line-height:1.7; }
+.mu-study-tip a { color:#946d21; font-weight:800; text-decoration:none; }
+.test-history-page { padding:26px; }
+.test-history-page h1 { color:#173448; font-size:clamp(27px,4vw,36px); }
+.test-history-page .eyebrow { color:#9a742a; }
+.test-history-page .table-wrap { overflow-x:auto; border:1px solid #e1e8eb; border-radius:13px; }
+.test-history-page table { width:100%; border-collapse:collapse; background:#fff; }
+.test-history-page th { background:#eff4f5; color:#294b5c; font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+.test-history-page th,.test-history-page td { padding:13px 15px; border-bottom:1px solid #e9eef0; text-align:left; }
+.test-history-page td { color:#435965; font-size:13px; }
+.mu-jobs-hero { background:linear-gradient(120deg,#102b40,#1b4c62); border:1px solid #d7b866; }
+.mu-job-card { border-radius:17px; box-shadow:0 7px 22px #1434470b; }
+.mu-job-card h2 { color:#173448; }
+.mu-profile-hero { background:linear-gradient(120deg,#102b40,#1b4c62); border:1px solid #d7b866; border-radius:22px; }
+.mu-profile-card,.mu-profile-stat-grid article { border-radius:16px; border-color:#e1e8eb; box-shadow:0 7px 22px #1434470a; }
+.mu-leader-hero { background:linear-gradient(120deg,#102b40,#1b4c62); border:1px solid #d7b866; }
+.mu-leader-card { border-radius:17px; border-color:#e1e8eb; box-shadow:0 7px 22px #1434470a; }
+.mu-notifications-page .panel { padding:25px; }
+.mu-notice-card { border-radius:15px; }
+@media(max-width:850px) {
+  .mu-study-subject-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .mu-study-hero { grid-template-columns:minmax(0,1fr) 170px; padding:28px; }
+  .mu-study-odisha svg { width:120px; height:135px; }
+}
+@media(max-width:640px) {
+  .mu-odisha-mission-strip { grid-template-columns:1fr; padding:17px; gap:13px; }
+  .mu-odisha-map-art { min-height:130px; }
+  .mu-odisha-map-art svg { width:105px; height:115px; }
+  .mu-study-hero { grid-template-columns:1fr; padding:24px 20px; }
+  .mu-study-odisha { display:none; }
+  .mu-study-section-head { align-items:flex-start; }
+  .mu-study-section-head h2 { font-size:22px; }
+  .mu-study-subject-grid { grid-template-columns:1fr; gap:10px; }
+  .mu-study-subject-card { min-height:170px; }
+  .test-history-page { padding:17px; }
+  .mu-notifications-page .panel { padding:17px; }
+}
+@media(prefers-reduced-motion:reduce) { .mu-study-subject-card,.subject-card,.info-card,.mu-dashboard-shortcuts a { transition:none; } }

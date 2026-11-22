@@ -106,3 +106,7 @@ drop trigger if exists trg_enforce_subject_access_before_attempt on public.test_
 create trigger trg_enforce_subject_access_before_attempt
 before insert on public.test_attempts
 for each row execute function public.enforce_subject_access_before_attempt();
+
+
+-- Refresh PostgREST so newly created access tables are visible to the API.
+notify pgrst, 'reload schema';

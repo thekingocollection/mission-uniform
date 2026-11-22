@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import PremiumTrialBanner from "@/components/premium-trial-banner";
 
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [name, setName] = useState("");
@@ -69,7 +70,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   }
 
   return (
-    <section className="auth-card">
+    <div className="mu-auth-page">
+      <PremiumTrialBanner compact />
+      <section className="auth-card mu-auth-card">
       <span className="eyebrow">MISSION UNIFORM OP · STUDENT PORTAL</span>
       <h1>{mode === "login" ? "Welcome Back!" : "Create Your Student Account"}</h1>
       <p>{mode === "login" ? "Already registered? Login with your registered mobile number." : "Register free to access mock tests, syllabus, results and your student dashboard."}</p>
@@ -81,6 +84,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       {sent && <button type="button" className="btn outline full" disabled={busy} onClick={()=>{setSent(false);setOtp("");setMsg("");}}>Change Mobile Number</button>}
       <p className="auth-switch">{mode==="login" ? <>New student? <Link href={`/signup?next=${encodeURIComponent(destination())}`}>Create free account</Link></> : <>Already registered? <Link href={`/login?next=${encodeURIComponent(destination())}`}>Login here</Link></>}</p>
       <p className="muted">Your account is protected by mobile OTP verification.</p>
-    </section>
+      </section>
+    </div>
   );
 }

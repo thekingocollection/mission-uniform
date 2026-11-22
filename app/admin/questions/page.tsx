@@ -370,6 +370,7 @@ export default function AdminQuestions() {
   }
 
   async function readExcel(event: ChangeEvent<HTMLInputElement>) {
+    if (!supabase) { setMessage("Supabase is not configured."); return; }
     const selectedFile = event.target.files?.[0];
     if (!selectedFile) return;
 

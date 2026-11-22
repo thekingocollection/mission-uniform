@@ -16,7 +16,7 @@ const links = [
   ["Leaderboard", "/leaderboard", "♛"],
 ];
 
-const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms"];
+const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms", "/forgot-password", "/reset-password"];
 function isPublicPath(path: string) {
   return publicPaths.includes(path) || path.startsWith("/login/") || path.startsWith("/signup/");
 }

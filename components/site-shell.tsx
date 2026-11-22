@@ -40,8 +40,7 @@ export function SiteHeader() {
     if (sb) await sb.auth.signOut();
     setSignedIn(false);
     setOpen(false);
-    router.replace("/");
-    router.refresh();
+    window.location.replace("/");
   }
 
   return (
@@ -136,7 +135,26 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
   }, [path, router]);
 
   if (isPublicPath(path) || path.startsWith("/admin")) return <>{children}</>;
-  if (checking || !allowed) return <main className="panel" style={{maxWidth:520,margin:"48px auto",padding:32,textAlign:"center"}}><span className="eyebrow">STUDENT ACCESS</span><h2>Checking your login…</h2><p>Please wait. Login or create a free student account to continue.</p></main>;
+  if (checking || !allowed) return <main className="mu-access-welcome">
+    <section className="mu-access-card">
+      <span className="mu-access-kicker">MISSION UNIFORM OP · CADET ENTRY GATE</span>
+      <div className="mu-access-emblem" aria-hidden="true">MU<span>★</span></div>
+      <p className="mu-access-overline">YOUR DREAM. YOUR UNIFORM. YOUR MISSION.</p>
+      <h1>{checking ? "Preparing Your Student Portal" : "Your Mission Starts Here"}</h1>
+      <p className="mu-access-lead">{checking ? "We are securely checking your student session. Please wait a moment." : "Login to continue your preparation, attempt mock tests and track your progress."}</p>
+      <div className="mu-access-features">
+        <span><b>01</b> Odisha Police Mock Tests</span>
+        <span><b>02</b> Subject-wise Practice</span>
+        <span><b>03</b> Syllabus & Previous Papers</span>
+        <span><b>04</b> Job Alerts & Progress</span>
+      </div>
+      {!checking && <div className="mu-access-actions">
+        <a href={"/login?next=" + encodeURIComponent(path)}>STUDENT LOGIN <span>→</span></a>
+        <a href={"/signup?next=" + encodeURIComponent(path)}>CREATE FREE ACCOUNT <span>↗</span></a>
+      </div>}
+      <small className="mu-access-foot">{checking ? "SECURE STUDENT ACCESS · PLEASE WAIT" : "FREE STUDENT REGISTRATION · START PREPARING TODAY"}</small>
+    </section>
+  </main>;
   return <>{children}</>;
 }
 

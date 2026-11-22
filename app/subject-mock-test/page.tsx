@@ -104,7 +104,7 @@ export default function SubjectMockTestPage() {
               className={"mu-fast-subject " + (active ? "active" : "")}
               onClick={() => chooseSubject(s.subject_id)}>
               <b>{s.name_en || s.name_hi || "Subject"}</b>
-              <small>{s.verified_questions} questions {s.purchased && s.enabled ? "· Unlocked" : !s.enabled ? "· Locked" : ""}</small>
+              <small>{s.verified_questions} questions {s.enabled ? (s.verified_questions > 0 ? "· Ready" : "· Questions soon") : "· Locked"}</small>
             </button>;
           })}
         </section>

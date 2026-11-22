@@ -59,7 +59,7 @@ declare
   v_name text;
 begin
   if v_subject is null then return new; end if;
-  select coalesce(name_en,name_hi,name,'Subject') into v_name
+  select coalesce(name_en,name_hi,'Subject') into v_name
   from public.subjects where id=v_subject and is_active=true;
   if v_name is not null and not exists (
     select 1 from public.test_papers t

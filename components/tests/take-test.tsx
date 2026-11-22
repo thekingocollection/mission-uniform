@@ -258,8 +258,8 @@ export default function TakeTest({ id }: { id: string }) {
     const item = review[reviewIndex];
 
     return (
-      <main className="content-wrap">
-        <section className="panel result-panel">
+      <main className="content-wrap mu-exam-shell">
+        <section className="panel result-panel mu-exam-result">
           <span className="eyebrow">MISSION UNIFORM OP · RESULT</span>
           <h1>Test Completed!</h1>
 
@@ -346,7 +346,7 @@ export default function TakeTest({ id }: { id: string }) {
 
   if (!started) {
     return (
-      <section className="panel test-intro">
+      <section className="panel test-intro mu-exam-intro">
         <span className="eyebrow">MISSION UNIFORM OP · EXAM MODE</span>
         <h1>{test.title}</h1>
         <p>{test.description}</p>
@@ -381,8 +381,8 @@ export default function TakeTest({ id }: { id: string }) {
   }
 
   return (
-    <main className="content-wrap">
-      <section className="test-layout">
+    <main className="content-wrap mu-exam-shell">
+      <section className="test-layout mu-exam-layout">
         <div className="test-top">
           <div>
             <span className="eyebrow">MISSION UNIFORM OP · LIVE EXAM</span>
@@ -405,7 +405,7 @@ export default function TakeTest({ id }: { id: string }) {
         )}
 
         <div className="test-grid">
-          <section className="panel question-panel">
+          <section className="panel question-panel mu-exam-question">
             <div className="question-meta">
               <span>{question.chapter || "General"}</span>
               <span>{answers[question.id] !== undefined ? "Answered" : "Not Answered"}</span>
@@ -486,7 +486,7 @@ export default function TakeTest({ id }: { id: string }) {
             </div>
           </section>
 
-          <aside className="panel palette">
+          <aside className="panel palette mu-exam-palette">
             <h3>Question Palette</h3>
 
             <div className="palette-grid">

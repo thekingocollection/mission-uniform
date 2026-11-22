@@ -21,9 +21,8 @@ with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,
   ) s on true
 )
 update public.subjects s
-set is_active=true, published=true,
-    name_en=e.name_en, name_hi=e.name_hi, name_or=e.name_or,
-    description=e.description, sort_order=e.sort_order
+set is_active=true,
+    name_en=e.name_en, name_hi=e.name_hi, name_or=e.name_or
 from existing_matches e
 where s.id=e.subject_id;
 
@@ -36,8 +35,8 @@ with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,
   ('reasoning','Reasoning','Reasoning','तर्कशक्ति','ଯୁକ୍ତିତର୍କ','ଯୁକ୍ତିତର୍କ','Logical, verbal and non-verbal reasoning.',5,array['logicalreasoning','mentalability']::text[]),
   ('basic-computer-literacy','Basic Computer Literacy','Basic Computer Literacy','मूल कंप्यूटर साक्षरता','ମୌଳିକ କମ୍ପ୍ୟୁଟର ଜ୍ଞାନ','ମୌଳିକ କମ୍ପ୍ୟୁଟର ଜ୍ଞାନ','Basic computer knowledge and digital literacy.',6,array['computer','computerawareness','computerknowledge','basiccomputer','basiccomputerliteracy','computerliteracy','computerfundamentals','computerapplications','informationtechnology','it']::text[])
 )
-insert into public.subjects(slug,name_en,name_hi,name_or,description,sort_order,is_active,published)
-select c.slug,c.name_en,c.name_hi,c.name_or,c.description,c.sort_order,true,true
+insert into public.subjects(slug,name_en,name_hi,name_or,is_active)
+select c.slug,c.name_en,c.name_hi,c.name_or,true
 from canonical c
 where not exists (
   select 1 from public.subjects s
@@ -46,8 +45,7 @@ where not exists (
 )
 on conflict(slug) do update set
   name_en=excluded.name_en,name_hi=excluded.name_hi,
-  name_or=excluded.name_or,description=excluded.description,
-  sort_order=excluded.sort_order,is_active=true,published=true;
+  name_or=excluded.name_or,is_active=true;
 
 -- Create a subject practice paper even when a subject has fewer than 30 questions.
 -- The student chooses a count up to the currently verified question count.

@@ -18,14 +18,12 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     const {data: targetTest,error: targetError}=await service.from("test_papers").select("id,subject_id,question_mode").eq("id",id).eq("status","published").maybeSingle();
     if(targetError||!targetTest)return NextResponse.json({error:"Test not found or not published."},{status:404});
     if(targetTest.question_mode==="subject_random"){
-      const [{data:global},{data:setting},{data:access}]=await Promise.all([
+      const [{data:global},{data:setting}]=await Promise.all([
         service.from("subject_access_global").select("all_subjects_enabled").eq("singleton",true).maybeSingle(),
-        service.from("subject_access_settings").select("is_enabled").eq("subject_id",targetTest.subject_id).maybeSingle(),
-        service.from("student_subject_access").select("expires_at").eq("user_id",userData.user.id).eq("subject_id",targetTest.subject_id).maybeSingle()
+        service.from("subject_access_settings").select("is_enabled").eq("subject_id",targetTest.subject_id).maybeSingle()
       ]);
-      const active=!!access&&(!access.expires_at||new Date(access.expires_at).getTime()>Date.now());
-      if(global?.all_subjects_enabled===false||setting?.is_enabled===false)return NextResponse.json({error:"This subject is currently locked by Admin."},{status:403});
-      if(!active)return NextResponse.json({error:"Unlock this subject to start its mock tests."},{status:402});
+      if(global?.all_subjects_enabled===false||setting?.is_enabled===false)
+        return NextResponse.json({error:"This subject is currently unavailable. Please contact Admin."},{status:403});
     }
     let body:any={};
     try { body=await req.json(); } catch {}
@@ -39,7 +37,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       id:q.id,question_hi:q.question_hi,question_or:q.question_or,question_en:q.question_en,
       options:q.options,chapter:q.chapter??null,difficulty:q.difficulty??null
     }));
-    return NextResponse.json({test:started.test,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions});
+    return NextResponse.json({test:started.test,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions},{headers:{"Cache-Control":"no-store"}});
   }catch(e:any){
     console.error("TEST_START_ERROR",e);
     return NextResponse.json({error:e.message||"Unable to start mock test."},{status:500});

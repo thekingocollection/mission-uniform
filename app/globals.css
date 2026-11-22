@@ -5527,3 +5527,63 @@ body { background:#f5f7f8; color:#183548; }
   .mu-home--defence .mu-defence-shield-wrap,.mu-home--defence .mu-defence-orbit-one,.mu-home--defence .mu-defence-orbit-two,
   .mu-home--defence .mu-defence-module,.mu-maths-formula-grid article { animation:none; transition:none; }
 }
+
+
+/* Admin live activity feed and event celebrations */
+.mu-admin-activity-panel { position:relative; margin:22px 0 26px; padding:22px; overflow:hidden; border:1px solid #d9c48f; border-radius:19px; background:linear-gradient(145deg,#fff,#fbfaf5); box-shadow:0 12px 30px #102b4010; }
+.mu-admin-activity-head { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:17px; }
+.mu-admin-activity-head h2 { margin:6px 0; color:#173448; font-size:22px; }
+.mu-admin-activity-head p { margin:0; color:#687984; font-size:12px; line-height:1.6; }
+.mu-admin-live { display:inline-flex; align-items:center; gap:7px; flex:0 0 auto; padding:8px 10px; border:1px solid #b9ddc9; border-radius:30px; background:#f0faf4; color:#236345; font-size:9px; font-weight:950; letter-spacing:.1em; }
+.mu-admin-live i { width:7px; height:7px; border-radius:50%; background:#20a464; box-shadow:0 0 0 4px #20a46420; animation:mu-admin-live-pulse 1.6s ease-in-out infinite; }
+.mu-admin-activity-list { display:grid; gap:9px; }
+.mu-admin-activity-item { display:flex; align-items:center; gap:12px; min-width:0; padding:12px; border:1px solid #e8eceb; border-radius:13px; background:#fff; animation:mu-admin-activity-in .45s ease both; }
+.mu-admin-activity-icon { display:grid; place-items:center; width:40px; height:40px; flex:0 0 40px; border-radius:12px; background:#edf4f5; color:#17465b; font-size:20px; font-weight:950; }
+.mu-admin-activity-item.purchase .mu-admin-activity-icon { background:#fff4d9; color:#9a6b12; }
+.mu-admin-activity-item>div { flex:1; min-width:0; }
+.mu-admin-activity-item>div>b { color:#173448; font-size:12px; }
+.mu-admin-activity-item>div>p { margin:3px 0; color:#526772; font-size:12px; overflow-wrap:anywhere; }
+.mu-admin-activity-item>div>small { color:#8a989e; font-size:10px; }
+.mu-admin-activity-kind { flex:0 0 auto; padding:6px 8px; border-radius:30px; background:#edf7f0; color:#286448; font-size:8px; font-weight:950; letter-spacing:.1em; }
+.mu-admin-activity-item.purchase .mu-admin-activity-kind { background:#fff5dd; color:#926714; }
+.mu-admin-activity-empty { padding:22px; border:1px dashed #d8dfdf; border-radius:12px; color:#73838a; font-size:12px; text-align:center; }
+.mu-admin-celebration { position:fixed; top:50%; left:50%; z-index:5000; width:min(430px,calc(100vw - 30px)); padding:31px 25px 25px; overflow:hidden; border:1px solid #e5c36e; border-radius:24px; background:radial-gradient(circle at 50% 0,#315b6b,#102b40 68%); color:#fff; text-align:center; box-shadow:0 25px 90px #061c2bc9,0 0 0 100vmax #071e2d70; transform:translate(-50%,-50%); animation:mu-admin-celebrate-in .45s cubic-bezier(.2,.85,.25,1) both; isolation:isolate; }
+.mu-admin-celebration::before { content:""; position:absolute; inset:-50%; z-index:-1; background:conic-gradient(from 0deg,transparent,#e8c66c22,transparent 35%,#fff1c51c,transparent 70%); animation:mu-admin-celebrate-rotate 12s linear infinite; }
+.mu-admin-celebration-close { position:absolute; top:10px; right:12px; width:32px; height:32px; border:1px solid #ffffff35; border-radius:50%; background:#ffffff12; color:#fff; font-size:22px; cursor:pointer; }
+.mu-admin-celebration-icon { display:grid; place-items:center; width:66px; height:66px; margin:0 auto 13px; border:1px solid #f1d58c; border-radius:20px; background:linear-gradient(145deg,#ffedb4,#c99d45); color:#173448; font-size:32px; font-weight:1000; box-shadow:0 0 0 8px #e8c66c18,0 0 30px #e8c66c55; animation:mu-admin-icon-pop .7s .1s cubic-bezier(.2,.9,.2,1) both; }
+.mu-admin-celebration>small { color:#f3d78e; font-size:9px; font-weight:950; letter-spacing:.2em; }
+.mu-admin-celebration h2 { margin:10px 0 7px; color:#fff; font-size:clamp(23px,5vw,30px); }
+.mu-admin-celebration p { margin:0 auto; max-width:340px; color:#e2edf0; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+.mu-admin-celebration-footer { display:block; margin-top:20px; padding-top:13px; border-top:1px solid #ffffff26; color:#f0d48d; font-size:8px; font-weight:950; letter-spacing:.16em; }
+.mu-money-rain,.mu-welcome-sparkles { position:absolute; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+.mu-money-rain i { position:absolute; top:-35px; color:#f6d77e; font-size:25px; font-style:normal; font-weight:1000; text-shadow:0 0 12px #f3cf6a88; animation:mu-money-fall 2.7s ease-in infinite; }
+.mu-money-rain i:nth-child(1) { left:7%; animation-delay:0s; }
+.mu-money-rain i:nth-child(2) { left:21%; animation-delay:.7s; font-size:18px; }
+.mu-money-rain i:nth-child(3) { left:37%; animation-delay:1.3s; }
+.mu-money-rain i:nth-child(4) { left:58%; animation-delay:.35s; font-size:20px; }
+.mu-money-rain i:nth-child(5) { left:75%; animation-delay:1s; }
+.mu-money-rain i:nth-child(6) { left:89%; animation-delay:1.6s; font-size:18px; }
+.mu-money-rain i:nth-child(7) { left:48%; animation-delay:1.9s; }
+.mu-money-rain i:nth-child(8) { left:31%; animation-delay:2.1s; font-size:16px; }
+.mu-welcome-sparkles { top:16px; color:#f5d98f; font-size:20px; opacity:.8; animation:mu-welcome-glow 2s ease-in-out infinite; }
+.mu-admin-celebration.registration .mu-admin-celebration-icon { border-radius:50%; }
+@keyframes mu-admin-live-pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(.75); } }
+@keyframes mu-admin-activity-in { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
+@keyframes mu-admin-celebrate-in { from { opacity:0; transform:translate(-50%,-46%) scale(.88); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
+@keyframes mu-admin-celebrate-rotate { to { transform:rotate(360deg); } }
+@keyframes mu-admin-icon-pop { 0% { transform:scale(.5) rotate(-12deg); } 70% { transform:scale(1.12) rotate(4deg); } 100% { transform:scale(1) rotate(0); } }
+@keyframes mu-money-fall { 0% { transform:translateY(-20px) rotate(0deg); opacity:0; } 15% { opacity:1; } 100% { transform:translateY(440px) rotate(240deg); opacity:0; } }
+@keyframes mu-welcome-glow { 0%,100% { opacity:.45; transform:scale(.95); } 50% { opacity:1; transform:scale(1.08); } }
+@media(max-width:600px) {
+  .mu-admin-activity-panel { padding:15px; margin:16px 0 20px; }
+  .mu-admin-activity-head { flex-direction:column; }
+  .mu-admin-activity-head h2 { font-size:19px; }
+  .mu-admin-activity-item { gap:9px; padding:10px; }
+  .mu-admin-activity-icon { width:35px; height:35px; flex-basis:35px; }
+  .mu-admin-activity-kind { font-size:7px; padding:5px 6px; }
+  .mu-admin-celebration { padding:27px 18px 20px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .mu-admin-live i,.mu-admin-activity-item,.mu-admin-celebration,.mu-admin-celebration::before,
+  .mu-admin-celebration-icon,.mu-money-rain i,.mu-welcome-sparkles { animation:none; }
+}

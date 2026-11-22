@@ -5672,3 +5672,27 @@ body { background:#f5f7f8; color:#183548; }
 @media(prefers-reduced-motion:reduce) {
  .mu-test-manager-hero,.mu-test-manager-stats article { animation:none!important; transition:none!important; }
 }
+
+
+/* Test paper hide/delete controls */
+.admin-tests-page .mu-test-paper-row {
+  animation: mu-test-row-enter .42s cubic-bezier(.2,.75,.25,1) both;
+  transform-origin: top center;
+}
+@keyframes mu-test-row-enter {
+  from { opacity: 0; transform: translateY(-14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.admin-tests-page .btn.danger {
+  background: #fff0f0;
+  color: #a51f2b;
+  border: 1px solid #f0b8bd;
+}
+.admin-tests-page .btn.danger:hover {
+  background: #a51f2b;
+  color: #fff;
+  border-color: #a51f2b;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-tests-page .mu-test-paper-row { animation: none; }
+}

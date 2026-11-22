@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import PremiumTrialBanner from "@/components/premium-trial-banner";
 
 export default function Dashboard() {
   const [name, setName] = useState("Student");
@@ -52,6 +53,7 @@ export default function Dashboard() {
           <small>EK LAKSHYA · EK JUNOON</small>
         </div>
       </section>
+      <PremiumTrialBanner />
       <section className="mu-student-quote">
         <span>AAJ KA SANKALP</span>
         <h2>“Selection ek din mein nahi hota, lekin har din ki taiyari se zaroor hoti hai.”</h2>

@@ -9,7 +9,6 @@ type Subject = {
   verified_questions: number; enabled: boolean; can_start: boolean;
 };
 
-
 const PRESETS = [10, 20, 30, 50, 100];
 
 export default function SubjectMockTestPage() {
@@ -104,7 +103,7 @@ export default function SubjectMockTestPage() {
               className={"mu-fast-subject " + (active ? "active" : "")}
               onClick={() => chooseSubject(s.subject_id)}>
               <b>{s.name_en || s.name_hi || "Subject"}</b>
-              <small>{s.verified_questions} questions {s.enabled ? (s.verified_questions > 0 ? "· Ready" : "· Questions soon") : "· Locked"}</small>
+              <small>{s.enabled ? (s.verified_questions > 0 ? "· Ready" : "· Questions soon") : "· Locked"}</small>
             </button>;
           })}
         </section>
@@ -116,7 +115,7 @@ export default function SubjectMockTestPage() {
       {!selected.enabled ? <p className="mu-fast-locked">This subject is currently locked.</p>
       : maxCount === 0 ? <p className="mu-fast-locked">Questions will be available soon.</p>
       : <>
-          <div className="mu-fast-count-title"><b>{selected.name_en || selected.name_hi}</b><span>{maxCount} questions available</span></div>
+          <div className="mu-fast-count-title"><b>{selected.name_en || selected.name_hi}</b><span>Choose your test size</span></div>
           <div className="mu-fast-counts">
             {PRESETS.filter(n => n <= maxCount).map(n => <button type="button" key={n}
               className={count === n ? "active" : ""} aria-pressed={count === n}

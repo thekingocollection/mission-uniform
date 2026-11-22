@@ -1,41 +1,9 @@
-"use client";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-
-const links = [
-  ["Overview", "/admin", "▦"], ["Students", "/admin/students", "♙"],
-  ["Subjects", "/admin/subjects", "▤"], ["Chapters", "/admin/chapters", "▧"],
-  ["Question Bank + Bulk", "/admin/questions", "✎"], ["Mock Tests + Previous Year Papers", "/admin/tests", "◷"], ["Subject-wise Mock Tests", "/admin/subject-mock-tests", "◎"],
-  ["Job Alerts", "/admin/job-alerts", "⌕"], ["Notifications", "/admin/notifications", "♧"],
-  ["Website Settings", "/admin/settings", "⚙"],
-];
-export function AdminGate({ children }: { children: React.ReactNode }) {
-  const router = useRouter(); const path = usePathname();
-  const supabase = useMemo(() => supabaseBrowser(), []);
-  const [state, setState] = useState<"checking"|"allowed"|"denied">("checking");
-  const [email, setEmail] = useState("");
-  useEffect(() => { let alive = true; (async () => {
-    if (path === "/admin/login") return;
-    if (!supabase) { if (alive) setState("denied"); return; }
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.replace("/admin/login?next=" + encodeURIComponent(path)); return; }
-    const { data: profile, error } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    if (!alive) return;
-    setEmail(user.email || "Super Admin");
-    if (!error && profile?.role === "super_admin") setState("allowed");
-    else setState("denied");
-  })(); return () => { alive = false; }; }, [supabase, router, path]);
-  async function logout() { await supabase?.auth.signOut(); router.replace("/admin/login"); }
-  if (path === "/admin/login") return <>{children}</>;
-  if (state === "checking") return <div className="admin-loading">Verifying secure Super Admin access…</div>;
-  if (state === "denied") return <div className="admin-denied"><h1>Super Admin access required</h1><p>Your signed-in account does not have the <code>super_admin</code> role in the profiles table. Check the role for this account ID in Supabase.</p><Link href="/admin/login">Return to Admin Login</Link></div>;
-  return <div className="admin-layout">
-    <aside className="admin-sidebar"><Link href="/admin" className="admin-brand"><span className="admin-crest">MU</span><span><b>MISSION UNIFORM</b><small>SUPER ADMIN CONTROL</small></span></Link>
-      <div className="admin-nav-label">WORKSPACE</div><nav>{links.map(([label, href, icon])=><Link key={href} href={href} className={path===href?"active":""}><i>{icon}</i>{label}</Link>)}</nav>
-      <div className="admin-sidebar-bottom"><span>SECURE SESSION</span><small>{email}</small><button onClick={logout}>Sign out ↗</button><Link href="/">← View Website</Link></div>
-    </aside>
-    <section className="admin-main"><header className="admin-topbar"><div><small>MISSION UNIFORM OP / ADMINISTRATION</small><b>Control Centre</b></div><span className="admin-status"><i/> SUPER ADMIN</span></header><div className="admin-content">{children}</div></section>
-  </div>;
-}
+"use client";import Link from "next/link";import {usePathname,useRouter} from "next/navigation";import {useEffect,useMemo,useState} from "react";import {supabaseBrowser} from "@/lib/supabase-browser";
+const links=[["Overview","/admin","▦",""],["Students","/admin/students","♙","manage_students"],["Subjects","/admin/subjects","▤","manage_subjects"],["Chapters","/admin/chapters","▧","manage_subjects"],["Question Bank + Bulk","/admin/questions","✎","manage_questions"],["Mock Tests + Previous Year Papers","/admin/tests","◷","manage_tests"],["Subject-wise Mock Tests","/admin/subject-mock-tests","◎","manage_tests"],["Job Alerts","/admin/job-alerts","⌕","manage_jobs"],["Notifications","/admin/notifications","♧","manage_notifications"],["Website Settings","/admin/settings","⚙","manage_settings"],["Staff Management","/admin/staff","♙","manage_staff"]];
+const first=[["manage_questions","/admin/questions"],["manage_tests","/admin/tests"],["manage_subjects","/admin/subjects"],["manage_students","/admin/students"],["manage_jobs","/admin/job-alerts"],["manage_notifications","/admin/notifications"],["manage_settings","/admin/settings"]];
+function permissionFor(path:string){if(path.startsWith("/admin/staff"))return "manage_staff";if(path.startsWith("/admin/students"))return "manage_students";if(path.startsWith("/admin/questions"))return "manage_questions";if(path.startsWith("/admin/tests")||path.startsWith("/admin/subject-mock-tests"))return "manage_tests";if(path.startsWith("/admin/subjects")||path.startsWith("/admin/chapters"))return "manage_subjects";if(path.startsWith("/admin/job-alerts"))return "manage_jobs";if(path.startsWith("/admin/notifications"))return "manage_notifications";if(path.startsWith("/admin/settings"))return "manage_settings";return "";}
+export function AdminGate({children}:{children:React.ReactNode}){const router=useRouter();const path=usePathname();const sb=useMemo(()=>supabaseBrowser(),[]);const [state,setState]=useState<"checking"|"allowed"|"denied">("checking");const [email,setEmail]=useState("");const [role,setRole]=useState("");const [perms,setPerms]=useState<Record<string,boolean>>({});
+useEffect(()=>{let live=true;(async()=>{if(path==="/admin/login")return;if(!sb){if(live)setState("denied");return;}const {data:{user}}=await sb.auth.getUser();if(!user){router.replace("/admin/login?next="+encodeURIComponent(path));return;}const {data:p,error}=await sb.from("profiles").select("role,is_blocked,permissions").eq("id",user.id).maybeSingle();if(!live)return;if(error||!p||p.is_blocked||!["super_admin","staff_admin"].includes(p.role)){setState("denied");return;}const permissions=(p.permissions||{}) as Record<string,boolean>;setEmail(user.email||"Administrator");setRole(p.role);setPerms(permissions);if(p.role==="staff_admin"&&(path==="/admin"||!permissions[permissionFor(path)])){const target=first.find(([key])=>permissions[key]);if(target)router.replace(target[1]);else setState("denied");return;}setState("allowed");})();return()=>{live=false}},[sb,router,path]);
+async function logout(){await sb?.auth.signOut();router.replace("/admin/login");router.refresh();}
+if(path==="/admin/login")return <>{children}</>;if(state==="checking")return <div className="admin-loading">Verifying secure Admin / Staff access…</div>;if(state==="denied")return <div className="admin-denied"><h1>Access denied</h1><p>Your account does not have permission to open this admin section. Contact the Super Admin.</p><Link href="/admin/login">Return to Admin / Staff Login</Link></div>;
+const visible=links.filter(([,, ,perm])=>role==="super_admin"||!!perm&&!!perms[perm]);return <div className="admin-layout"><aside className="admin-sidebar"><Link href={role==="super_admin"?"/admin":(first.find(([key])=>perms[key])?.[1]||"/admin")} className="admin-brand"><span className="admin-crest">MU</span><span><b>MISSION UNIFORM</b><small>{role==="super_admin"?"SUPER ADMIN CONTROL":"STAFF WORKSPACE"}</small></span></Link><div className="admin-nav-label">WORKSPACE</div><nav>{visible.map(([label,href,icon])=><Link key={href} href={href} className={path===href?"active":""}><i>{icon}</i>{label}</Link>)}</nav><div className="admin-sidebar-bottom"><span>SECURE SESSION · {role.replace("_"," ").toUpperCase()}</span><small>{email}</small><button onClick={logout}>Sign out ↗</button><Link href="/">← View Website</Link></div></aside><section className="admin-main"><header className="admin-topbar"><div><small>MISSION UNIFORM OP / ADMINISTRATION</small><b>Control Centre</b></div><span className="admin-status"><i/> {role==="super_admin"?"SUPER ADMIN":"STAFF"}</span></header><div className="admin-content">{children}</div></section></div>;}

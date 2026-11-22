@@ -6,7 +6,7 @@ import PremiumTrialBanner from "@/components/premium-trial-banner";
 
 export default function Dashboard() {
   const [name, setName] = useState("Student");
-  const [attempts, setAttempts] = useState(0);
+  const [attempts, setAttempts] = useState(0);\n  const [email, setEmail] = useState("");\n  const [emailVerified, setEmailVerified] = useState(false);\n  const [verifyBusy, setVerifyBusy] = useState(false);\n  const [verifyMessage, setVerifyMessage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -16,7 +16,7 @@ export default function Dashboard() {
       const { data: { user } } = await sb.auth.getUser();
       if (!user) throw new Error("Please sign in to view your student dashboard.");
       const [{ data: profile }, { count }] = await Promise.all([
-        sb.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+        sb.from("profiles").select("full_name,email,email_verified").eq("id", user.id).maybeSingle(),
         sb.from("test_attempts").select("id", { count: "exact", head: true }).eq("user_id", user.id),
       ]);
       if (!active) return;
@@ -53,7 +53,7 @@ export default function Dashboard() {
           <small>EK LAKSHYA · EK JUNOON</small>
         </div>
       </section>
-      <PremiumTrialBanner />
+      {!emailVerified && <section role="status" style={{margin:"18px auto",maxWidth:1100,padding:"16px 18px",border:"1px solid #e7d8ad",borderRadius:12,background:"#fffaf0",color:"#57451e",display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}><div><strong>Email verification pending</strong><p style={{margin:"5px 0 0",fontSize:13}}> {email ? "We will send a secure verification link to " + email + "." : "Verify your email whenever convenient."} You can continue studying and taking every mock test.</p>{verifyMessage && <small>{verifyMessage}</small>}</div><button type="button" onClick={sendVerification} disabled={verifyBusy} style={{padding:"10px 15px",border:0,borderRadius:8,background:"#173b50",color:"#fff",fontWeight:700,cursor:"pointer"}}>{verifyBusy ? "Sending…" : "Verify Email"}</button></section>}\n      {emailVerified && <p role="status" style={{margin:"12px auto",maxWidth:1100,color:"#17613b"}}>✓ Email verified</p>}\n      <PremiumTrialBanner />
       <section className="mu-student-quote">
         <span>AAJ KA SANKALP</span>
         <h2>“Selection ek din mein nahi hota, lekin har din ki taiyari se zaroor hoti hai.”</h2>

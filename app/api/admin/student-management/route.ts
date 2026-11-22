@@ -63,26 +63,17 @@ export async function GET(req: NextRequest) {
       const filtered = q ? students.filter((s: any) => [s.student_code,s.full_name,s.email,s.mobile].some(v => String(v || "").toLowerCase().includes(q.toLowerCase()))) : students;
       return NextResponse.json({ students: filtered, total: filtered.length }, { headers: { "Cache-Control": "private, no-store" } });
     }
-    let query = db.from("profiles").select("id,student_code,full_name,role,is_blocked,created_at").neq("role", "super_admin").order("created_at", { ascending: false }).limit(500);
-    if (q) query = query.or(`student_code.ilike.%${q}%,full_name.ilike.%${q}%`);
-    const { data: profiles, error } = await query;
-    if (error) throw error;
-    const ids = (profiles || []).map((p: any) => p.id);
-    const [users, subjects, grants] = await Promise.all([
-      db.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    const allStudents = await loadAllStudents(db);
+    const filteredStudents = q ? allStudents.filter((s: any) => [s.student_code,s.full_name,s.email,s.mobile].some(v => String(v || "").toLowerCase().includes(q.toLowerCase()))) : allStudents;
+    const [subjects, grants] = await Promise.all([
       db.from("subjects").select("id,name_en,name_hi").eq("is_active", true).order("name_en"),
-      ids.length ? db.from("student_subject_access").select("user_id,subject_id,expires_at").in("user_id", ids) : Promise.resolve({ data: [], error: null })
+      db.from("student_subject_access").select("user_id,subject_id,expires_at")
     ]);
-    if (users.error) throw users.error;
     if (subjects.error) throw subjects.error;
     if (grants.error) throw grants.error;
-    const authById = new Map((users.data.users || []).map((u: any) => [u.id, u]));
     const grantMap = new Map((grants.data || []).map((g: any) => [`${g.user_id}:${g.subject_id}`, g]));
     return NextResponse.json({
-      students: (profiles || []).map((p: any) => {
-        const u: any = authById.get(p.id), metadata = u?.user_metadata || {};
-        return { ...p, email: u?.email || "", mobile: String(metadata.phone || metadata.mobile || u?.phone || "").replace(/^\+91/, "") };
-      }),
+      students: filteredStudents,
       subjects: subjects.data || [],
       grants: Array.from(grantMap.entries()).map(([key, value]: any) => ({ key, ...value }))
     }, { headers: { "Cache-Control": "private, no-store" } });

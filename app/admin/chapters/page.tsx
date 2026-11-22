@@ -1,3 +1,4 @@
+import { filterExamSubjects } from "@/lib/exam-subjects";
 
 "use client";
 
@@ -75,7 +76,7 @@ export default function ChaptersPage() {
     if (error) {
       setMessage(error.message);
     } else {
-      setSubjects(subjectResult.data || []);
+      setSubjects(filterExamSubjects(subjectResult.data || []));
       setChapters(chapterResult.data || []);
       setQuestions(questionResult.data || []);
 

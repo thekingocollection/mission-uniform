@@ -4685,3 +4685,28 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-subject-config{scroll-margin-top:90px}
 .mu-subject-note{padding:10px 12px;border-left:2px solid #c4a45d;border-radius:0 7px 7px 0;background:#f8f6ee}
 @media(max-width:600px){.mu-subject-overview{gap:6px}.mu-subject-overview>div{align-items:flex-start;flex-direction:column;gap:2px;padding:9px}.mu-subject-overview b{font-size:18px}.mu-subject-overview span{font-size:8px}.mu-subject-search{max-width:none}.mu-subject-card{min-height:138px}}
+
+
+/* Personal weak-chapter and speed analysis on leaderboard */
+.mu-performance-card{margin-top:16px}
+.mu-weak-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.mu-weak-item{padding:15px;border:1px solid #e8e6de;border-radius:12px;background:linear-gradient(145deg,#fff,#fbfaf6)}
+.mu-weak-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.mu-weak-top span{color:#9a7937;font-size:10px;font-weight:850;letter-spacing:.5px}
+.mu-weak-top b{color:#a64e43;font-size:11px}
+.mu-weak-item h3{margin:9px 0;color:#1c3d50;font-size:16px}
+.mu-weak-meter{height:7px;border-radius:20px;background:#edf0f2;overflow:hidden}
+.mu-weak-meter i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#d58b65,#b64b43)}
+.mu-weak-item p{margin:9px 0 5px;color:#778493;font-size:10px}
+.mu-weak-item>small{display:block;color:#a36a39;font-size:9px;font-weight:800}
+.mu-weak-item>a{display:inline-block;margin-top:10px;color:#1d5368;font-size:10px;font-weight:900;text-decoration:none}
+.mu-pace-list{display:flex;flex-direction:column;gap:8px}
+.mu-pace-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:12px;border:1px solid #e9edf0;border-radius:10px}
+.mu-pace-row>div{display:flex;flex-direction:column;gap:3px}
+.mu-pace-row>div b{color:#1c3d50;font-size:12px}
+.mu-pace-row>div small,.mu-pace-row>strong small{color:#8a96a3;font-size:9px;font-weight:500}
+.mu-pace-row>strong{color:#1b4055;font-size:15px}
+.mu-pace-row>span{font-size:9px;font-weight:850}
+.mu-pace-row>span.is-slow{color:#b45a46}
+.mu-pace-row>span.is-steady{color:#25805b}
+@media(max-width:600px){.mu-weak-grid{grid-template-columns:1fr}.mu-pace-row{grid-template-columns:1fr auto;gap:6px 10px}.mu-pace-row>span{grid-column:1/-1}}

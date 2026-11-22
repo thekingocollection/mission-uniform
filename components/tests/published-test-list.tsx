@@ -76,9 +76,15 @@ export default function PublishedTestList({ testType }: { testType?: string }) {
 
   return (
     <section className="mu-published-catalog" aria-label="Published mock tests">
-      <div className="mu-catalog-intro">
-        <div><span className="mu-catalog-kicker">YOUR EXAM PRACTICE CENTRE</span><h2>Choose a test. Build your confidence.</h2><p>Admin-published practice papers, organised so you can quickly find the right test and start preparing.</p></div>
-        <div className="mu-catalog-emblem" aria-hidden="true"><b>MU</b><span>✦</span></div>
+      <div className="mu-catalog-intro mu-tests-hero">
+        <div className="mu-tests-hero-copy">
+          <span className="mu-catalog-kicker"><i aria-hidden="true" /> MISSION UNIFORM OP · EXAM ARENA</span>
+          <h1>Train with focus.<br /><em>Attempt with confidence.</em></h1>
+          <p>Choose your Odisha Police practice paper, challenge yourself with timed tests and track your preparation one attempt at a time.</p>
+          <div className="mu-tests-hero-pills"><span>✦ Daily practice</span><span>◷ Timed mock tests</span><span>✓ Previous year papers</span></div>
+        </div>
+        <div className="mu-catalog-emblem mu-tests-hero-emblem" aria-hidden="true"><span className="mu-tests-orbit">✦</span><b>MU</b><small>MISSION<br />UNIFORM OP</small><i>PREPARE · PRACTISE · SUCCEED</i></div>
+        <span className="mu-tests-hero-glow" aria-hidden="true" />
       </div>
 
       {!loading && !error && <div className="mu-catalog-stats">

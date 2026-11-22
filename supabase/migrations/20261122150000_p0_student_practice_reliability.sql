@@ -1,6 +1,28 @@
 -- MISSION UNIFORM OP P0 reliability: canonical subjects, free practice, and per-student no-repeat sampling.
 begin;
 
+-- This legacy trigger function was attached to a row table whose NEW record
+-- does not contain subject_id. Remove every trigger bound to it; subject mock
+-- papers are created explicitly in the set-based INSERT below.
+do $$
+declare
+  v_trigger record;
+begin
+  for v_trigger in
+    select n.nspname as schema_name, t.relname as table_name, g.tgname as trigger_name
+    from pg_trigger g
+    join pg_class t on t.oid=g.tgrelid
+    join pg_namespace n on n.oid=t.relnamespace
+    where not g.tgisinternal
+      and g.tgfoid = to_regprocedure('public.ensure_subject_random_practice()')
+  loop
+    execute format('drop trigger %I on %I.%I',
+      v_trigger.trigger_name, v_trigger.schema_name, v_trigger.table_name);
+  end loop;
+end $$;
+drop function if exists public.ensure_subject_random_practice();
+
+
 -- Ensure the six approved subjects exist and are active. Preserve existing subject IDs and question links.
 with canonical(slug,name,name_en,name_hi,name_od,name_or,description,sort_order,aliases) as (
   values
@@ -49,26 +71,6 @@ on conflict(slug) do update set
 
 -- Create a subject practice paper even when a subject has fewer than 30 questions.
 -- The student chooses a count up to the currently verified question count.
--- This legacy trigger function was attached to a row table whose NEW record
--- does not contain subject_id. Remove every trigger bound to it; subject mock
--- papers are created explicitly in the set-based INSERT below.
-do $$
-declare
-  v_trigger record;
-begin
-  for v_trigger in
-    select n.nspname as schema_name, t.relname as table_name, g.tgname as trigger_name
-    from pg_trigger g
-    join pg_class t on t.oid=g.tgrelid
-    join pg_namespace n on n.oid=t.relnamespace
-    where not g.tgisinternal
-      and g.tgfoid = to_regprocedure('public.ensure_subject_random_practice()')
-  loop
-    execute format('drop trigger %I on %I.%I',
-      v_trigger.trigger_name, v_trigger.schema_name, v_trigger.table_name);
-  end loop;
-end $$;
-drop function if exists public.ensure_subject_random_practice();
 
 insert into public.test_papers(
   title,description,test_type,subject_id,duration_minutes,total_questions,

@@ -1,3 +1,4 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
@@ -10,6 +11,7 @@ export async function POST(req: NextRequest) {
     const { data: authData, error: authError } = await db.auth.getUser(auth.slice(7));
     const user = authData.user;
     if (authError || !user) return NextResponse.json({ error: "Session expired." }, { status: 401 });
+    if (!(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json();
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) return NextResponse.json({ error: "Payment details are incomplete." }, { status: 400 });
     const secret = process.env.RAZORPAY_KEY_SECRET;

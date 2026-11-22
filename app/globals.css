@@ -4908,3 +4908,15 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-jobs-message{color:#8b3838}.mu-jobs-message button{margin-left:8px}
 .mu-jobs-disclaimer{font-size:12px;line-height:1.6;color:#78858e;margin-top:22px}
 @media(max-width:640px){.mu-jobs-page{padding:18px 12px 38px}.mu-jobs-hero{padding:25px 20px;border-radius:16px}.mu-jobs-toolbar{align-items:stretch}.mu-jobs-toolbar>input{width:100%;min-width:0;flex-basis:100%}.mu-jobs-filters{flex:1}.mu-jobs-filters button{flex:1}.mu-job-card{padding:16px}.mu-job-card h2{font-size:18px}}
+
+
+/* Job alert admin manager */
+.admin-job-publish{display:flex!important;align-items:center;gap:10px;font-weight:700}
+.admin-job-publish input{width:18px;height:18px}
+.admin-job-toolbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:14px 0}
+.admin-job-toolbar>input{min-width:220px;flex:1;padding:11px 13px;border:1px solid #d8e0e5;border-radius:9px}
+.admin-job-toolbar>div{display:flex;gap:5px;flex-wrap:wrap}
+.admin-job-toolbar button{border:0;border-radius:8px;padding:9px 12px;background:#edf1f4;color:#334b5a;font-weight:700;cursor:pointer}
+.admin-job-toolbar button.active{background:#173b50;color:white}
+.admin-job-alerts .admin-table td small{display:block;max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#82909a;margin-top:4px}
+@media(max-width:640px){.admin-job-toolbar>input{min-width:100%;width:100%}.admin-job-alerts .admin-table{min-width:720px}}

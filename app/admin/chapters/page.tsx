@@ -1,6 +1,6 @@
-import { filterExamSubjects } from "@/lib/exam-subjects";
-
 "use client";
+
+import { filterExamSubjects } from "@/lib/exam-subjects";
 
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";

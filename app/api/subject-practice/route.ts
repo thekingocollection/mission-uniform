@@ -45,7 +45,7 @@ export async function GET() {
         subject_id: subject.id,
         name_en: subject.name_en,
         name_hi: subject.name_hi,
-        verified_questions: test ? (count || 0) : 0
+        verified_questions: count || 0
       };
     }));
     return NextResponse.json(

@@ -66,6 +66,6 @@ export default function Page() {
       <div className="mu-test-stats"><span><b>{p.total_questions}</b>Questions</span><span><b>{p.duration_minutes} min</b>Duration</span><span><b>{p.marks_per_question}</b>Marks / Q</span></div>
       <small>Negative marking: {p.negative_marking}</small>{p.source_label&&<small>{p.source_label}</small>}
       <Link className="mu-btn mu-btn-gold mu-test-start" href={"/tests/paper/"+p.id}>Start Paper <b>→</b></Link>
-    </article>)}</section>}
+    </article>)}</div></section>}
   </>;
 }

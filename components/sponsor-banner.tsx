@@ -13,7 +13,8 @@ export function SponsorBanner({ placement = "global_top" }: { placement?: string
       .then(r=>r.json()).then(d=>{if(live)setAd(d.ad||null)}).catch(()=>{if(live)setAd(null)});
     return ()=>{live=false};
   },[path,placement]);
-  if(!ad)return null;
+  const examInProgress = path.startsWith("/subject-mock-test") || path === "/tests" || path.startsWith("/tests/");
+  if(!ad || examInProgress)return null;
   return <aside className="mu-sponsor-wrap" aria-label="Sponsored advertisement">
     <a className={ad.image_url ? "mu-sponsor-card has-image" : "mu-sponsor-card"} href={ad.target_url} target="_blank" rel="sponsored noopener noreferrer">
       {ad.image_url ? <img src={ad.image_url} alt="" loading="lazy"/> : <span className="mu-sponsor-icon" aria-hidden="true">✦</span>}

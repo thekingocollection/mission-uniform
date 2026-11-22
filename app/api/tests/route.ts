@@ -1,9 +1,10 @@
+import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
 async function authUser(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!token || !url || !key) return null;
@@ -14,15 +15,18 @@ async function authUser(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    const user = await authUser(req);
+    if (!user) return NextResponse.json({ error: "Please login to view tests." }, { status: 401 });
+    if (!(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
     const type = req.nextUrl.searchParams.get("type");
     const year = req.nextUrl.searchParams.get("year");
     const db = getServiceSupabase();
     let q = db.from("test_papers").select("id,title,description,test_type,subject_id,subject:subjects(name_en,name_hi),chapter,duration_minutes,total_questions,marks_per_question,negative_marking,status,created_at,is_previous_year,exam_year,exam_name,session_label,source_label,question_mode").eq("status","published").order("created_at",{ascending:false});
     if (type) q = q.eq("test_type", type);
     if (year) q = q.eq("exam_year", Number(year));
-    const { data, error } = await q;
+    const { data, error } = await q.limit(200);
     if (error) return NextResponse.json({error:error.message},{status:500});
-    return NextResponse.json({tests:data ?? []});
+    return NextResponse.json({ tests: data ?? [] }, { headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" } });
   } catch (e:any) {
     return NextResponse.json({error:e.message || "Unable to load tests."},{status:500});
   }

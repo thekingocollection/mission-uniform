@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import PremiumTrialBanner from "@/components/premium-trial-banner";
 
 const studyLinks = [
   { icon: "🎯", title: "Mock Tests", desc: "Practice with exam-style questions and build your confidence.", href: "/tests", tone: "gold", code: "01" },
@@ -103,10 +104,26 @@ export default function HomePage() {
         <div className="mu-defence-hero-foot"><span>01 — PREPARE</span><span>02 — PRACTICE</span><span>03 — PERSEVERE</span><span className="mu-defence-foot-right">YOUR MISSION STARTS HERE</span></div>
       </section>
 
+      <PremiumTrialBanner />
+
       <section className="mu-defence-motto">
         <div className="mu-defence-motto-mark">“</div>
         <div><span className="mu-defence-section-tag">THE CADET CODE</span><h2>Discipline today. Pride in uniform tomorrow.</h2><p>Har din ka ek focused step aapko apne lakshya ke kareeb le jaata hai.</p></div>
         <div className="mu-defence-motto-seal">SERVICE<br /><b>★</b><br />HONOUR</div>
+      </section>
+
+      <section className="mu-important-topics">
+        <div className="mu-defence-section-head">
+          <div><span className="mu-defence-section-tag">MISSION CONTROL / 02</span><h2>Important exam topics</h2><p>Build strong fundamentals across the key Odisha Police preparation subjects.</p></div>
+        </div>
+        <div className="mu-topic-grid">
+          <article><b>01</b><span>ODISHA GK</span><small>History · Geography · Culture</small></article>
+          <article><b>02</b><span>ODIA GRAMMAR</span><small>ଶବ୍ଦ · ବାକ୍ୟ · ବ୍ୟାକରଣ</small></article>
+          <article><b>03</b><span>MATHEMATICS</span><small>Arithmetic · Number System</small></article>
+          <article><b>04</b><span>REASONING</span><small>Verbal · Non-Verbal</small></article>
+          <article><b>05</b><span>ENGLISH</span><small>Grammar · Vocabulary</small></article>
+          <article><b>06</b><span>CURRENT AFFAIRS</span><small>Odisha · National Updates</small></article>
+        </div>
       </section>
 
       <section className="mu-defence-briefing">

@@ -19,16 +19,16 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     if(!attemptId||!answers||typeof answers!=="object"||Array.isArray(answers))
       return NextResponse.json({error:"Invalid attempt or answers."},{status:400});
     const {data:attempt,error:attemptError}=await db.from("test_attempts")
-      .select("id,user_id,test_id,is_submitted,started_at")
+      .select("id,user_id,test_id,is_submitted,started_at,answers,score,correct_count,wrong_count,skipped_count,total_questions,submitted_at")
       .eq("id",attemptId).eq("user_id",user.id).eq("test_id",id).maybeSingle();
     if(attemptError||!attempt)return NextResponse.json({error:"Attempt not found."},{status:404});
-    if(attempt.is_submitted)return NextResponse.json({error:"This attempt has already been submitted."},{status:409});
     const {data:rows,error:rowsError}=await db.from("test_attempt_questions")
       .select("sort_order,question_snapshot").eq("attempt_id",attemptId).order("sort_order");
     if(rowsError)throw new Error(rowsError.message);
     if(!rows?.length)throw new Error("Saved attempt questions not found.");
+    const finalAnswers = attempt.is_submitted ? (attempt.answers || {}) : answers;
     const questionIds=new Set(rows.map((row:any)=>String((row.question_snapshot||{}).id||"")));
-    for(const [questionId,value] of Object.entries(answers as Record<string,unknown>)){
+    for(const [questionId,value] of Object.entries(finalAnswers as Record<string,unknown>)){
       if(!questionIds.has(questionId))return NextResponse.json({error:"Answer contains a question outside this attempt."},{status:400});
       if(value!==null&&(!Number.isInteger(Number(value))||Number(value)<0||Number(value)>3))
         return NextResponse.json({error:"One or more selected answers are invalid."},{status:400});
@@ -39,7 +39,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     let correct=0,wrong=0,skipped=0,score=0;
     const review=rows.map((row:any)=>{
       const q=row.question_snapshot||{};
-      const value=answers[q.id];
+      const value=finalAnswers[q.id];
       const selected=value===undefined||value===null?null:Number(value);
       const valid=selected!==null&&Number.isInteger(selected)&&selected>=0&&selected<=3;
       const correctOption=String(q.correct_option||"").toUpperCase();
@@ -60,12 +60,19 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     score=Number(score.toFixed(2));
     const total=rows.length;
     const accuracy=Number((correct/total*100).toFixed(2));
-    const {data:saved,error:saveError}=await db.from("test_attempts").update({
-      answers,score,correct_count:correct,wrong_count:wrong,skipped_count:skipped,
-      total_questions:total,submitted_at:new Date().toISOString(),is_submitted:true
-    }).eq("id",attemptId).eq("user_id",user.id).eq("is_submitted",false).select("*").maybeSingle();
-    if(saveError)throw new Error(saveError.message);
-    if(!saved)return NextResponse.json({error:"Attempt already submitted."},{status:409});
+    let saved:any=attempt;
+    if(!attempt.is_submitted){
+      const {data:updated,error:saveError}=await db.from("test_attempts").update({
+        answers:finalAnswers,score,correct_count:correct,wrong_count:wrong,skipped_count:skipped,
+        total_questions:total,submitted_at:new Date().toISOString(),is_submitted:true
+      }).eq("id",attemptId).eq("user_id",user.id).eq("is_submitted",false).select("*").maybeSingle();
+      if(saveError)throw new Error(saveError.message);
+      if(!updated){
+        const {data:latest,error:latestError}=await db.from("test_attempts").select("*").eq("id",attemptId).eq("user_id",user.id).maybeSingle();
+        if(latestError||!latest?.is_submitted) return NextResponse.json({error:"Attempt could not be finalized. Please retry."},{status:409});
+        saved=latest;
+      } else saved=updated;
+    }
     return NextResponse.json({success:true,attempt:saved,total,accuracy,review},{headers:{"Cache-Control":"no-store"}});
   }catch(e:any){
     console.error("TEST_SUBMIT_ERROR",e);

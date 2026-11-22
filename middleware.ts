@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 
-const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms", "/forgot-password", "/reset-password"];
+const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms", "/forgot-password", "/reset-password", "/device-upgrade"];
 function isPublicPath(pathname: string) { return publicPaths.includes(pathname); }
 
 export async function middleware(request: NextRequest) {

@@ -4873,3 +4873,38 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .admin-qb-edit-modal textarea{min-height:70px;resize:vertical}
 .admin-qb-question-actions{display:flex;flex-wrap:wrap;gap:6px}
 @media(max-width:650px){.admin-qb-bulk-grid{grid-template-columns:1fr 1fr}.admin-qb-edit-modal{padding:16px}.admin-qb-question-actions{flex-direction:column}}
+
+
+/* Job alerts: student recruitment desk */
+.mu-jobs-page{max-width:1120px;margin:0 auto;padding:28px 18px 56px}
+.mu-jobs-hero{padding:34px 30px;border-radius:22px;background:linear-gradient(125deg,#102b40,#1b4960);color:#fff;box-shadow:0 16px 38px #102b401f}
+.mu-jobs-kicker{font-size:11px;letter-spacing:.16em;font-weight:800;color:#e7c879}
+.mu-jobs-hero h1{font-size:clamp(30px,5vw,44px);margin:12px 0 8px;color:#fff}
+.mu-jobs-hero>p{max-width:650px;color:#d8e3e9;margin:0}
+.mu-jobs-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.mu-jobs-stats span{padding:9px 13px;border:1px solid #ffffff30;border-radius:12px;color:#eaf0f4;font-size:13px}
+.mu-jobs-stats b{color:#f0d58b;margin-right:5px;font-size:17px}
+.mu-jobs-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:22px 0}
+.mu-jobs-toolbar>input{flex:1;min-width:220px;padding:13px 15px;border:1px solid #d7dee4;border-radius:11px;background:#fff;color:#172b3a}
+.mu-jobs-filters{display:flex;gap:5px;padding:4px;background:#edf1f4;border-radius:12px}
+.mu-jobs-filters button,.mu-jobs-refresh{border:0;border-radius:9px;padding:9px 13px;background:transparent;color:#294153;font-weight:700;cursor:pointer}
+.mu-jobs-filters button.active{background:#173b50;color:#fff}
+.mu-jobs-refresh{background:#f3e8c9;color:#493b1e}
+.mu-jobs-list{display:grid;gap:14px}
+.mu-job-card{padding:21px;border:1px solid #e1e6e9;border-radius:17px;background:#fff;box-shadow:0 6px 20px #122c3b0a}
+.mu-job-card-top,.mu-job-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mu-job-status{font-size:11px;font-weight:800;padding:6px 9px;border-radius:20px}
+.mu-job-status.open{background:#e4f4eb;color:#17633c}
+.mu-job-status.closed{background:#f3e8e8;color:#8b3838}
+.mu-job-deadline{font-size:12px;color:#647582}
+.mu-job-card h2{font-size:21px;margin:14px 0 4px;color:#173448}
+.mu-job-org{font-weight:700;color:#8b6b2b;margin:0 0 10px}
+.mu-job-description{white-space:pre-wrap;color:#4d5d68;line-height:1.65;margin:10px 0 18px}
+.mu-job-card-bottom{border-top:1px solid #edf0f2;padding-top:13px;font-size:12px;color:#77838c}
+.mu-job-card-bottom a{color:#174b6a;font-weight:800;text-decoration:none}
+.mu-job-card-bottom a:hover{text-decoration:underline}
+.mu-jobs-empty,.mu-jobs-message{padding:26px;text-align:center;border:1px dashed #cbd5dc;border-radius:15px;color:#60717d;background:#f8fafb}
+.mu-jobs-empty p{margin-bottom:0}
+.mu-jobs-message{color:#8b3838}.mu-jobs-message button{margin-left:8px}
+.mu-jobs-disclaimer{font-size:12px;line-height:1.6;color:#78858e;margin-top:22px}
+@media(max-width:640px){.mu-jobs-page{padding:18px 12px 38px}.mu-jobs-hero{padding:25px 20px;border-radius:16px}.mu-jobs-toolbar{align-items:stretch}.mu-jobs-toolbar>input{width:100%;min-width:0;flex-basis:100%}.mu-jobs-filters{flex:1}.mu-jobs-filters button{flex:1}.mu-job-card{padding:16px}.mu-job-card h2{font-size:18px}}

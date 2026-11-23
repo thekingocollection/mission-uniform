@@ -477,8 +477,12 @@ export default function AdminQuestions() {
         const correct = correctMap[String(data.correct_option).toUpperCase()] || "";
         const errors: string[] = [];
 
-        if (!subject) errors.push("Subject not found.");
-        if (!chapter) errors.push("Chapter not found for this subject.");
+        if (!subject) errors.push(data.subject_name
+          ? `Subject "${data.subject_name}" not found. Select the correct Default Subject above, or use the exact subject name from the Subject Library.`
+          : "Subject missing. Fill subject_name in Excel or select Default Subject above.");
+        if (subject && !chapter) errors.push(data.chapter
+          ? `Chapter "${data.chapter}" not found under "${subject.name_en}". Select Default Chapter above, or check the chapter name.`
+          : "Chapter missing. Fill chapter in Excel or select Default Chapter above.");
         const subjectNameEn = normalize(subject?.name_en || data.subject_name);
         const subjectNameHi = normalize(subject?.name_hi || "");
         const isOdiaGrammar = subjectNameEn.includes("odia grammar") || subjectNameHi.includes("odia grammar") || subjectNameEn.includes("odia language") || subjectNameHi.includes("ଓଡ଼ିଆ ବ୍ୟାକରଣ");
@@ -750,7 +754,7 @@ export default function AdminQuestions() {
       </div>}
 
       <section className="admin-qb-section admin-qb-import" id="qb-import">
-        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Language rules: Odia Grammar = Odia only; English Language = English only; all other subjects = English + Odia. Hindi fields optional and may remain blank. Missing subjects/chapters from Excel are created automatically. New questions start as Unverified.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
+        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Language rules: Odia Grammar = Odia only; English Language = English only; all other subjects = English only, Odia only, or bilingual. For bilingual questions, write each option as English / ଓଡ଼ିଆ. Hindi fields are optional. Select Default Subject and Default Chapter above to avoid name-matching errors. New questions start as Unverified.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
         <div className="admin-qb-import-controls">
           <div className="admin-qb-import-selects">
             <label>Default Subject
@@ -779,7 +783,7 @@ export default function AdminQuestions() {
           </div>
           <div className="admin-qb-upload-row">
             <label className="admin-qb-file"><span>＋</span><b>Choose Excel or CSV file</b><small>Maximum 10 MB · Up to 1,000 questions</small><input type="file" accept=".xlsx,.xls,.csv" onChange={readExcel} /></label>
-            <div className="admin-qb-upload-info"><b>Language support</b><p>Odia Grammar: Odia only. English Language: English only. All other subjects: English + Odia. Hindi question/explanation fields can stay blank. Options A–D and correct answer are required.</p><p>Subject, Chapter aur Difficulty upar select kar sakte hain. Jo option blank rahega, uski value Excel se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
+            <div className="admin-qb-upload-info"><b>Language support</b><p>Odia Grammar: Odia only. English Language: English only. All other subjects: English only, Odia only, or bilingual. Bilingual options must use English / ଓଡ଼ିଆ in the same cell. Hindi fields are optional. Options A–D and correct answer are required.</p><p>Subject, Chapter aur Difficulty upar select kar sakte hain. Jo option blank rahega, uski value Excel se li jayegi.</p><button className="admin-qb-light-btn" onClick={downloadTemplate}>↓ Download Template</button></div>
           </div>
         </div>
         {file && <div className="admin-qb-file-selected">Selected file: <b>{file.name}</b></div>}

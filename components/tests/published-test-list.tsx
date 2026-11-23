@@ -5,24 +5,39 @@ import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type Paper = {
-  id: string; title: string; description: string | null; test_type: string; chapter?: string | null;
-  question_mode?: string; subject?: { name_en?: string | null; name_hi?: string | null } | null;
-  duration_minutes: number; total_questions: number; marks_per_question: number;
-  negative_marking: number; is_previous_year?: boolean; exam_year?: number | null;
-  exam_name?: string | null; session_label?: string | null; source_label?: string | null;
+  id: string;
+  title: string;
+  description: string | null;
+  test_type: string;
+  chapter?: string | null;
+  question_mode?: string;
+  subject?: { name_en?: string | null; name_hi?: string | null } | null;
+  duration_minutes: number;
+  total_questions: number;
+  marks_per_question: number;
+  negative_marking: number;
+  is_previous_year?: boolean;
+  exam_year?: number | null;
+  exam_name?: string | null;
+  session_label?: string | null;
 };
 
 const FILTERS = [
-  ["all", "All tests"], ["daily", "Daily"], ["subject", "Subject"],
-  ["chapter", "Chapter"], ["full", "Full mock"], ["grand", "Grand test"],
-  ["previous_year", "Previous year"],
+  ["all", "All Tests"],
+  ["daily", "Daily"],
+  ["subject", "Subject"],
+  ["full", "Full Mock"],
+  ["previous_year", "Previous Year"],
 ];
 
 function typeLabel(test: Paper) {
-  if (test.is_previous_year) return "Previous year paper";
+  if (test.is_previous_year) return "Previous Year";
   const labels: Record<string, string> = {
-    daily: "Daily practice", subject: "Subject test", chapter: "Chapter test",
-    full: "Full mock test", grand: "Grand test",
+    daily: "Daily Practice",
+    subject: "Subject Test",
+    chapter: "Chapter Test",
+    full: "Full Mock",
+    grand: "Grand Test",
   };
   return labels[test.test_type] || test.test_type.replaceAll("_", " ");
 }
@@ -32,22 +47,25 @@ export default function PublishedTestList({ testType }: { testType?: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("newest");
 
   async function loadTests() {
     setLoading(true);
     setError("");
     try {
       const sb = supabaseBrowser();
-      const { data: { session } } = sb ? await sb.auth.getSession() : { data: { session: null } };
+      const { data: { session } } = sb
+        ? await sb.auth.getSession()
+        : { data: { session: null } };
       if (!session) throw new Error("Please login to view tests.");
-      const response = await fetch("/api/tests" + (testType ? "?type=" + encodeURIComponent(testType) : ""), { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" });
+      const response = await fetch(
+        "/api/tests" + (testType ? "?type=" + encodeURIComponent(testType) : ""),
+        { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" }
+      );
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Tests load nahi hue.");
+      if (!response.ok) throw new Error(data.error || "Tests could not be loaded.");
       setTests(data.tests || []);
     } catch (e: any) {
-      setError(e.message || "Tests load nahi hue.");
+      setError(e.message || "Tests could not be loaded.");
     } finally {
       setLoading(false);
     }
@@ -55,76 +73,88 @@ export default function PublishedTestList({ testType }: { testType?: string }) {
 
   useEffect(() => { void loadTests(); }, [testType]);
 
-  // Admin-published papers only. Subject-random practice stays on the separate Mock Test page.
-  const listedTests = tests.filter(t => t.question_mode !== "subject_random");
-  const visible = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const filtered = listedTests.filter(t => {
-      const matchesType = filter === "all" || (filter === "previous_year" ? !!t.is_previous_year : t.test_type === filter);
-      const haystack = [t.title, t.description, t.subject?.name_en, t.subject?.name_hi, t.exam_name, t.exam_year, t.chapter].join(" ").toLowerCase();
-      return matchesType && (!q || haystack.includes(q));
-    });
-    return [...filtered].sort((a, b) => {
-      if (sort === "shortest") return a.duration_minutes - b.duration_minutes;
-      if (sort === "questions") return b.total_questions - a.total_questions;
-      return 0;
-    });
-  }, [listedTests, filter, search, sort]);
+  // Only admin-published papers appear here. Subject-random practice remains on its dedicated page.
+  const listedTests = tests.filter((t) => t.question_mode !== "subject_random");
+  const visible = useMemo(() => listedTests.filter((t) => {
+    if (filter === "all") return true;
+    if (filter === "previous_year") return !!t.is_previous_year;
+    return t.test_type === filter;
+  }), [listedTests, filter]);
 
-  const totalQuestions = listedTests.reduce((sum, t) => sum + Number(t.total_questions || 0), 0);
-  const fullMocks = listedTests.filter(t => t.test_type === "full" || t.test_type === "grand").length;
+  const fullMocks = listedTests.filter((t) => t.test_type === "full" || t.test_type === "grand").length;
 
   return (
-    <section className="mu-published-catalog" aria-label="Published mock tests">
-      <div className="mu-catalog-intro mu-tests-hero">
-        <div className="mu-tests-hero-copy">
-          <span className="mu-catalog-kicker"><i aria-hidden="true" /> MISSION UNIFORM OP · EXAM ARENA</span>
-          <h1>Train with focus.<br /><em>Attempt with confidence.</em></h1>
-          <p>Choose your Odisha Police practice paper, challenge yourself with timed tests and track your preparation one attempt at a time.</p>
-          <div className="mu-tests-hero-pills"><span>✦ Daily practice</span><span>◷ Timed mock tests</span><span>✓ Previous year papers</span></div>
-        </div>
-        <div className="mu-catalog-emblem mu-tests-hero-emblem" aria-hidden="true"><span className="mu-tests-orbit">✦</span><b>MU</b><small>MISSION<br />UNIFORM OP</small><i>PREPARE · PRACTISE · SUCCEED</i></div>
-        <span className="mu-tests-hero-glow" aria-hidden="true" />
-      </div>
-
-      {!loading && !error && <div className="mu-catalog-stats">
-        <div><b>{listedTests.length}</b><span>Published tests</span></div>
-        <div><b>{totalQuestions.toLocaleString("en-IN")}</b><span>Practice questions</span></div>
-        <div><b>{fullMocks}</b><span>Full / grand mocks</span></div>
-      </div>}
-
-      {!testType && <div className="mu-catalog-toolbar">
-        <div className="mu-catalog-filters" role="group" aria-label="Filter tests">
-          {FILTERS.map(([value, label]) => <button key={value} type="button" onClick={() => setFilter(value)} className={filter === value ? "active" : ""} aria-pressed={filter === value}>{label}</button>)}
-        </div>
-        <div className="mu-catalog-controls">
-          <label className="mu-catalog-search"><span aria-hidden="true">⌕</span><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search test, subject or year…" aria-label="Search tests" /><kbd>SEARCH</kbd></label>
-          <label className="mu-catalog-sort"><span>Sort</span><select value={sort} onChange={e => setSort(e.target.value)} aria-label="Sort tests"><option value="newest">Newest first</option><option value="shortest">Shortest duration</option><option value="questions">Most questions</option></select></label>
-        </div>
-      </div>}
-
-      <div className="mu-catalog-results-head"><div><b>{loading ? "Loading tests…" : error ? "Unable to load tests" : "Available tests"}</b><span>{!loading && !error ? `${visible.length} of ${listedTests.length} tests` : "Please wait"}</span></div><span className="mu-catalog-live"><i/> LIVE CATALOGUE</span></div>
-
-      {loading && <div className="mu-catalog-state"><span className="mu-catalog-spinner"/> <b>Preparing your test catalogue</b><p>Published mock tests are loading…</p></div>}
-      {!loading && error && <div className="mu-catalog-state is-error"><b>We couldn’t load the tests</b><p>{error}</p><button type="button" onClick={() => void loadTests()}>Try again</button></div>}
-      {!loading && !error && visible.length === 0 && <div className="mu-catalog-state"><span className="mu-catalog-empty-icon">⌕</span><b>{search ? "No matching tests found" : "No tests published yet"}</b><p>{search ? "Try a different test name, subject or year." : "New practice papers will appear here as soon as the Admin publishes them."}</p>{search && <button type="button" onClick={() => { setSearch(""); setFilter("all"); }}>Clear filters</button>}</div>}
-
-      {!loading && !error && visible.length > 0 && <div className="mu-catalog-grid">{visible.map((t, index) => (
-        <article className="mu-catalog-card" key={t.id}>
-          <div className="mu-catalog-card-top"><span className="mu-catalog-type">{typeLabel(t)}</span><span className="mu-catalog-number">TEST {String(index + 1).padStart(2, "0")}</span></div>
-          <h3>{t.title}</h3>
-          {t.is_previous_year && <p className="mu-catalog-year">{t.exam_name || "Previous Year Paper"}{t.exam_year ? " · " + t.exam_year : ""}{t.session_label ? " · " + t.session_label : ""}</p>}
-          {t.subject && <p className="mu-catalog-subject">{t.subject.name_en || t.subject.name_hi}</p>}
-          <p className="mu-catalog-description">{t.description || "Odisha Police exam practice paper. Attempt the test and review your performance."}</p>
-          <div className="mu-catalog-metrics">
-            <div><b>{t.total_questions}</b><span>Questions</span></div>
-            <div><b>{t.duration_minutes} min</b><span>Duration</span></div>
-            <div><b>{t.marks_per_question}</b><span>Marks / Q</span></div>
+    <main className="mu-tests-simple">
+      <section className="mu-tests-welcome">
+        <div className="mu-tests-welcome-copy">
+          <span className="mu-tests-eyebrow"><i /> MISSION UNIFORM OP · PRACTICE ARENA</span>
+          <p className="mu-tests-welcome-label">YOUR NEXT STEP</p>
+          <h1>Ready to test<br /><em>your preparation?</em></h1>
+          <p className="mu-tests-intro">Choose a practice paper, attempt it with focus and improve with every test.</p>
+          <div className="mu-tests-highlights">
+            <span>✓ Exam-style questions</span>
+            <span>◷ Timed practice</span>
           </div>
-          <div className="mu-catalog-card-foot"><span>Negative marking <b>{t.negative_marking}</b></span>{t.is_previous_year && <span className="mu-catalog-verified">✓ Admin verified</span>}</div>
-          <Link className="mu-catalog-start" href={"/tests/paper/" + t.id}><span><small>READY WHEN YOU ARE</small><b>Start test</b></span><i>→</i></Link>
-        </article>
-      ))}</div>}
-    </section>
+        </div>
+        <div className="mu-tests-emblem" aria-hidden="true">
+          <div><span>★</span><b>MU</b><small>UNIFORM OP</small></div>
+          <p>PREPARE · PRACTISE · SUCCEED</p>
+        </div>
+        <div className="mu-tests-welcome-foot"><span>01 / SELECT</span><span>02 / ATTEMPT</span><span>03 / IMPROVE</span></div>
+      </section>
+
+      {!loading && !error && (
+        <section className="mu-tests-summary" aria-label="Test summary">
+          <div><b>{listedTests.length}</b><span>Available tests</span></div>
+          <div><b>{fullMocks}</b><span>Full mock tests</span></div>
+        </section>
+      )}
+
+      <section className="mu-tests-list-section">
+        <div className="mu-tests-section-heading">
+          <div><span>START PRACTISING</span><h2>Choose your test</h2><p>Select a category and begin.</p></div>
+          <span className="mu-tests-count">{loading ? "Loading…" : error ? " " : visible.length + " TESTS"}</span>
+        </div>
+
+        {!testType && !loading && !error && (
+          <div className="mu-tests-filters" role="group" aria-label="Test category">
+            {FILTERS.map(([value, label]) => (
+              <button key={value} type="button" className={filter === value ? "active" : ""}
+                onClick={() => setFilter(value)} aria-pressed={filter === value}>{label}</button>
+            ))}
+          </div>
+        )}
+
+        {loading && <div className="mu-tests-message"><span className="mu-tests-spinner" /><b>Loading your practice tests…</b><p>Please wait a moment.</p></div>}
+        {!loading && error && <div className="mu-tests-message is-error"><b>Tests could not be loaded</b><p>{error}</p><button type="button" onClick={() => void loadTests()}>Try Again</button></div>}
+        {!loading && !error && visible.length === 0 && (
+          <div className="mu-tests-message"><span className="mu-tests-empty">✦</span><b>No tests available in this category</b><p>Choose another category or check back soon.</p><button type="button" onClick={() => setFilter("all")}>Show All Tests</button></div>
+        )}
+
+        {!loading && !error && visible.length > 0 && (
+          <div className="mu-tests-cards">
+            {visible.map((t, index) => (
+              <article className="mu-tests-card" key={t.id}>
+                <div className="mu-tests-card-top">
+                  <span className="mu-tests-type">{typeLabel(t)}</span>
+                  <span className="mu-tests-card-number">TEST {String(index + 1).padStart(2, "0")}</span>
+                </div>
+                <h3>{t.title}</h3>
+                {t.is_previous_year && <p className="mu-tests-year">{t.exam_name || "Previous Year Paper"}{t.exam_year ? " · " + t.exam_year : ""}{t.session_label ? " · " + t.session_label : ""}</p>}
+                {t.subject && <p className="mu-tests-subject">{t.subject.name_en || t.subject.name_hi}</p>}
+                <p className="mu-tests-description">{t.description || "Odisha Police exam practice paper. Attempt the test and review your performance."}</p>
+                <div className="mu-tests-metrics">
+                  <div><b>{t.total_questions}</b><span>Questions</span></div>
+                  <div><b>{t.duration_minutes} min</b><span>Duration</span></div>
+                  <div><b>{t.marks_per_question}</b><span>Marks / Q</span></div>
+                </div>
+                <div className="mu-tests-card-bottom"><span>Negative marking: <b>{t.negative_marking}</b></span></div>
+                <Link className="mu-tests-start" href={"/tests/paper/" + t.id}>Start Test <span>→</span></Link>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
   );
 }

@@ -66,31 +66,38 @@ export default function AdminQuestions() {
   async function loadData() {
     if (!supabase) return;
 
-    const [subjectResult, chapterResult, questionResult] =
-      await Promise.all([
-        supabase.from("subjects")
-          .select("id,name_en,name_hi")
-          .eq("is_active", true)
-          .order("name_en"),
-
-        supabase.from("chapters")
-          .select("id,subject_id,name")
-          .eq("is_active", true)
-          .order("sort_order"),
-
-        supabase.from("questions")
-          .select("id,subject_id,chapter,question_hi,question_or,question_en,options,correct_option,difficulty,verified,is_active,created_at")
-          .order("created_at", { ascending: false })
-          .limit(5000)
-      ]);
+    const [subjectResult, chapterResult] = await Promise.all([
+      supabase.from("subjects")
+        .select("id,name_en,name_hi")
+        .eq("is_active", true)
+        .order("name_en"),
+      supabase.from("chapters")
+        .select("id,subject_id,name")
+        .eq("is_active", true)
+        .order("sort_order")
+    ]);
 
     if (subjectResult.error) throw subjectResult.error;
     if (chapterResult.error) throw chapterResult.error;
-    if (questionResult.error) throw questionResult.error;
+
+    // Fetch the complete question bank in safe pages. There is no fixed
+    // total-question cap; Supabase returns at most 1,000 rows per request.
+    const allQuestions: Question[] = [];
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabase.from("questions")
+        .select("id,subject_id,chapter,question_hi,question_or,question_en,options,correct_option,difficulty,verified,is_active,created_at")
+        .order("created_at", { ascending: false })
+        .range(from, from + pageSize - 1);
+      if (error) throw error;
+      const page = (data || []) as Question[];
+      allQuestions.push(...page);
+      if (page.length < pageSize) break;
+    }
 
     setSubjects(filterExamSubjects(subjectResult.data || []));
     setChapters(chapterResult.data || []);
-    setQuestions(questionResult.data || []);
+    setQuestions(allQuestions);
   }
 
   useEffect(() => {
@@ -395,7 +402,6 @@ export default function AdminQuestions() {
       );
 
       if (!records.length) throw new Error("No question rows found.");
-      if (records.length > 1000) throw new Error("Maximum 1,000 questions per upload.");
 
       // Compare every populated language independently. This prevents
       // English/Odia-only rows from colliding on an empty Hindi value.
@@ -627,7 +633,7 @@ export default function AdminQuestions() {
           <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Incomplete questions</small><h2 style={{margin:"4px 0"}}>{smartAudit.incomplete}</h2></div>
           <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Invalid answer keys</small><h2 style={{margin:"4px 0"}}>{smartAudit.invalidKeys}</h2></div>
         </div>
-        <p style={{margin:"10px 0 0",fontSize:12,color:"#64748b"}}>Audit page par loaded latest 5,000 records ko scan karta hai. Ye automatically delete ya verify nahi karta.</p>
+        <p style={{margin:"10px 0 0",fontSize:12,color:"#64748b"}}>Audit poore loaded question bank ko scan karta hai. Ye automatically delete ya verify nahi karta.</p>
       </section>
 
       <section className="admin-qb-section">
@@ -738,7 +744,7 @@ export default function AdminQuestions() {
           ))}
           {!filteredQuestions.length && <div className="admin-qb-empty"><span>⌕</span><b>No questions in this section</b><p>Is subject/status ke liye questions nahi mile. Excel import karein ya filters reset karein.</p></div>}
         </div>
-        <p className="admin-qb-footnote">Latest 5,000 records are loaded for this screen. Verification status is controlled by the admin; only active, verified questions are eligible for student mock tests.</p>
+        <p className="admin-qb-footnote">Complete question bank is loaded in pages; there is no fixed total-question limit. Verification status is controlled by the admin; only active, verified questions are eligible for student mock tests.</p>
       </section>
 
       {editingQuestion && <div className="admin-qb-modal-backdrop" role="presentation">
@@ -754,7 +760,7 @@ export default function AdminQuestions() {
       </div>}
 
       <section className="admin-qb-section admin-qb-import" id="qb-import">
-        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>Language rules: Odia Grammar = Odia only; English Language = English only; all other subjects = English only, Odia only, or bilingual. For bilingual questions, write each option as English / ଓଡ଼ିଆ. Hindi fields are optional. Select Default Subject and Default Chapter above to avoid name-matching errors. New questions start as Unverified.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
+        <div className="admin-qb-section-head"><div><span className="admin-qb-kicker-dark">03 · BULK QUESTION UPLOAD</span><h2>Import Questions in Bulk</h2><p>No fixed total question limit. Add as many questions as needed; large imports are saved in batches. Language rules: Odia Grammar = Odia only; English Language = English only; all other subjects = English only, Odia only, or bilingual. For bilingual questions, write each option as English / ଓଡ଼ିଆ. Hindi fields are optional. Select Default Subject and Default Chapter above to avoid name-matching errors. New questions start as Unverified.</p></div><span className="admin-qb-import-badge">XLSX · XLS · CSV</span></div>
         <div className="admin-qb-import-controls">
           <div className="admin-qb-import-selects">
             <label>Default Subject

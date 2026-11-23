@@ -365,6 +365,37 @@ export default function AdminQuestions() {
     setBusy(false);
   }
 
+  async function exportReviewExcel() {
+    try {
+      const XLSX = await import("xlsx");
+      const rows = filteredQuestions.map((q, i) => ({
+        "S.No.": i + 1,
+        "Subject": subjects.find(s => s.id === q.subject_id)?.name_en || "",
+        "Chapter": q.chapter || "",
+        "Question (English)": cleanQuestionSource(q.question_en),
+        "Question (Odia)": cleanQuestionSource(q.question_or),
+        "Question (Hindi)": cleanQuestionSource(q.question_hi),
+        "Option A": Array.isArray(q.options) ? q.options[0] : (q.options as any)?.A || "",
+        "Option B": Array.isArray(q.options) ? q.options[1] : (q.options as any)?.B || "",
+        "Option C": Array.isArray(q.options) ? q.options[2] : (q.options as any)?.C || "",
+        "Option D": Array.isArray(q.options) ? q.options[3] : (q.options as any)?.D || "",
+        "Correct Answer": q.correct_option || "",
+        "Difficulty": q.difficulty || "",
+        "Verification": q.verified ? "Verified" : "Unverified",
+        "Status": q.is_active ? "Active" : "Inactive",
+        "Source Note": q.source_note || ""
+      }));
+      const sheet = XLSX.utils.json_to_sheet(rows);
+      sheet["!cols"] = [{wch:8},{wch:24},{wch:22},{wch:48},{wch:48},{wch:42},{wch:24},{wch:24},{wch:24},{wch:24},{wch:16},{wch:12},{wch:16},{wch:12},{wch:28}];
+      const book = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(book, sheet, "Question Review");
+      XLSX.writeFile(book, "MISSION_UNIFORM_Question_Review_" + new Date().toISOString().slice(0,10) + ".xlsx");
+      setMessage("Exported " + rows.length + " questions from the current review filters.");
+    } catch (e: any) {
+      setMessage(e.message || "Could not export review questions.");
+    }
+  }
+
   function downloadTemplate() {
     const headers = [
       "subject_name", "chapter", "question_hi", "question_or",
@@ -689,6 +720,7 @@ export default function AdminQuestions() {
         <div className="admin-qb-toolbar">
           <span><b>{filteredQuestions.length}</b> questions shown · {selected.length} selected</span>
           <div>
+            <button className="admin-qb-light-btn" onClick={() => void exportReviewExcel()} disabled={!filteredQuestions.length}>↓ Download Excel</button>
             <button className="admin-qb-light-btn" onClick={selectVisible}>Select Visible</button>
             {statusFilter !== "verified" && <button className="admin-qb-verify-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(true)}>✓ Verify Selected</button>}
             {statusFilter !== "pending" && <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(false)}>Move to Unverified</button>}
@@ -711,7 +743,7 @@ export default function AdminQuestions() {
           </div>
         </div>}
 
-        <div className="admin-qb-question-list">
+        <div className="admin-qb-question-list admin-qb-review-scroll">
           {filteredQuestions.map((q, index) => (
             <article className="admin-qb-question" key={q.id}>
               <label className="admin-qb-check"><input type="checkbox" checked={selected.includes(q.id)} onChange={() => toggleSelected(q.id)} /><span /></label>

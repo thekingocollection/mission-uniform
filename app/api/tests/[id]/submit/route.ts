@@ -55,10 +55,11 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       if(!valid){status="skipped";skipped++;}
       else if(correctIndex>=0&&selected===correctIndex){status="correct";correct++;score+=Number(test.marks_per_question??1);}
       else{status="wrong";wrong++;score-=Number(test.negative_marking??0);}
-      const options=Array.isArray(q.options)?q.options.map((x:any)=>typeof x==="string"?x:String(x?.text??x?.value??"")):
+      const rawOptions=Array.isArray(q.options)?q.options.map((x:any)=>typeof x==="string"?x:String(x?.text??x?.value??"")):
         ["A","B","C","D"].map(k=>String(q.options?.[k]??""));
+      const options=rawOptions.map((option:string)=>{const parts=option.split(/\\s+\\/\\s+/);return parts.length>1?(language==="or"?parts.slice(1).join(" / "):parts[0]):option;});
       return {
-        id:q.id, question:q.question_hi||q.question_or||q.question_en||"", options,
+        id:q.id, question:language==="or"?(q.question_or||q.question_en||q.question_hi||""):(q.question_en||q.question_or||q.question_hi||""), options,
         selected, correct_option:correctOption,
         explanation:language==="or"?(q.explanation_or||q.explanation_en||q.explanation_hi||""):(q.explanation_en||q.explanation_or||q.explanation_hi||""),
         chapter:q.chapter||null, difficulty:q.difficulty||null, status

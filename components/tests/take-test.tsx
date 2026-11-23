@@ -406,12 +406,15 @@ export default function TakeTest({ id }: { id: string }) {
           <div><b>{test.negative_marking}</b><span>Negative</span></div>
         </div>
 
-        <ul>
-          <li>Har question ka ek correct answer select karein.</li>
-          <li>Mark for Review se question baad mein dekh sakte hain.</li>
-          <li>Time khatam hone par test automatically submit hoga.</li>
-          <li>Submit ke baad answers change nahi kar sakte.</li>
-        </ul>
+        <div className="mu-exam-instructions">
+          <h3>Quick Instructions</h3>
+          <ul>
+            <li><span>01</span><p><b>Select your answer</b><small>Choose one option for each question.</small></p></li>
+            <li><span>02</span><p><b>Review anytime</b><small>Mark a question to return to it later.</small></p></li>
+            <li><span>03</span><p><b>Watch the timer</b><small>Your test will submit automatically when time ends.</small></p></li>
+            <li><span>04</span><p><b>Final submission</b><small>Answers cannot be changed after submission.</small></p></li>
+          </ul>
+        </div>
 
         <button
           className="btn primary"

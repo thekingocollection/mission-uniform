@@ -435,15 +435,7 @@ export default function TakeTest({ id }: { id: string }) {
               <span>{answers[question.id] !== undefined ? "Answered" : "Not Answered"}</span>
             </div>
 
-            <h2>
-              {question.question_hi ||
-                question.question_or ||
-                question.question_en}
-            </h2>
-
-            {question.question_en && question.question_hi && (
-              <p className="muted">{question.question_en}</p>
-            )}
+            <h2>{questionText}</h2>
 
             <div className="options">
               {options.map((option, i) => (

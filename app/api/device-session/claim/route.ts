@@ -21,7 +21,14 @@ export async function POST(request: NextRequest) {
       console.error("DEVICE_BIND_ERROR", bindError);
       return NextResponse.json({ error: "Device registration service is not ready. Please contact support." }, { status: 503 });
     }
-    if (claimResult?.account_limit_reached === true) {\n      return NextResponse.json({\n        error: "This device has already been used to create two student accounts. You cannot create another account on this device.",\n        account_limit_reached: true,\n        max_accounts: 2,\n      }, { status: 403 });\n    }\n    if (claimResult?.payment_required === true) {
+    if (claimResult?.account_limit_reached === true) {
+      return NextResponse.json({
+        error: "This device has already been used to create two student accounts. You cannot create another account on this device.",
+        account_limit_reached: true,
+        max_accounts: 2,
+      }, { status: 403 });
+    }
+    if (claimResult?.payment_required === true) {
       return NextResponse.json({
         payment_required: true,
         price_paise: 1900,

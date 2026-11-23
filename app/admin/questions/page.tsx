@@ -358,9 +358,9 @@ export default function AdminQuestions() {
     ];
 
     const example = [
-      "General Knowledge", "Medieval India", "", "If 25 is divided in the ratio 2:3, what is the first share?",
-      "If 25 is divided in the ratio 2:3, what is the first share? / ୨:୩ ଅନୁପାତରେ ୨୫କୁ ବିଭକ୍ତ କଲେ ପ୍ରଥମ ଅଂଶ କେତେ?",
-      "10 / ୧୦", "15 / ୧୫", "12 / ୧୨", "20 / ୨୦", "A", "", "A ratio divides a quantity into parts. / ଅନୁପାତ ଏକ ପରିମାଣକୁ ଭାଗରେ ବିଭକ୍ତ କରେ।", "A ratio divides a quantity into parts.", "easy", "Sample"
+      "General Knowledge", "Medieval India", "", "୨:୩ ଅନୁପାତରେ ୨୫କୁ ବିଭକ୍ତ କଲେ ପ୍ରଥମ ଅଂଶ କେତେ?",
+      "If 25 is divided in the ratio 2:3, what is the first share?",
+      "10 / ୧୦", "15 / ୧୫", "12 / ୧୨", "20 / ୨୦", "A", "", "ଅନୁପାତ ଏକ ପରିମାଣକୁ ଭାଗରେ ବିଭକ୍ତ କରେ।", "A ratio divides a quantity into parts.", "easy", "Sample"
     ];
 
     const sheet = XLSX.utils.aoa_to_sheet([headers, example]);
@@ -479,19 +479,28 @@ export default function AdminQuestions() {
 
         if (!subject) errors.push("Subject not found.");
         if (!chapter) errors.push("Chapter not found for this subject.");
-        const subjectName = normalize(subject?.name_en || data.subject_name);
-        const isOdiaGrammar = subjectName.includes("odia grammar");
-        const isEnglishLanguage = subjectName === "english language";
-        if (isOdiaGrammar && !data.question_or) errors.push("Odia Grammar requires question_or only.");
-        else if (isEnglishLanguage && !data.question_en) errors.push("English Language requires question_en only.");
-        else if (!isOdiaGrammar && !isEnglishLanguage && (!data.question_en || !data.question_or)) errors.push("This subject requires both English and Odia questions.");
-        if (isOdiaGrammar && (data.question_en || data.explanation_en)) errors.push("Odia Grammar must be Odia only; leave English fields blank.");
-        if (isEnglishLanguage && (data.question_or || data.explanation_or)) errors.push("English Language must be English only; leave Odia fields blank.");
-        if (isOdiaGrammar && !data.explanation_or) errors.push("Odia Grammar requires an Odia explanation.");
-        if (isEnglishLanguage && !data.explanation_en) errors.push("English Language requires an English explanation.");
-        if (!isOdiaGrammar && !isEnglishLanguage && (!data.explanation_en || !data.explanation_or)) errors.push("This subject requires both English and Odia explanations.");
+        const subjectNameEn = normalize(subject?.name_en || data.subject_name);
+        const subjectNameHi = normalize(subject?.name_hi || "");
+        const isOdiaGrammar = subjectNameEn.includes("odia grammar") || subjectNameHi.includes("odia grammar") || subjectNameEn.includes("odia language") || subjectNameHi.includes("ଓଡ଼ିଆ ବ୍ୟାକରଣ");
+        const isEnglishLanguage = subjectNameEn === "english language" || subjectNameHi === "english language";
+        const hasEnglishQuestion = Boolean(data.question_en);
+        const hasOdiaQuestion = Boolean(data.question_or);
+        const hasEnglishExplanation = Boolean(data.explanation_en);
+        const hasOdiaExplanation = Boolean(data.explanation_or);
+
+        // Ordinary subjects may be imported in English, Odia, or both.
+        // Odia Grammar and English Language retain their single-language rules.
+        if (isOdiaGrammar && !hasOdiaQuestion) errors.push("Odia Grammar requires an Odia question (question_or).");
+        else if (isEnglishLanguage && !hasEnglishQuestion) errors.push("English Language requires an English question (question_en).");
+        else if (!isOdiaGrammar && !isEnglishLanguage && !hasEnglishQuestion && !hasOdiaQuestion) errors.push("Enter at least one question language: English (question_en) or Odia (question_or).");
+        if (isOdiaGrammar && (hasEnglishQuestion || hasEnglishExplanation)) errors.push("Odia Grammar must be Odia only; leave English fields blank.");
+        if (isEnglishLanguage && (hasOdiaQuestion || hasOdiaExplanation)) errors.push("English Language must be English only; leave Odia fields blank.");
+        if (isOdiaGrammar && !hasOdiaExplanation) errors.push("Odia Grammar requires an Odia explanation.");
+        if (isEnglishLanguage && !hasEnglishExplanation) errors.push("English Language requires an English explanation.");
+        if (!isOdiaGrammar && !isEnglishLanguage && !hasEnglishExplanation && !hasOdiaExplanation) errors.push("Enter at least one explanation language: English or Odia.");
         if (options.some((v: string) => !v)) errors.push("All four options required.");
-        if (!isOdiaGrammar && !isEnglishLanguage && options.some((v: string) => !String(v).includes("/"))) errors.push("For bilingual subjects, each option must use English / ଓଡ଼ିଆ in the same cell.");
+        if (!isOdiaGrammar && !isEnglishLanguage && hasEnglishQuestion && hasOdiaQuestion && options.some((v: string) => !/^\\s*[^/]+\\s+\\/\\s+.+$/.test(String(v)))) errors.push("For bilingual questions, each option must use English / ଓଡ଼ିଆ in the same cell.");
+        if (!isOdiaGrammar && !isEnglishLanguage && !(hasEnglishQuestion && hasOdiaQuestion) && options.some((v: string) => String(v).includes("/"))) errors.push("For a single-language question, enter each option in that language only (without /).");
         if (!correct) errors.push("Correct option must be A/B/C/D.");
         
         const rowKeys = makeQuestionKeys(subject?.id || "", data.chapter, [

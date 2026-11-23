@@ -70,7 +70,7 @@ export default function TakeTest({ id }: { id: string }) {
             ? { ...data.test, total_questions: customCount, duration_minutes: customCount }
             : data.test;
           setTest(loadedTest);
-          const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(data.test.subject_name_en || ""));
+          const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(data.test.subject_name_en || data.test.subject_name_or || ""));
           setLanguage(isOdiaGrammar ? "or" : "en");
           setQuestions(data.questions ?? []);
           setSeconds(Number(loadedTest.duration_minutes || 30) * 60);
@@ -259,7 +259,7 @@ export default function TakeTest({ id }: { id: string }) {
   const question = questions[index];
   const options = getOptions(question?.options, language);
   const questionText = language === "or" ? (question?.question_or || question?.question_en || question?.question_hi || "") : (question?.question_en || question?.question_or || question?.question_hi || "");
-  const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(test.subject_name_en || ""));
+  const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(test.subject_name_en || test.subject_name_or || ""));
   const answeredCount = Object.keys(answers).length;
   const skippedCount = questions.length - answeredCount;
 

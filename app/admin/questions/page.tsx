@@ -36,6 +36,15 @@ type Question = {
 const normalize = (value: unknown) =>
   String(value ?? "").trim().toLocaleLowerCase().replace(/\s+/g, " ");
 
+// Remove imported source references from the question text in every admin view.
+// The source_note field remains stored separately for internal tracking.
+function cleanQuestionSource(value: unknown): string {
+  return String(value ?? "")
+    .replace(/\s*[([]\s*Practice\s*Set\s*\d+\s*[,;:-]?\s*Question\s*#?\s*\d+\s*[)]]/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 export default function AdminQuestions() {
   const supabase = useMemo(() => supabaseBrowser(), []);
 
@@ -288,7 +297,7 @@ export default function AdminQuestions() {
     const opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
     setEditingQuestion(q);
     setEditDraft({
-      question_hi: q.question_hi || "", question_en: q.question_en || "", question_or: q.question_or || "",
+      question_hi: cleanQuestionSource(q.question_hi), question_en: cleanQuestionSource(q.question_en), question_or: cleanQuestionSource(q.question_or),
       options: [0,1,2,3].map(i => { const v:any = opts[i]; return typeof v === "string" ? v : String(v?.text ?? v?.value ?? ""); }),
       correct_option: String(q.correct_option || "A").toUpperCase(), difficulty: q.difficulty || "medium", chapter: q.chapter || ""
     });
@@ -301,13 +310,13 @@ export default function AdminQuestions() {
     }
     setBusy(true);
     const { error } = await supabase.from("questions").update({
-      question_hi: editDraft.question_hi.trim() || null, question_en: editDraft.question_en.trim() || null,
-      question_or: editDraft.question_or.trim() || null, options: editDraft.options,
+      question_hi: cleanQuestionSource(editDraft.question_hi) || null, question_en: cleanQuestionSource(editDraft.question_en) || null,
+      question_or: cleanQuestionSource(editDraft.question_or) || null, options: editDraft.options,
       correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null
     }).eq("id", editingQuestion.id);
     if (error) setMessage("Save failed: " + error.message);
     else {
-      setQuestions(old => old.map(q => q.id === editingQuestion.id ? { ...q, question_hi: editDraft.question_hi.trim() || null, question_en: editDraft.question_en.trim() || null, question_or: editDraft.question_or.trim() || null, options: editDraft.options, correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null } : q));
+      setQuestions(old => old.map(q => q.id === editingQuestion.id ? { ...q, question_hi: cleanQuestionSource(editDraft.question_hi) || null, question_en: cleanQuestionSource(editDraft.question_en) || null, question_or: cleanQuestionSource(editDraft.question_or) || null, options: editDraft.options, correct_option: editDraft.correct_option, difficulty: editDraft.difficulty, chapter: editDraft.chapter.trim() || null } : q));
       setEditingQuestion(null); setMessage("Question updated.");
     }
     setBusy(false);
@@ -526,14 +535,14 @@ export default function AdminQuestions() {
           row: index + 2,
           subject: subject?.name_en || data.subject_name,
           chapter: importChapterId ? (chapter?.name || data.chapter) : data.chapter,
-          question: data.question_hi || data.question_en || data.question_or,
+          question: cleanQuestionSource(data.question_hi || data.question_en || data.question_or),
           errors,
           payload: errors.length ? null : {
             subject_id: subject!.id,
             chapter: chapter!.name,
-            question_hi: data.question_hi || null,
-            question_or: data.question_or || null,
-            question_en: data.question_en || null,
+            question_hi: cleanQuestionSource(data.question_hi) || null,
+            question_or: cleanQuestionSource(data.question_or) || null,
+            question_en: cleanQuestionSource(data.question_en) || null,
             options,
             correct_option: correct,
             explanation_hi: data.explanation_hi || null,
@@ -714,10 +723,10 @@ export default function AdminQuestions() {
                   aria-expanded={expandedQuestion === q.id}
                   onClick={() => setExpandedQuestion(current => current === q.id ? null : q.id)}
                 >
-                  <span className="admin-qb-question-title">{q.question_hi || q.question_en || q.question_or || "Question text unavailable"}</span>
+                  <span className="admin-qb-question-title">{cleanQuestionSource(q.question_hi || q.question_en || q.question_or || "Question text unavailable")}</span>
                   <span className="admin-qb-expand-indicator">{expandedQuestion === q.id ? "− Hide details" : "+ View options"}</span>
                 </button>
-                {q.question_en && q.question_hi && <p className="admin-qb-translation">{q.question_en}</p>}
+                {q.question_en && q.question_hi && <p className="admin-qb-translation">{cleanQuestionSource(q.question_en)}</p>}
                 {expandedQuestion === q.id && (
                   <div className="admin-qb-answer-panel">
                     <div className="admin-qb-answer-heading">ANSWER OPTIONS</div>

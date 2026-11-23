@@ -34,6 +34,7 @@ export default function PremiumTrialBanner({ compact = false }: { compact?: bool
   }, []);
 
   const ended = signedIn && remaining !== null && remaining <= 0;
+  if (ended) return null;
   const countdown = remaining === null ? "24:00:00" : formatRemaining(remaining);
 
   return (

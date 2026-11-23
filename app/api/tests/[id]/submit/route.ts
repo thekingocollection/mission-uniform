@@ -40,8 +40,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       .select("title,marks_per_question,negative_marking").eq("id",id).single();
     if(testError)throw new Error(testError.message);
     const {data:paper}=await db.from("test_papers").select("subject_id").eq("id",id).maybeSingle();
-    const {data:subject}=paper?.subject_id ? await db.from("subjects").select("name_en,name_or").eq("id",paper.subject_id).maybeSingle() : {data:null};
-    const isOdiaGrammar=/odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(subject?.name_en||subject?.name_or||""));
+    const {data:subject}=paper?.subject_id ? await db.from("subjects").select("name_en,name_hi").eq("id",paper.subject_id).maybeSingle() : {data:null};
+    const isOdiaGrammar=/odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(subject?.name_en||subject?.name_hi||""));
     if(isOdiaGrammar&&language!=="or")return NextResponse.json({error:"Odia Grammar tests are available only in Odia."},{status:400});
     let correct=0,wrong=0,skipped=0,score=0;
     const review=rows.map((row:any)=>{

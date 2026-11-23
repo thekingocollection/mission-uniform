@@ -17,6 +17,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     try { body=await req.json(); }
     catch { return NextResponse.json({error:"Request body is invalid. Please submit again."},{status:400}); }
     const attemptId=String(body?.attempt_id||"");
+    const language=body?.language==="or"?"or":"en";
     const answers=body?.answers;
     if(!attemptId||!answers||typeof answers!=="object"||Array.isArray(answers))
       return NextResponse.json({error:"Invalid attempt or answers."},{status:400});
@@ -38,6 +39,10 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     const {data:test,error:testError}=await db.from("test_papers")
       .select("title,marks_per_question,negative_marking").eq("id",id).single();
     if(testError)throw new Error(testError.message);
+    const {data:paper}=await db.from("test_papers").select("subject_id").eq("id",id).maybeSingle();
+    const {data:subject}=paper?.subject_id ? await db.from("subjects").select("name_en,name_or").eq("id",paper.subject_id).maybeSingle() : {data:null};
+    const isOdiaGrammar=/odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(subject?.name_en||subject?.name_or||""));
+    if(isOdiaGrammar&&language!=="or")return NextResponse.json({error:"Odia Grammar tests are available only in Odia."},{status:400});
     let correct=0,wrong=0,skipped=0,score=0;
     const review=rows.map((row:any)=>{
       const q=row.question_snapshot||{};
@@ -55,7 +60,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       return {
         id:q.id, question:q.question_hi||q.question_or||q.question_en||"", options,
         selected, correct_option:correctOption,
-        explanation:q.explanation||q.explanation_hi||q.explanation_or||q.explanation_en||"",
+        explanation:language==="or"?(q.explanation_or||q.explanation_en||q.explanation_hi||""):(q.explanation_en||q.explanation_or||q.explanation_hi||""),
         chapter:q.chapter||null, difficulty:q.difficulty||null, status
       };
     });

@@ -20,6 +20,24 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     const {data: targetTest,error: targetError}=await service.from("test_papers").select("id,subject_id,question_mode").eq("id",id).eq("status","published").maybeSingle();
     if(targetError||!targetTest)return NextResponse.json({error:"Test not found or not published."},{status:404});
     const {data:subject}=await service.from("subjects").select("name_en,name_hi").eq("id",targetTest.subject_id).maybeSingle();
+
+    // Server-side 24-hour account trial. After expiry, a student must have
+    // active paid access for the test's subject (or the subject is configured free).
+    const trialEndsAt = new Date(new Date(userData.user.created_at).getTime() + 24 * 60 * 60 * 1000);
+    const trialActive = Number.isFinite(trialEndsAt.getTime()) && trialEndsAt.getTime() > Date.now();
+    const [{data:subjectConfig},{data:purchase}] = await Promise.all([
+      service.from("subject_access_settings").select("price_paise,is_enabled").eq("subject_id",targetTest.subject_id).maybeSingle(),
+      service.from("student_subject_access").select("expires_at").eq("user_id",userData.user.id).eq("subject_id",targetTest.subject_id).maybeSingle()
+    ]);
+    const paidAccessActive = Boolean(purchase && (!purchase.expires_at || new Date(purchase.expires_at).getTime() > Date.now()));
+    const freeForever = Number(subjectConfig?.price_paise) === 0;
+    if (!trialActive && !paidAccessActive && !freeForever) {
+      return NextResponse.json({
+        error:"Your 24-hour free access has ended. Unlock this subject with Premium to continue.",
+        premium_required:true,
+        trial_expires_at:trialEndsAt.toISOString()
+      },{status:402});
+    }
     const isOdiaGrammar=/odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(subject?.name_en||subject?.name_hi||""));
     if(targetTest.question_mode==="subject_random"){
       const [{data:global},{data:setting}]=await Promise.all([

@@ -5947,3 +5947,82 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .mu-tests-emblem > div,.mu-tests-spinner,.mu-tests-card { animation:none!important; }
   .mu-tests-card,.mu-tests-start,.mu-tests-filters button { transition:none!important; }
 }
+
+
+/* SIMPLE STUDENT PROFILE — MATCH MISSION UNIFORM START PAGE */
+.mu-profile-simple { width:min(100% - 30px,1040px); margin:0 auto; padding:20px 0 44px; color:#173b50; }
+.mu-profile-welcome { position:relative; display:grid; grid-template-columns:76px minmax(0,1fr) auto; align-items:center; gap:20px; min-height:205px; padding:32px 35px 54px; overflow:hidden; border:1px solid rgba(212,167,44,.42); border-radius:20px; background:linear-gradient(125deg,#172554,#243d75); color:#fff; box-shadow:0 14px 34px rgba(23,37,84,.12); }
+.mu-profile-welcome::after { content:"✦"; position:absolute; right:23%; top:-85px; color:rgba(245,207,101,.07); font-size:270px; pointer-events:none; }
+.mu-profile-avatar { position:relative; z-index:1; display:grid; width:72px; height:72px; place-items:center; border:2px solid #d4a72c; border-radius:50%; background:rgba(255,255,255,.08); color:#f5cf65; font-size:31px; font-weight:900; box-shadow:0 0 0 7px rgba(212,167,44,.09); }
+.mu-profile-welcome-copy { position:relative; z-index:1; min-width:0; }
+.mu-profile-simple-kicker { color:#f5cf65; font-size:9px; font-weight:950; letter-spacing:1.6px; }
+.mu-profile-overline { margin:14px 0 4px; color:#cbd5e1; font-size:9px; font-weight:900; letter-spacing:2px; }
+.mu-profile-welcome h1 { margin:0; color:#fff; font-size:clamp(27px,4vw,38px); font-weight:900; line-height:1.15; overflow-wrap:anywhere; }
+.mu-profile-welcome-text { margin:8px 0 10px; color:#dbeafe; font-size:12px; line-height:1.6; }
+.mu-profile-student-code { display:inline-block; color:#f5cf65; font-size:9px; font-weight:900; letter-spacing:1.1px; }
+.mu-profile-welcome-links { position:relative; z-index:1; display:flex; flex-direction:column; gap:8px; min-width:140px; }
+.mu-profile-welcome-links a { display:flex; min-height:39px; align-items:center; justify-content:space-between; gap:15px; padding:8px 12px; border:1px solid rgba(245,207,101,.32); border-radius:8px; color:#f5cf65; font-size:10px; font-weight:850; text-decoration:none; transition:background .2s ease; }
+.mu-profile-welcome-links a:hover { background:rgba(255,255,255,.09); }
+.mu-profile-welcome-links a span { font-size:16px; }
+.mu-profile-welcome-foot { position:absolute; right:35px; bottom:17px; left:35px; display:flex; justify-content:space-between; gap:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.14); color:#cbd5e1; font-size:8px; font-weight:900; letter-spacing:1.6px; }
+.mu-profile-simple-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:11px; margin:16px 0 26px; }
+.mu-profile-simple-stats article { display:flex; min-width:0; flex-direction:column; gap:5px; padding:15px 16px; border:1px solid #e5eaf0; border-radius:12px; background:#fff; box-shadow:0 4px 14px rgba(20,45,65,.025); }
+.mu-profile-simple-stats b { color:#173b50; font-size:25px; line-height:1.1; }
+.mu-profile-simple-stats span { color:#718096; font-size:10px; font-weight:750; }
+.mu-profile-simple-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr); align-items:start; gap:15px; }
+.mu-profile-simple-card { min-width:0; padding:22px; border:1px solid #e5eaf0; border-radius:15px; background:#fff; box-shadow:0 5px 18px rgba(20,45,65,.035); }
+.mu-profile-simple-heading { margin-bottom:18px; }
+.mu-profile-simple-heading > span { color:#a17a28; font-size:9px; font-weight:950; letter-spacing:1.7px; }
+.mu-profile-simple-heading h2 { margin:6px 0 4px; color:#173b50; font-size:21px; font-weight:900; }
+.mu-profile-simple-heading p { margin:0; color:#718096; font-size:11px; line-height:1.6; }
+.mu-profile-simple-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:13px 14px; }
+.mu-profile-simple-fields label { display:flex; min-width:0; flex-direction:column; gap:6px; color:#334e68; font-size:10px; font-weight:850; }
+.mu-profile-simple-fields label:nth-child(2) { grid-column:1 / -1; }
+.mu-profile-simple-fields label small { color:#8793a2; font-size:9px; font-weight:500; }
+.mu-profile-simple-fields input,.mu-profile-simple-fields select { width:100%; min-width:0; min-height:43px; padding:10px 12px; border:1px solid #dfe6ee; border-radius:8px; outline:none; background:#fbfcfe; color:#173b50; font-size:12px; }
+.mu-profile-simple-fields input:focus,.mu-profile-simple-fields select:focus { border-color:#b99643; box-shadow:0 0 0 3px rgba(212,167,44,.12); }
+.mu-profile-simple-fields input[readonly] { background:#f4f6f8; color:#788695; }
+.mu-profile-simple-save { width:100%; min-height:47px; margin-top:17px; border:0; border-radius:9px; background:#172554; color:#f5cf65; font-size:12px; font-weight:900; cursor:pointer; transition:background .2s ease,transform .2s ease; }
+.mu-profile-simple-save:hover { transform:translateY(-1px); background:#243d75; }
+.mu-profile-simple-save:disabled { opacity:.65; cursor:wait; }
+.mu-profile-simple-message { margin:10px 0 0; color:#31734d; font-size:11px; }
+.mu-profile-progress-card { background:linear-gradient(145deg,#fff,#fbfcfe); }
+.mu-profile-simple-accuracy { margin:19px 0 18px; }
+.mu-profile-simple-accuracy > div { display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; color:#52647b; font-size:11px; }
+.mu-profile-simple-accuracy b { color:#173b50; font-size:17px; }
+.mu-profile-simple-accuracy > i { display:block; height:8px; overflow:hidden; border-radius:10px; background:#edf0f4; }
+.mu-profile-simple-accuracy > i em { display:block; height:100%; border-radius:10px; background:linear-gradient(90deg,#d4a72c,#f0cc70); }
+.mu-profile-simple-row { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid #edf0f4; color:#64748b; font-size:11px; }
+.mu-profile-simple-row b { color:#173b50; }
+.mu-profile-shortcuts { display:grid; gap:8px; margin-top:17px; }
+.mu-profile-shortcuts a { display:flex; min-height:43px; align-items:center; justify-content:space-between; gap:12px; padding:9px 12px; border:1px solid #e7ebf0; border-radius:8px; color:#173b50; font-size:11px; font-weight:850; text-decoration:none; transition:border-color .2s ease,background .2s ease; }
+.mu-profile-shortcuts a:hover { border-color:#d4a72c; background:#fffaf0; }
+.mu-profile-shortcuts a span { color:#a17a28; font-size:16px; }
+.mu-profile-joined { margin:15px 0 0; color:#8793a2; font-size:9px; }
+.mu-profile-simple-footer { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-top:17px; padding:13px 16px; border:1px solid #e5eaf0; border-radius:11px; background:#fff; color:#8793a2; font-size:10px; }
+.mu-profile-simple-footer button { min-height:37px; padding:7px 13px; border:1px solid #ead6d6; border-radius:8px; background:#fff; color:#a33c3c; font-size:10px; font-weight:850; cursor:pointer; }
+@media(max-width:700px) {
+  .mu-profile-simple { width:min(100% - 22px,600px); padding:16px 0 32px; }
+  .mu-profile-welcome { grid-template-columns:56px minmax(0,1fr); gap:13px; min-height:0; padding:23px 18px 53px; border-radius:16px; }
+  .mu-profile-avatar { width:54px; height:54px; font-size:24px; }
+  .mu-profile-welcome-links { grid-column:1 / -1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .mu-profile-welcome-foot { right:18px; left:18px; bottom:16px; font-size:7px; letter-spacing:1px; }
+  .mu-profile-simple-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:12px 0 20px; }
+  .mu-profile-simple-stats article { padding:12px; }
+  .mu-profile-simple-stats b { font-size:23px; }
+  .mu-profile-simple-grid { grid-template-columns:1fr; gap:11px; }
+  .mu-profile-simple-card { padding:17px; }
+  .mu-profile-simple-fields { grid-template-columns:1fr; gap:12px; }
+  .mu-profile-simple-fields label:nth-child(2) { grid-column:auto; }
+  .mu-profile-simple-footer { align-items:flex-start; flex-direction:column; }
+  .mu-profile-simple-footer button { width:100%; min-height:44px; }
+}
+@media(max-width:380px) {
+  .mu-profile-welcome { padding:20px 14px 51px; }
+  .mu-profile-welcome-foot { right:14px; left:14px; font-size:6px; }
+  .mu-profile-welcome h1 { font-size:25px; }
+  .mu-profile-simple-stats span { font-size:9px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .mu-profile-welcome-links a,.mu-profile-simple-save,.mu-profile-shortcuts a { transition:none!important; }
+}

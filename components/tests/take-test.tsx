@@ -193,6 +193,22 @@ export default function TakeTest({ id }: { id: string }) {
 
   submitRef.current = submit;
 
+  // Allow students to move to the previous question with Backspace or Left Arrow.
+  // Prevent Backspace from navigating away from the live exam page.
+  useEffect(() => {
+    if (!started || result || timeUp) return;
+    function handleQuestionBack(event: KeyboardEvent) {
+      if (event.key !== "Backspace" && event.key !== "ArrowLeft") return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select" || target?.isContentEditable) return;
+      event.preventDefault();
+      setIndex((current) => Math.max(0, current - 1));
+    }
+    window.addEventListener("keydown", handleQuestionBack);
+    return () => window.removeEventListener("keydown", handleQuestionBack);
+  }, [started, result, timeUp]);
+
   useEffect(() => {
     if (!started || result || timeUp) return;
 

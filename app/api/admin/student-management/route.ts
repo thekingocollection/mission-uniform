@@ -11,44 +11,32 @@ async function requireSuperAdmin(req: NextRequest) {
   return profile?.role === "super_admin" && !profile.is_blocked ? data.user : null;
 }
 
-async function loadAllStudents(db: ReturnType<typeof getServiceSupabase>) {
-  const [profilesResult, authResult] = await Promise.all([
-    (async () => {
-      const rows: any[] = [];
-      for (let from = 0; ; from += 1000) {
-        const { data, error } = await db.from("profiles")
-          .select("id,student_code,full_name,role,is_blocked,created_at")
-          .neq("role", "super_admin").order("created_at", { ascending: false })
-          .range(from, from + 999);
-        if (error) throw error;
-        rows.push(...(data || []));
-        if (!data || data.length < 1000) break;
-        if (rows.length >= 50000) throw new Error("Export limit reached (50,000 profiles).");
-      }
-      return rows;
-    })(),
-    (async () => {
-      const rows: any[] = [];
-      for (let page = 1; ; page++) {
-        const { data, error } = await db.auth.admin.listUsers({ page, perPage: 1000 });
-        if (error) throw error;
-        rows.push(...(data.users || []));
-        if (!data.users || data.users.length < 1000) break;
-        if (rows.length >= 50000) throw new Error("Export limit reached (50,000 auth users).");
-      }
-      return rows;
-    })()
-  ]);
-  const authById = new Map(authResult.map((u: any) => [u.id, u]));
-  return profilesResult.map((p: any) => {
-    const u: any = authById.get(p.id);
-    const metadata = u?.user_metadata || {};
-    return {
-      ...p,
-      email: u?.email || "",
-      mobile: String(metadata.phone || metadata.mobile || u?.phone || "").replace(/^\+91/, "")
-    };
-  });
+// Directory requests stay lightweight: only the latest 500 records are loaded.
+// Full export remains paginated and is used only when the admin clicks Download Excel.
+async function loadStudents(db: ReturnType<typeof getServiceSupabase>, q: string, exportAll: boolean) {
+  const columns = "id,student_code,full_name,email,phone,role,is_blocked,created_at";
+  const pageSize = 500;
+  const rows: any[] = [];
+  for (let from = 0; ; from += pageSize) {
+    let query = db.from("profiles")
+      .select(columns, exportAll ? undefined : { count: "exact" })
+      .neq("role", "super_admin")
+      .order("created_at", { ascending: false });
+    if (q) {
+      const safe = q.replace(/[,%()]/g, "").replace(/[*]/g, "");
+      if (safe) query = query.or(`student_code.ilike.%${safe}%,full_name.ilike.%${safe}%,email.ilike.%${safe}%,phone.ilike.%${safe}%`);
+    }
+    const { data, error, count } = await query.range(from, from + pageSize - 1);
+    if (error) throw error;
+    rows.push(...(data || []));
+    if (!exportAll || !data || data.length < pageSize) {
+      return {
+        students: rows.map((p: any) => ({ ...p, email: p.email || "", mobile: String(p.phone || "").replace(/^\\+91/, "") })),
+        total: count ?? rows.length
+      };
+    }
+    if (rows.length >= 50000) throw new Error("Export limit reached (50,000 profiles).");
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -56,15 +44,12 @@ export async function GET(req: NextRequest) {
     const admin = await requireSuperAdmin(req);
     if (!admin) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
     const db = getServiceSupabase();
-    const q = (req.nextUrl.searchParams.get("q") || "").trim().replace(/[,%()]/g, "");
+    const q = (req.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
     const isExport = req.nextUrl.searchParams.get("export") === "1";
+    const result = await loadStudents(db, q, isExport);
     if (isExport) {
-      const students = await loadAllStudents(db);
-      const filtered = q ? students.filter((s: any) => [s.student_code,s.full_name,s.email,s.mobile].some(v => String(v || "").toLowerCase().includes(q.toLowerCase()))) : students;
-      return NextResponse.json({ students: filtered, total: filtered.length }, { headers: { "Cache-Control": "private, no-store" } });
+      return NextResponse.json(result, { headers: { "Cache-Control": "private, no-store" } });
     }
-    const allStudents = await loadAllStudents(db);
-    const filteredStudents = q ? allStudents.filter((s: any) => [s.student_code,s.full_name,s.email,s.mobile].some(v => String(v || "").toLowerCase().includes(q.toLowerCase()))) : allStudents;
     const [subjects, grants] = await Promise.all([
       db.from("subjects").select("id,name_en,name_hi").eq("is_active", true).order("name_en"),
       db.from("student_subject_access").select("user_id,subject_id,expires_at")
@@ -73,7 +58,9 @@ export async function GET(req: NextRequest) {
     if (grants.error) throw grants.error;
     const grantMap = new Map((grants.data || []).map((g: any) => [`${g.user_id}:${g.subject_id}`, g]));
     return NextResponse.json({
-      students: filteredStudents,
+      students: result.students,
+      total: result.total,
+      hasMore: result.total > result.students.length,
       subjects: subjects.data || [],
       grants: Array.from(grantMap.entries()).map(([key, value]: any) => ({ key, ...value }))
     }, { headers: { "Cache-Control": "private, no-store" } });

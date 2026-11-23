@@ -15,7 +15,7 @@ type Question = {
 // Hide imported practice-set source labels from the student-facing question text.
 function cleanStudentQuestion(value: string | null | undefined): string {
   return String(value || "")
-    .replace(/\s*[([]\s*Practice\s*Set\s*\\d+\s*[,;:-]?\s*Question\s*#?\s*\\d+\s*[)]]\s*$/i, "")
+    .replace(/\s*[([]\s*Practice\s*Set\s*\d+\s*[,;:-]?\s*Question\s*#?\s*\d+\s*[)]]\s*$/i, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 }

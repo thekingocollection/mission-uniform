@@ -11,15 +11,12 @@ type Subject = {
   price_paise?: number; duration_days?: number | null; expires_at?: string | null;
 };
 
-const PRESETS = [10, 20, 30, 50, 100];
 
 export default function SubjectMockTestPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedId, setSelectedId] = useState("");
-  const [count, setCount] = useState(30);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
   const [starting, setStarting] = useState(false);
   const [paying, setPaying] = useState(false);
   const [trialExpiresAt, setTrialExpiresAt] = useState<string | null>(null);
@@ -54,7 +51,7 @@ export default function SubjectMockTestPage() {
       setSubjects(ordered);
       const requested = new URLSearchParams(window.location.search).get("subject");
       const initial = merged.find(s => s.subject_id === requested) || merged.find(s => s.subject_id === selectedId) || merged[0];
-      if (initial) { setSelectedId(initial.subject_id); setCount(Math.min(30, Math.max(1, initial.verified_questions))); }
+      if (initial) setSelectedId(initial.subject_id);
     } catch (e: any) { setError(e.message || "Could not load subjects."); }
     finally { setLoading(false); }
   }
@@ -70,13 +67,11 @@ export default function SubjectMockTestPage() {
   }, [trialActive, trialExpiresAt]);
 
   const selected = useMemo(() => subjects.find(s => s.subject_id === selectedId), [subjects, selectedId]);
-  const maxCount = Math.min(100, selected?.verified_questions || 0);
-  const visibleSubjects = subjects.filter(s => `${s.name_en || ""} ${s.name_hi || ""}`.toLowerCase().includes(search.trim().toLowerCase()));
 
   function chooseSubject(id: string) {
     setSelectedId(id);
     const next = subjects.find(s => s.subject_id === id);
-    if (next) setCount(Math.min(30, Math.max(1, next.verified_questions)));
+
   }
 
   async function unlockSubject() {
@@ -135,55 +130,45 @@ export default function SubjectMockTestPage() {
   }
 
   function startTest() {
-    if (!selected?.id || !selected.can_start || count < 1 || count > maxCount || !Number.isInteger(count)) return;
+    if (!selected?.id || !selected.can_start || selected.verified_questions < 1) return;
     setStarting(true);
-    window.location.href = "/tests/paper/" + selected.id + "?count=" + count;
+    const defaultCount = Math.min(30, selected.verified_questions);
+    window.location.href = "/tests/paper/" + selected.id + "?count=" + defaultCount;
   }
 
-  const trialTime = trialExpiresAt ? new Date(trialExpiresAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "";
-
-  return <main className="content-wrap mu-subject-practice mu-subject-fast">
-    <header className="mu-fast-heading">
-      <div><span>MISSION UNIFORM OP</span><h1>Mock Test</h1></div>
-      <label className="mu-fast-search"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search subject..." aria-label="Search subject" /></label>
+  return <main className="content-wrap mu-subject-practice mu-subject-fast mu-subject-clean">
+    <header className="mu-subject-clean-heading">
+      <span className="mu-subject-kicker">MISSION UNIFORM OP</span>
+      <h1>Choose Your Subject</h1>
+      <p>Select a subject to begin your preparation.</p>
     </header>
-    <section className={trialActive ? "mu-trial-status is-active" : "mu-trial-status is-ended"} role="status" aria-live="polite">
-      <span className="mu-trial-status-icon" aria-hidden="true">{trialActive ? "✦" : "🔒"}</span>
-      <div className="mu-trial-status-copy">
-        <strong>{trialActive ? "YOUR FREE TRIAL IS ACTIVE" : "YOUR FREE TRIAL HAS ENDED"}</strong>
-        <p>{trialActive ? <>Enjoy full subject access until <b>{trialTime}</b>. Keep practising!</> : <>Your purchased subjects are still unlocked. Choose another subject and unlock it to continue your preparation.</>}</p>
-      </div>
-      <span className="mu-trial-status-tag">{trialActive ? "24H ACCESS" : "SUBJECT ACCESS"}</span>
-    </section>
     {error && <div className="mu-fast-message" role="alert">{error}</div>}
     {loading ? <div className="mu-fast-empty">Loading subjects...</div> :
       subjects.length === 0 ? <div className="mu-fast-empty">Exam subjects are not configured yet. Please contact the administrator.</div> :
-      <section className="mu-fast-subjects" aria-label="Choose subject">
-        {visibleSubjects.map(s => {
+      <section className="mu-subject-clean-grid" aria-label="Exam subjects">
+        {subjects.map((s, index) => {
           const active = s.subject_id === selectedId;
-          const status = !s.enabled ? "Admin Locked" : s.purchased ? "Purchased" : s.free_forever ? "Free" : s.trial_active ? "Free Trial" : "Premium";
-          return <button type="button" key={s.subject_id} aria-pressed={active} className={"mu-fast-subject " + (active ? "active" : "")} onClick={() => chooseSubject(s.subject_id)}>
-            <b>{s.name_en || s.name_hi || "Subject"}</b><small>· {status}</small>
+          const status = !s.enabled ? "Unavailable" : s.purchased ? "Unlocked" : s.free_forever ? "Free" : s.trial_active ? "Free access" : "Premium";
+          return <button type="button" key={s.subject_id} aria-pressed={active} className={"mu-subject-clean-card " + (active ? "active" : "")} onClick={() => chooseSubject(s.subject_id)} style={{animationDelay: (index * 45) + "ms"}}>
+            <span className="mu-subject-card-mark" aria-hidden="true">{String(index + 1).padStart(2,"0")}</span>
+            <span className="mu-subject-card-name">{s.name_en || s.name_hi || "Subject"}</span>
+            <span className={"mu-subject-card-status " + (status === "Premium" || status === "Unavailable" ? "muted" : "")}>{status}</span>
+            <span className="mu-subject-card-arrow" aria-hidden="true">↗</span>
           </button>;
         })}
       </section>
     }
-    {selected && <section className="mu-fast-controls">
-      {!selected.enabled ? <p className="mu-fast-locked">This subject is currently locked by Admin.</p>
-      : !selected.can_start ? <div className="mu-fast-locked">
-          <b>{selected.name_en || selected.name_hi} is Premium</b>
-          <p>Price: ₹{((selected.price_paise ?? 2900) / 100).toFixed(2)} · Validity: {selected.duration_days ? selected.duration_days + " days" : "Lifetime"}</p>
-          <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Opening secure payment..." : "Pay & Unlock Subject →"}</button>
+    {selected && <section className="mu-subject-clean-action" aria-live="polite">
+      {!selected.enabled ? <p className="mu-fast-locked">This subject is currently unavailable.</p>
+      : !selected.can_start ? <div className="mu-subject-action-inner">
+          <div><b>{selected.name_en || selected.name_hi}</b><span>Unlock this subject to start practising.</span></div>
+          <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Please wait..." : "Unlock Subject →"}</button>
         </div>
-      : maxCount === 0 ? <p className="mu-fast-locked">Questions will be available soon.</p>
-      : <>
-          <div className="mu-fast-count-title"><b>{selected.name_en || selected.name_hi}</b><span>{selected.purchased ? "Purchased access active" : selected.free_forever ? "Free subject" : "24-hour trial access"}</span></div>
-          <div className="mu-fast-counts">
-            {PRESETS.filter(n => n <= maxCount).map(n => <button type="button" key={n} className={count === n ? "active" : ""} aria-pressed={count === n} onClick={() => setCount(n)}>{n}</button>)}
-            <label><span>Custom</span><input type="number" min={1} max={maxCount} value={count} onChange={e => setCount(Number(e.target.value))} aria-label="Custom question count" /></label>
-          </div>
-          <button className="mu-fast-primary mu-fast-start" disabled={starting || !Number.isInteger(count) || count < 1 || count > maxCount} onClick={startTest}>{starting ? "Starting..." : "Start Test →"}</button>
-        </>}
+      : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
+      : <div className="mu-subject-action-inner">
+          <div><b>{selected.name_en || selected.name_hi}</b><span>Ready when you are. Your test will include up to 30 questions.</span></div>
+          <button className="mu-fast-primary mu-subject-start-button" disabled={starting} onClick={startTest}>{starting ? "Starting..." : "Start Mock Test →"}</button>
+        </div>}
     </section>}
   </main>;
 }

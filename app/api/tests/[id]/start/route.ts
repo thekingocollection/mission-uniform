@@ -19,6 +19,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     const {id}=await params;
     const {data: targetTest,error: targetError}=await service.from("test_papers").select("id,subject_id,question_mode").eq("id",id).eq("status","published").maybeSingle();
     if(targetError||!targetTest)return NextResponse.json({error:"Test not found or not published."},{status:404});
+    const {data:subject}=await service.from("subjects").select("name_en,name_or").eq("id",targetTest.subject_id).maybeSingle();
+    const isOdiaGrammar=/odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(subject?.name_en||subject?.name_or||""));
     if(targetTest.question_mode==="subject_random"){
       const [{data:global},{data:setting}]=await Promise.all([
         service.from("subject_access_global").select("all_subjects_enabled").eq("singleton",true).maybeSingle(),
@@ -29,6 +31,8 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     }
     let body:any={};
     try { body=await req.json(); } catch {}
+    const language=body.language==="or"?"or":"en";
+    if(isOdiaGrammar&&language!=="or")return NextResponse.json({error:"Odia Grammar tests are available only in Odia."},{status:400});
     const rawCount=body.question_count;
     const questionCount=rawCount===undefined||rawCount===null?null:Number(rawCount);
     if(questionCount!==null&&(!Number.isInteger(questionCount)||questionCount<1||questionCount>100))
@@ -39,7 +43,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       id:q.id,question_hi:q.question_hi,question_or:q.question_or,question_en:q.question_en,
       options:q.options,chapter:q.chapter??null,difficulty:q.difficulty??null
     }));
-    return NextResponse.json({test:started.test,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions},{headers:{"Cache-Control":"no-store"}});
+    return NextResponse.json({test:{...started.test,subject_name_en:subject?.name_en||"",subject_name_or:subject?.name_or||""},language,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions},{headers:{"Cache-Control":"no-store"}});
   }catch(e:any){
     console.error("TEST_START_ERROR",e);
     return NextResponse.json({error:e.message||"Unable to start mock test."},{status:500});

@@ -23,6 +23,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .select("id,title,description,test_type,question_mode,subject_id,duration_minutes,total_questions,marks_per_question,negative_marking,status,is_previous_year,exam_year,exam_name,session_label,source_label")
     .eq("id", id).eq("status", "published").maybeSingle();
   if (error || !test) return NextResponse.json({ error: "Test not found or not published." }, { status: 404 });
+  const { data: subject } = await db.from("subjects").select("name_en,name_or").eq("id", test.subject_id).maybeSingle();
+  const testWithSubject = { ...test, subject_name_en: subject?.name_en || "", subject_name_or: subject?.name_or || "" };
   if (test.question_mode === "subject_random") {
     const [{ data: global }, { data: setting }] = await Promise.all([
       db.from("subject_access_global").select("all_subjects_enabled").eq("singleton", true).maybeSingle(),
@@ -31,11 +33,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (global?.all_subjects_enabled === false || setting?.is_enabled === false)
       return NextResponse.json({ error: "This subject is currently unavailable. Please contact Admin." }, { status: 403 });
   }
-  if (test.question_mode === "pool" || test.question_mode === "subject_random") return NextResponse.json({ test, questions: [] }, { headers: { "Cache-Control": "no-store" } });
+  if (test.question_mode === "pool" || test.question_mode === "subject_random") return NextResponse.json({ test: testWithSubject, questions: [] }, { headers: { "Cache-Control": "no-store" } });
   const { data: links, error: linkError } = await db.from("test_paper_questions")
     .select("sort_order,questions(id,question_hi,question_or,question_en,options,chapter,difficulty)")
     .eq("test_id", id).order("sort_order");
   if (linkError) return NextResponse.json({ error: linkError.message }, { status: 500 });
   const questions = (links ?? []).map((x: any) => x.questions).filter(Boolean);
-  return NextResponse.json({ test, questions });
+  return NextResponse.json({ test: testWithSubject, questions });
 }

@@ -70,8 +70,6 @@ export default function SubjectMockTestPage() {
 
   function chooseSubject(id: string) {
     setSelectedId(id);
-    const next = subjects.find(s => s.subject_id === id);
-
   }
 
   async function unlockSubject() {

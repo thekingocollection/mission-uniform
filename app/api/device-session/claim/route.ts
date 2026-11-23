@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await db.auth.getUser(accessToken);
     if (error || !data.user) return NextResponse.json({ error: "Your login session expired. Please log in again." }, { status: 401 });
 
-    const { data: claimResult, error: bindError } = await db.rpc("claim_student_device_v2", {
+    const { data: claimResult, error: bindError } = await db.rpc("claim_student_device_account_limit", {
       p_user_id: data.user.id,
       p_device_id: deviceId,
     });
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       console.error("DEVICE_BIND_ERROR", bindError);
       return NextResponse.json({ error: "Device registration service is not ready. Please contact support." }, { status: 503 });
     }
-    if (claimResult?.payment_required === true) {
+    if (claimResult?.account_limit_reached === true) {\n      return NextResponse.json({\n        error: "This device has already been used to create two student accounts. You cannot create another account on this device.",\n        account_limit_reached: true,\n        max_accounts: 2,\n      }, { status: 403 });\n    }\n    if (claimResult?.payment_required === true) {
       return NextResponse.json({
         payment_required: true,
         price_paise: 1900,

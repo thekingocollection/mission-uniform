@@ -6087,3 +6087,31 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .admin-students-page .admin-panel-title { align-items:stretch; flex-direction:column; }
   .admin-students-page .admin-search { width:100%; min-width:0; }
 }
+
+
+/* Question Review: limited-height scroll panel */
+.admin-qb-review-scroll {
+  max-height: 620px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 8px 8px 2px;
+  border: 1px solid #e3e9f1;
+  border-radius: 12px;
+  background: #f8fafc;
+  scrollbar-width: thin;
+  scrollbar-color: #b8c5d5 #eef2f7;
+}
+.admin-qb-review-scroll .admin-qb-question {
+  background: #fff;
+}
+.admin-qb-review-scroll::-webkit-scrollbar { width: 8px; }
+.admin-qb-review-scroll::-webkit-scrollbar-track { background: #eef2f7; border-radius: 8px; }
+.admin-qb-review-scroll::-webkit-scrollbar-thumb { background: #b8c5d5; border-radius: 8px; }
+@media(max-width:650px) {
+  .admin-qb-review-scroll { max-height: 520px; padding: 4px; }
+  .admin-qb-toolbar { align-items: stretch; flex-direction: column; gap: 10px; }
+  .admin-qb-toolbar > div { display: flex; flex-wrap: wrap; gap: 7px; }
+  .admin-qb-toolbar button { flex: 1 1 145px; min-height: 40px; }
+}

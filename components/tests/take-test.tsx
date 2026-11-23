@@ -12,6 +12,14 @@ type Question = {
   chapter: string | null;
 };
 
+// Hide imported practice-set source labels from the student-facing question text.
+function cleanStudentQuestion(value: string | null | undefined): string {
+  return String(value || "")
+    .replace(/\\s*[([]\\s*Practice\\s*Set\\s*\\d+\\s*[,;:-]?\\s*Question\\s*#?\\s*\\d+\\s*[)]]\\s*$/i, "")
+    .replace(/\\s{2,}/g, " ")
+    .trim();
+}
+
 type ReviewItem = {
   id: string;
   question: string;
@@ -274,7 +282,7 @@ export default function TakeTest({ id }: { id: string }) {
 
   const question = questions[index];
   const options = getOptions(question?.options, language);
-  const questionText = language === "or" ? (question?.question_or || question?.question_en || question?.question_hi || "") : (question?.question_en || question?.question_or || question?.question_hi || "");
+  const questionText = cleanStudentQuestion(language === "or" ? (question?.question_or || question?.question_en || question?.question_hi || "") : (question?.question_en || question?.question_or || question?.question_hi || ""));
   const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(test.subject_name_en || test.subject_name_or || ""));
   const answeredCount = Object.keys(answers).length;
   const skippedCount = questions.length - answeredCount;
@@ -347,7 +355,7 @@ export default function TakeTest({ id }: { id: string }) {
                   {item.chapter && <span>{item.chapter}</span>}
                   {item.difficulty && <span>{item.difficulty}</span>}
                 </div>
-                <h3>{item.question}</h3>
+                <h3>{cleanStudentQuestion(item.question)}</h3>
                 <div className="mu-review-options">
                   {item.options.map((option, i) => {
                     const isCorrect = i === ["A", "B", "C", "D"].indexOf(String(item.correct_option).toUpperCase());

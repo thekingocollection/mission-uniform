@@ -57,7 +57,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       else{status="wrong";wrong++;score-=Number(test.negative_marking??0);}
       const rawOptions=Array.isArray(q.options)?q.options.map((x:any)=>typeof x==="string"?x:String(x?.text??x?.value??"")):
         ["A","B","C","D"].map(k=>String(q.options?.[k]??""));
-      const options=rawOptions.map((option:string)=>{const parts=option.split(/\\s+\\/\\s+/);return parts.length>1?(language==="or"?parts.slice(1).join(" / "):parts[0]):option;});
+      const options=rawOptions.map((option:string)=>{const parts=option.split(/\s+\/\s+/);return parts.length>1?(language==="or"?parts.slice(1).join(" / "):parts[0]):option;});
       return {
         id:q.id, question:language==="or"?(q.question_or||q.question_en||q.question_hi||""):(q.question_en||q.question_or||q.question_hi||""), options,
         selected, correct_option:correctOption,

@@ -65,6 +65,9 @@ export function SiteHeader() {
             </Link>
           );
         })}
+        <a href="https://chat.whatsapp.com/Goctyb5zTLfL58LtTj2iNJ" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
+          <span className="nav-icon">◉</span>Join WhatsApp Group ↗
+        </a>
         {signedIn ? (
           <>
             
@@ -88,6 +91,7 @@ export function SiteFooter() {
       <div className="footer-links">
         <Link href="/about">About</Link><Link href="/contact">Contact</Link>
         <Link href="/privacy-policy">Privacy</Link><Link href="/terms">Terms</Link>
+        <a href="https://chat.whatsapp.com/Goctyb5zTLfL58LtTj2iNJ" target="_blank" rel="noopener noreferrer">Join WhatsApp Group ↗</a>
       </div>
       <small>© {new Date().getFullYear()} Mission Uniform OP. Educational platform.</small>
     </footer>

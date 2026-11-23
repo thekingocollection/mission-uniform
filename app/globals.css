@@ -6044,3 +6044,46 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .mu-exam-instructions li b { font-size:12px; }
   .mu-exam-instructions li small { font-size:11px; }
 }
+
+
+/* STUDENT DIRECTORY: contained scroll area + sticky headings */
+.admin-students-page .admin-table-wrap {
+  position:relative;
+  width:100%;
+  max-width:100%;
+  max-height:440px;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  background:#fff;
+  scrollbar-width:thin;
+  scrollbar-color:#b9c5d5 #f3f6fa;
+}
+.admin-students-page .admin-table {
+  width:100%;
+  min-width:850px;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.admin-students-page .admin-table thead th {
+  position:sticky;
+  top:0;
+  z-index:3;
+  background:#f2f5fa;
+  box-shadow:0 1px 0 #e2e8f0;
+}
+.admin-students-page .admin-table tbody tr:last-child td { border-bottom:0; }
+.admin-students-page .admin-page-heading .admin-actions { align-items:center; }
+.admin-students-page .admin-page-heading .admin-primary { white-space:nowrap; }
+.admin-students-page .admin-panel-title { gap:14px; }
+.admin-students-page .admin-search { min-width:min(100%,280px); }
+@media(max-width:650px) {
+  .admin-students-page .admin-table-wrap { max-height:390px; }
+  .admin-students-page .admin-page-heading { align-items:flex-start; flex-direction:column; gap:12px; }
+  .admin-students-page .admin-page-heading .admin-actions { width:100%; }
+  .admin-students-page .admin-page-heading .admin-actions button { flex:1; min-height:42px; }
+  .admin-students-page .admin-panel-title { align-items:stretch; flex-direction:column; }
+  .admin-students-page .admin-search { width:100%; min-width:0; }
+}

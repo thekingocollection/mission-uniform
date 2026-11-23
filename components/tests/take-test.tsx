@@ -40,6 +40,7 @@ export default function TakeTest({ id }: { id: string }) {
   const [reviewFilter, setReviewFilter] = useState<"all" | "correct" | "wrong" | "skipped">("all");
   const [flypastRun, setFlypastRun] = useState(0);
   const [error, setError] = useState("");
+  const [language, setLanguage] = useState<"en" | "or">("en");
 
   const submittedRef = useRef(false);
   const submitRef = useRef<() => Promise<void>>(async () => {});
@@ -69,6 +70,8 @@ export default function TakeTest({ id }: { id: string }) {
             ? { ...data.test, total_questions: customCount, duration_minutes: customCount }
             : data.test;
           setTest(loadedTest);
+          const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(data.test.subject_name_en || ""));
+          setLanguage(isOdiaGrammar ? "or" : "en");
           setQuestions(data.questions ?? []);
           setSeconds(Number(loadedTest.duration_minutes || 30) * 60);
         }
@@ -83,13 +86,13 @@ export default function TakeTest({ id }: { id: string }) {
     };
   }, [id]);
 
-  function getOptions(value: any): string[] {
+  function getOptions(value: any, selectedLanguage: "en" | "or" = language): string[] {
     if (Array.isArray(value)) {
-      return value.map((item) =>
-        typeof item === "string"
-          ? item
-          : String(item?.text ?? item?.value ?? "")
-      );
+      return value.map((item) => {
+        const raw = typeof item === "string" ? item : String(item?.text ?? item?.value ?? "");
+        const parts = raw.split(/\s+\/\s+/);
+        return parts.length > 1 ? (selectedLanguage === "or" ? parts.slice(1).join(" / ") : parts[0]) : raw;
+      });
     }
 
     if (value && typeof value === "object") {
@@ -129,7 +132,7 @@ export default function TakeTest({ id }: { id: string }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ answers, attempt_id: attemptId }),
+        body: JSON.stringify({ answers, attempt_id: attemptId, language }),
       });
       const raw = await response.text();
       let data: any = {};
@@ -164,7 +167,7 @@ export default function TakeTest({ id }: { id: string }) {
       const response = await fetch(`/api/tests/${id}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify(customCount ? { question_count: customCount } : {}),
+        body: JSON.stringify({ ...(customCount ? { question_count: customCount } : {}), language }),
       });
       const raw = await response.text();
       let data: any = {};
@@ -254,7 +257,9 @@ export default function TakeTest({ id }: { id: string }) {
   }
 
   const question = questions[index];
-  const options = getOptions(question?.options);
+  const options = getOptions(question?.options, language);
+  const questionText = language === "or" ? (question?.question_or || question?.question_en || question?.question_hi || "") : (question?.question_en || question?.question_or || question?.question_hi || "");
+  const isOdiaGrammar = /odia\s*(grammar|language)|ଓଡ଼ିଆ\s*(ବ୍ୟାକରଣ|ଭାଷା)/i.test(String(test.subject_name_en || ""));
   const answeredCount = Object.keys(answers).length;
   const skippedCount = questions.length - answeredCount;
 

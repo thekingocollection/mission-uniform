@@ -499,7 +499,7 @@ export default function AdminQuestions() {
         if (isEnglishLanguage && !hasEnglishExplanation) errors.push("English Language requires an English explanation.");
         if (!isOdiaGrammar && !isEnglishLanguage && !hasEnglishExplanation && !hasOdiaExplanation) errors.push("Enter at least one explanation language: English or Odia.");
         if (options.some((v: string) => !v)) errors.push("All four options required.");
-        if (!isOdiaGrammar && !isEnglishLanguage && hasEnglishQuestion && hasOdiaQuestion && options.some((v: string) => !/^\\s*[^/]+\\s+\\/\\s+.+$/.test(String(v)))) errors.push("For bilingual questions, each option must use English / ଓଡ଼ିଆ in the same cell.");
+        if (!isOdiaGrammar && !isEnglishLanguage && hasEnglishQuestion && hasOdiaQuestion && options.some((v: string) => !/^\s*[^/]+\s+\/\s+.+$/.test(String(v)))) errors.push("For bilingual questions, each option must use English / ଓଡ଼ିଆ in the same cell.");
         if (!isOdiaGrammar && !isEnglishLanguage && !(hasEnglishQuestion && hasOdiaQuestion) && options.some((v: string) => String(v).includes("/"))) errors.push("For a single-language question, enter each option in that language only (without /).");
         if (!correct) errors.push("Correct option must be A/B/C/D.");
         

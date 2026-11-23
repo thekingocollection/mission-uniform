@@ -366,6 +366,15 @@ export default function TakeTest({ id }: { id: string }) {
         <h1>{test.title}</h1>
         <p>{test.description}</p>
 
+        {!isOdiaGrammar && <div className="mu-language-choice" style={{ margin: "18px 0" }}>
+          <h3>Choose Exam Language / ପରୀକ୍ଷା ଭାଷା ବାଛନ୍ତୁ</h3>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button type="button" className={`btn ${language === "en" ? "primary" : "secondary"}`} onClick={() => setLanguage("en")}>English</button>
+            <button type="button" className={`btn ${language === "or" ? "primary" : "secondary"}`} onClick={() => setLanguage("or")}>ଓଡ଼ିଆ</button>
+          </div>
+        </div>}
+        {isOdiaGrammar && <p className="muted">ଏହି ବିଷୟର ପରୀକ୍ଷା କେବଳ ଓଡ଼ିଆ ଭାଷାରେ ହେବ।</p>}
+
         <div className="test-result-grid">
           <div><b>{test.total_questions || questions.length}</b><span>Questions</span></div>
           <div><b>{test.duration_minutes}</b><span>Minutes</span></div>

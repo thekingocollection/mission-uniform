@@ -198,11 +198,13 @@ export default function AdminQuestions() {
   const verifiedCount = questions.filter(q => q.verified).length;
   const smartAudit = useMemo(() => {
     const seen = new Set<string>();
+    const duplicateIds: string[] = [];
     let duplicates = 0, incomplete = 0, invalidKeys = 0;
     for (const q of questions) {
-      const key = [q.subject_id || "", normalize(q.chapter), normalize(q.question_hi || q.question_en || q.question_or)].join("|");
-      if (key.split("|").pop()) {
-        if (seen.has(key)) duplicates++;
+      const questionText = normalize(q.question_hi || q.question_en || q.question_or);
+      const key = [q.subject_id || "", normalize(q.chapter), questionText].join("|");
+      if (questionText) {
+        if (seen.has(key)) { duplicates++; duplicateIds.push(q.id); }
         else seen.add(key);
       }
       const opts = Array.isArray(q.options) ? q.options : Object.values(q.options || {});
@@ -210,9 +212,17 @@ export default function AdminQuestions() {
       if (![q.question_hi, q.question_en, q.question_or].some(v => v?.trim()) || values.length !== 4 || values.some(v => !v)) incomplete++;
       if (!["A","B","C","D"].includes(String(q.correct_option || "").toUpperCase())) invalidKeys++;
     }
-    return { duplicates, incomplete, invalidKeys, scanned: questions.length };
+    return { duplicates, duplicateIds, incomplete, invalidKeys, scanned: questions.length };
   }, [questions]);
 
+
+  function selectDuplicateQuestions() {
+    if (!smartAudit.duplicateIds.length) { setMessage("No duplicate questions detected in the loaded question bank."); return; }
+    setSelected(smartAudit.duplicateIds.slice(0, 2000));
+    setMessage(smartAudit.duplicateIds.length > 2000
+      ? "First 2,000 detected duplicates selected. Archive this batch, then repeat for the next batch."
+      : smartAudit.duplicateIds.length + " duplicate questions selected. Review the list before archiving.");
+  }
 
   function toggleSelected(id: string) {
     setSelected(old =>
@@ -711,7 +721,11 @@ export default function AdminQuestions() {
           <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Incomplete questions</small><h2 style={{margin:"4px 0"}}>{smartAudit.incomplete}</h2></div>
           <div style={{padding:12,background:"#fff7ed",borderRadius:9}}><small>Invalid answer keys</small><h2 style={{margin:"4px 0"}}>{smartAudit.invalidKeys}</h2></div>
         </div>
-        <p style={{margin:"10px 0 0",fontSize:12,color:"#64748b"}}>Audit poore loaded question bank ko scan karta hai. Ye automatically delete ya verify nahi karta.</p>
+        <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap",marginTop:12}}>
+          <button type="button" className="admin-qb-danger-btn" disabled={busy || smartAudit.duplicates===0} onClick={selectDuplicateQuestions}>Select Duplicate Questions ({smartAudit.duplicates})</button>
+          <span style={{fontSize:12,color:"#64748b"}}>Select karne ke baad list review karein, phir Archive Selected dabayein.</span>
+        </div>
+        <p style={{margin:"10px 0 0",fontSize:12,color:"#64748b"}}>Audit loaded question bank ko scan karta hai. Har group mein pehla question original rakha jata hai; baad ke matching questions duplicate mark hote hain. Ye automatically archive nahi karta.</p>
       </section>
 
       <section className="admin-qb-section">

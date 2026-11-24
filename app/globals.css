@@ -6916,3 +6916,39 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-live-clock strong { display:block; margin:3px 0; color:#102b55; font-size:25px; line-height:1.15; font-variant-numeric:tabular-nums; letter-spacing:-.04em; }
 .mu-live-clock small { display:block; color:#64748b; font-size:10px; }
 @media(max-width:600px) { .mu-live-clock { width:100%; justify-content:space-between; gap:9px; } .mu-live-clock > div { min-width:0; flex:1; padding:9px 11px; text-align:left; } .mu-live-clock strong { font-size:21px; } .mu-live-clock .admin-action { padding:9px 10px; font-size:11px; } }
+
+
+/* Student registration · premium countdown card */
+.mu-trial-banner--compact { position:relative; isolation:isolate; grid-template-columns:minmax(0,1fr) minmax(210px,260px); align-items:center; gap:15px 22px; margin:0 auto 20px; padding:clamp(17px,2.5vw,25px); border:1px solid rgba(226,198,133,.48); border-radius:20px; background:radial-gradient(ellipse at 88% 0%,rgba(226,190,112,.24),transparent 38%),linear-gradient(125deg,#081b31 0%,#12344b 58%,#1d4b4a 100%); box-shadow:0 15px 34px rgba(8,27,49,.16); }
+.mu-trial-banner--compact:after { content:""; position:absolute; z-index:-1; width:210px; height:210px; right:115px; top:-145px; border:1px solid rgba(255,255,255,.12); border-radius:50%; box-shadow:0 0 0 24px rgba(255,255,255,.025),0 0 0 48px rgba(255,255,255,.02); }
+.mu-trial-banner--compact .mu-trial-kicker { color:#f0d38f; font-size:9px; letter-spacing:1.5px; }
+.mu-trial-banner--compact .mu-trial-copy h2 { max-width:520px; margin:9px 0 7px; color:#fff8e9; font-family:inherit; font-size:clamp(18px,2.2vw,25px); line-height:1.16; letter-spacing:-.45px; }
+.mu-trial-banner--compact .mu-trial-copy p { max-width:570px; color:#d2dfeb; font-size:11px; line-height:1.6; }
+.mu-trial-banner--compact .mu-trial-perks { gap:6px; margin-top:11px; }
+.mu-trial-banner--compact .mu-trial-perks span { border-color:rgba(236,211,158,.25); border-radius:99px; padding:6px 9px; background:rgba(255,255,255,.07); color:#f2e6c8; font-size:9px; }
+.mu-trial-banner--compact .mu-trial-clock { min-width:0; padding:13px; border:1px solid rgba(242,213,153,.34); border-radius:16px; background:linear-gradient(145deg,rgba(2,14,27,.66),rgba(7,24,35,.82)); box-shadow:inset 0 1px rgba(255,255,255,.07),0 8px 22px rgba(0,0,0,.12); }
+.mu-trial-clock-heading { display:flex; align-items:center; justify-content:center; gap:7px; margin-bottom:10px; color:#e7d19e; font-size:9px; font-weight:950; letter-spacing:1.4px; }
+.mu-trial-clock-icon { display:grid; place-items:center; width:23px; height:23px; border:1px solid rgba(235,208,151,.3); border-radius:50%; color:#ffdf9b; font-size:17px; line-height:1; }
+.mu-trial-digits { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.mu-trial-digit { min-width:0; padding:9px 3px 7px; border:1px solid rgba(255,255,255,.10); border-radius:10px; background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.035)); text-align:center; }
+.mu-trial-digit strong { display:block; color:#fff5d9; font-size:clamp(23px,2.5vw,30px); line-height:1; font-weight:850; font-variant-numeric:tabular-nums; letter-spacing:-.8px; }
+.mu-trial-digit small { display:block; margin-top:6px; color:#bfcacb; font-size:7px; font-weight:900; letter-spacing:1px; }
+.mu-trial-clock-note { display:block; margin-top:9px; color:#bdc9c9; font-size:9px; letter-spacing:.2px; text-align:center; }
+.mu-trial-banner--compact .mu-trial-actions { grid-column:1/-1; padding-top:10px; border-top:1px solid rgba(255,255,255,.12); }
+.mu-trial-banner--compact .mu-trial-actions>small { color:#c4d1d2; font-size:9px; }
+@media(max-width:760px) {
+ .mu-trial-banner--compact { grid-template-columns:1fr; gap:13px; margin-bottom:15px; padding:16px; border-radius:17px; }
+ .mu-trial-banner--compact .mu-trial-copy h2 { font-size:19px; }
+ .mu-trial-banner--compact .mu-trial-copy p { font-size:11px; }
+ .mu-trial-banner--compact .mu-trial-perks { display:grid; grid-template-columns:1fr; gap:6px; }
+ .mu-trial-banner--compact .mu-trial-perks span { width:100%; padding:7px 10px; font-size:9px; }
+ .mu-trial-banner--compact .mu-trial-clock { width:100%; padding:12px; }
+ .mu-trial-digit { padding:10px 4px 8px; }
+ .mu-trial-digit strong { font-size:27px; }
+ .mu-trial-banner--compact .mu-trial-actions { grid-column:auto; }
+}
+@media(max-width:360px) {
+ .mu-trial-banner--compact { padding:13px; }
+ .mu-trial-banner--compact .mu-trial-copy h2 { font-size:17px; }
+ .mu-trial-digit strong { font-size:23px; }
+}

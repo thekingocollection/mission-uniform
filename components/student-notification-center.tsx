@@ -36,6 +36,8 @@ export default function StudentNotificationCenter() {
         await fetch("/api/student/notifications", { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: "Bearer " + access }, body: JSON.stringify({ id: opened, action: "click" }) });
         window.history.replaceState({}, "", window.location.pathname);
         setRows((result.notifications || []).map((n: Notice) => n.id === opened ? { ...n, read_at: new Date().toISOString(), clicked_at: new Date().toISOString() } : n));
+        const redirectTarget = params.get("target");
+        if (redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//") && redirectTarget !== "/notifications") window.location.replace(redirectTarget);
       }
     } catch (e: any) { setError(e.message || "Could not load notifications."); }
     finally { setLoading(false); }
@@ -103,7 +105,7 @@ export default function StudentNotificationCenter() {
       {error && <p className="notice" role="alert">{error}</p>}
       <div className="mu-notice-toolbar"><div className="mu-notice-filters"><button className={filter==="all"?"active":""} onClick={()=>setFilter("all")}>All updates</button><button className={filter==="unread"?"active":""} onClick={()=>setFilter("unread")}>Unread ({unread})</button></div><button className="btn secondary" onClick={()=>void load()} disabled={loading}>↻ Refresh</button></div>
       {loading ? <p>Loading your updates…</p> : visible.length === 0 ? <div className="mu-notice-empty"><span>✓</span><h2>{filter==="unread"?"You are all caught up!":"No notifications yet"}</h2><p>New preparation updates and challenges will appear here.</p><Link href="/dashboard">Back to Dashboard</Link></div> :
-        <div className="mu-notice-list">{visible.map(n=><article key={n.id} className={"mu-notice-card "+(n.read_at?"is-read":"is-unread")}><div className="mu-notice-card-top"><span className="mu-notice-status">{n.read_at?"READ":"NEW"}</span><time>{new Date(n.created_at).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})}</time></div><h2>{n.title}</h2><p>{n.body}</p><div className="mu-notice-item-actions">{!n.read_at&&<button className="mu-notice-mark" onClick={()=>void mark(n.id,"read")}>Mark as read</button>}<Link href={n.target_url || "/notifications"} onClick={()=>void mark(n.id,"click")}>Open update →</Link></div></article>)}</div>
+        <div className="mu-notice-list">{visible.map(n=><article key={n.id} className={"mu-notice-card "+(n.read_at?"is-read":"is-unread")}><div className="mu-notice-card-top"><span className="mu-notice-status">{n.read_at?"READ":"NEW"}</span><time>{new Date(n.created_at).toLocaleString("en-IN",{timeZone:"Asia/Kolkata"})}</time></div><h2>{n.title}</h2><p>{n.body}</p><div className="mu-notice-item-actions">{!n.read_at&&<button className="mu-notice-mark" onClick={()=>void mark(n.id,"read")}>Mark as read</button>}<Link href={n.target_url || "/notifications"} onClick={e=>{e.preventDefault();void mark(n.id,"click").then(()=>window.location.assign(n.target_url || "/notifications"));}}>Open update →</Link></div></article>)}</div>
       }
     </section>
   </main>;

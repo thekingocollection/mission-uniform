@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     };
     const activity = attemptsToday.slice().sort((a: any, b: any) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime()).slice(0, 15);
     const activityUserIds = [...new Set(attemptsToday.map((a: any) => a.user_id))];
-    const activityTestIds = [...new Set(activity.map((a: any) => a.test_id))];
+    const activityTestIds = [...new Set(attemptsToday.map((a: any) => a.test_id))];
     const [activityProfiles, activityTests] = await Promise.all([
       activityUserIds.length ? db.from("profiles").select("id,student_code,full_name").in("id", activityUserIds) : { data: [], error: null },
       activityTestIds.length ? db.from("test_papers").select("id,title").in("id", activityTestIds) : { data: [], error: null }

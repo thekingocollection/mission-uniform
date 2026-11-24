@@ -357,12 +357,18 @@ export default function AdminQuestions() {
 
   async function bulkDelete() {
     if (!supabase || !selected.length) return;
-    if (!window.confirm("Permanently delete " + selected.length + " selected questions? This cannot be undone.")) return;
+    if (!window.confirm("Archive " + selected.length + " selected questions? They will be removed from future tests, while previous student test history remains محفوظ.")) return;
     setBusy(true);
     const ids = [...selected];
-    const { error } = await supabase.from("questions").delete().in("id", ids);
-    if (error) setMessage("Delete failed: " + error.message);
-    else { setQuestions(old => old.filter(q => !ids.includes(q.id))); setSelected([]); setMessage(ids.length + " questions deleted."); }
+    // Keep historical attempt/test references intact; hard DELETE can be rejected by
+    // foreign keys. Archiving is the safe removal from the active question bank.
+    const { error } = await supabase.from("questions").update({ is_active: false }).in("id", ids);
+    if (error) setMessage("Archive failed: " + error.message);
+    else {
+      setQuestions(old => old.map(q => ids.includes(q.id) ? { ...q, is_active: false } : q));
+      setSelected([]);
+      setMessage(ids.length + " questions archived and removed from future tests.");
+    }
     setBusy(false);
   }
 
@@ -758,7 +764,7 @@ export default function AdminQuestions() {
             {statusFilter !== "pending" && <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkVerify(false)}>Move to Unverified</button>}
             <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkSetActive(true)}>Publish Selected</button>
             <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkSetActive(false)}>Unpublish Selected</button>
-            <button className="admin-qb-danger-btn" disabled={busy || !selected.length} onClick={() => void bulkDelete()}>Delete Selected</button>
+            <button className="admin-qb-danger-btn" disabled={busy || !selected.length} onClick={() => void bulkDelete()}>Archive Selected</button>
             <button className="admin-qb-reset" onClick={() => setSelected([])}>Clear</button>
           </div>
         </div>

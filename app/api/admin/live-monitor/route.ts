@@ -35,21 +35,6 @@ export async function GET(req: NextRequest) {
       : { data: [], error: null };
     if (studentsResult.error) throw studentsResult.error;
     const students = studentsResult.data || [];
-    const allStudentIds: string[] = [];
-    for (let from = 0; ; from += 1000) {
-      const page = await db.from("profiles").select("id").eq("role", "student").range(from, from + 999);
-      if (page.error) throw page.error;
-      const rows = page.data || [];
-      allStudentIds.push(...rows.map((row: any) => row.id));
-      if (rows.length < 1000) break;
-    }
-    const authUsers: any[] = [];
-    for (let page = 1; page <= 50; page += 1) {
-      const batch = await db.auth.admin.listUsers({ page, perPage: 1000 });
-      if (batch.error) throw batch.error;
-      authUsers.push(...(batch.data.users || []));
-      if ((batch.data.users || []).length < 1000) break;
-    }
     const onlineRows = presence.data || [];
     const onlineIds = new Set(onlineRows.map((p: any) => p.user_id));
     const onlineStudents = students.filter((s: any) => onlineIds.has(s.id));
@@ -77,10 +62,9 @@ export async function GET(req: NextRequest) {
       };
     }).sort((a: any, b: any) => Number(b.is_taking_test) - Number(a.is_taking_test));
 
-    const authById = new Map(authUsers.map((u: any) => [u.id, u]));
-    const loggedInToday = allStudentIds.filter((studentId: string) => {
-      const user: any = authById.get(studentId);
-      return user?.last_sign_in_at && new Date(user.last_sign_in_at).getTime() >= dayStart.getTime();
+    const loggedInToday = onlineStudents.filter((student: any) => {
+      const presenceRow: any = onlinePresenceById.get(student.id);
+      return presenceRow?.last_seen_at && new Date(presenceRow.last_seen_at).getTime() >= dayStart.getTime();
     }).length;
     const attemptsToday = started.data || [];
     const activeAttemptsToday = attemptsToday.filter((a: any) => !a.is_submitted).length;
@@ -106,7 +90,7 @@ export async function GET(req: NextRequest) {
     const activityTestMap = new Map((activityTests.data || []).map((t: any) => [t.id, t.title]));
     const recent_activity = activity.map((a: any) => {
       const s: any = profileMap.get(a.user_id);
-      return { id: a.id, student: s?.full_name || "Student", student_code: s?.student_code || "", test: activityTestMap.get(a.test_id) || "Mock Test", started_at: a.started_at, submitted: Boolean(a.is_submitted) };
+      return { id: a.id, student: s?.full_name || "Student", student_code: s?.student_code || "", test: activityTestMap.get(a.test_id) || "Mock Test", started_at: a.started_at, submitted: Boolean(a.is_submitted), score: a.score, correct: a.correct_count, wrong: a.wrong_count, skipped: a.skipped_count, total: a.total_questions, accuracy: a.total_questions ? Number((Number(a.correct_count || 0) / Number(a.total_questions) * 100).toFixed(1)) : 0 };
     });
     return NextResponse.json({ stats, online_students: online, recent_activity, refreshed_at: now.toISOString() }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error: any) {

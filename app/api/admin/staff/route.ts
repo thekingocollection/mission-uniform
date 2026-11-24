@@ -17,9 +17,10 @@ function cleanPermissions(value: any) {
   const input = value && typeof value === "object" && !Array.isArray(value) ? value : {};
   return Object.fromEntries(allowedPermissions.filter(key => input[key] === true).map(key => [key, true]));
 }
+
 export async function POST(req: NextRequest) {
+  const db = getServiceSupabase();
   try {
-    const db = getServiceSupabase();
     if (!await requireSuperAdmin(req)) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
     const body = await req.json().catch(() => null);
     const fullName = String(body?.full_name || "").trim();
@@ -36,27 +37,49 @@ export async function POST(req: NextRequest) {
     });
     if (createError || !created.user) return NextResponse.json({ error: createError?.message || "Staff account could not be created." }, { status: 400 });
 
-    const { error: grantError } = await db.rpc("set_staff_access", {
-      p_email: email, p_permissions: permissions, p_enabled: true
-    });
-    if (grantError) {
+    // Do not call set_staff_access through the service-role RPC client:
+    // auth.uid() is null there, so the SQL function rejects even a verified Super Admin.
+    // This route has already authenticated the caller and verified the Super Admin role.
+    const { data: profile, error: profileError } = await db.from("profiles")
+      .update({ role: "staff_admin", permissions, full_name: fullName })
+      .eq("id", created.user.id)
+      .select("id")
+      .maybeSingle();
+
+    if (profileError || !profile) {
       await db.auth.admin.deleteUser(created.user.id);
-      return NextResponse.json({ error: "Staff access could not be assigned; the new account was rolled back. " + grantError.message }, { status: 500 });
+      return NextResponse.json({
+        error: "Staff profile could not be assigned; the new Auth account was rolled back. " + (profileError?.message || "Profile row was not created.")
+      }, { status: 500 });
     }
+
     return NextResponse.json({ success: true, user: { id: created.user.id, email: created.user.email, full_name: fullName } });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Unable to create staff account." }, { status: 500 });
   }
 }
+
 export async function PATCH(req: NextRequest) {
+  const db = getServiceSupabase();
   try {
-    const db = getServiceSupabase();
     if (!await requireSuperAdmin(req)) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
     const body = await req.json().catch(() => null);
     const email = String(body?.email || "").trim().toLowerCase();
     if (!email) return NextResponse.json({ error: "Staff email is required." }, { status: 400 });
-    const { error } = await db.rpc("set_staff_access", { p_email: email, p_permissions: {}, p_enabled: false });
+
+    const { data: users, error: usersError } = await db.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (usersError) return NextResponse.json({ error: usersError.message }, { status: 400 });
+    const target = users.users.find(user => (user.email || "").toLowerCase() === email);
+    if (!target) return NextResponse.json({ error: "Staff account was not found." }, { status: 404 });
+
+    const { data: profile, error } = await db.from("profiles")
+      .update({ role: "student", permissions: {} })
+      .eq("id", target.id)
+      .eq("role", "staff_admin")
+      .select("id")
+      .maybeSingle();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (!profile) return NextResponse.json({ error: "This account is not currently an assigned staff account." }, { status: 404 });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Unable to update staff access." }, { status: 500 });

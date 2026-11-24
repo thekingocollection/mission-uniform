@@ -61,7 +61,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       id:q.id,question_hi:q.question_hi,question_or:q.question_or,question_en:q.question_en,
       options:q.options,chapter:q.chapter??null,difficulty:q.difficulty??null
     }));
-    return NextResponse.json({test:{...started.test,subject_name_en:subject?.name_en||"",subject_name_or:subject?.name_hi||""},language,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions},{headers:{"Cache-Control":"no-store"}});
+    return NextResponse.json({test:{...started.test,negative_marking:0.25,subject_name_en:subject?.name_en||"",subject_name_or:subject?.name_hi||""},language,attempt_id:started.attempt_id,started_at:started.started_at??new Date().toISOString(),questions},{headers:{"Cache-Control":"no-store"}});
   }catch(e:any){
     console.error("TEST_START_ERROR",e);
     return NextResponse.json({error:e.message||"Unable to start mock test."},{status:500});

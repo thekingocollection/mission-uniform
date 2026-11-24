@@ -3,7 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
 type LiveStudent = { user_id:string; student_code:string; name:string; email:string; phone:string; last_seen_at:string; current_path:string; is_taking_test:boolean; test_title:string; test_started_at:string|null };
-type MonitorData = { stats:Record<string,number>; online_students:LiveStudent[]; recent_activity:any[]; refreshed_at:string };
+type StudentPerformance = { user_id:string; student:string; student_code:string; tests_taken:number; tests_submitted:number; pending_tests:number; average_score:number|null; latest_score:number|null; };
+type MonitorData = { stats:Record<string,number>; online_students:LiveStudent[]; recent_activity:any[]; student_performance:StudentPerformance[]; refreshed_at:string };
 
 export default function LiveMonitorPage() {
   const sb = useMemo(() => supabaseBrowser(), []);

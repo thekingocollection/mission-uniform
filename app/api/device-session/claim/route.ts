@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await db.auth.getUser(accessToken);
     if (error || !data.user) return NextResponse.json({ error: "Your login session expired. Please log in again." }, { status: 401 });
 
-    const { data: claimResult, error: bindError } = await db.rpc("claim_student_device_account_limit", {
+    const { data: profile, error: profileError } = await db.from("profiles")\n      .select("role,is_blocked")\n      .eq("id", data.user.id)\n      .maybeSingle();\n    if (profileError) {\n      console.error("DEVICE_PROFILE_VERIFY_ERROR", profileError);\n      return NextResponse.json({ error: "Could not verify your student account. Please retry." }, { status: 503 });\n    }\n    if (!profile || profile.is_blocked || profile.role === "super_admin" || profile.role === "staff_admin") {\n      return NextResponse.json({ error: "This account is not authorized for student device registration." }, { status: 403 });\n    }\n\n    const { data: claimResult, error: bindError } = await db.rpc("claim_student_device_account_limit", {
       p_user_id: data.user.id,
       p_device_id: deviceId,
     });

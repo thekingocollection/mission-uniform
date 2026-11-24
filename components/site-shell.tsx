@@ -28,7 +28,7 @@ function isPublicPath(path: string) {
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);\n  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const path = usePathname();
   const router = useRouter();
 
@@ -62,7 +62,7 @@ export function SiteHeader() {
           const label = name === "Home" && signedIn ? "My Home" : name;
           return (
             <Link key={href} href={target} className={path === target || (target !== "/" && path.startsWith(target + "/")) ? "active" : ""} aria-current={path === target ? "page" : undefined} onClick={() => setOpen(false)}>
-              <span className="nav-icon">{icon}</span>{label}
+              <span className="nav-icon">{icon}</span>{label}{name === "Notifications" && unreadNotifications > 0 && <span className="mu-nav-unread">{unreadNotifications > 99 ? "99+" : unreadNotifications}</span>}
             </Link>
           );
         })}

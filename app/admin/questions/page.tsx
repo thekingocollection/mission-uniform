@@ -382,11 +382,10 @@ export default function AdminQuestions() {
         "Correct Answer": q.correct_option || "",
         "Difficulty": q.difficulty || "",
         "Verification": q.verified ? "Verified" : "Unverified",
-        "Status": q.is_active ? "Active" : "Inactive",
-        "Source Note": q.source_note || ""
+        "Status": q.is_active ? "Active" : "Inactive"
       }));
       const sheet = XLSX.utils.json_to_sheet(rows);
-      sheet["!cols"] = [{wch:8},{wch:24},{wch:22},{wch:48},{wch:48},{wch:42},{wch:24},{wch:24},{wch:24},{wch:24},{wch:16},{wch:12},{wch:16},{wch:12},{wch:28}];
+      sheet["!cols"] = [{wch:8},{wch:24},{wch:22},{wch:48},{wch:48},{wch:42},{wch:24},{wch:24},{wch:24},{wch:24},{wch:16},{wch:12},{wch:16},{wch:12}];
       const book = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(book, sheet, "Question Review");
       XLSX.writeFile(book, "MISSION_UNIFORM_Question_Review_" + new Date().toISOString().slice(0,10) + ".xlsx");

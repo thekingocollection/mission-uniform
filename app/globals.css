@@ -6802,3 +6802,39 @@ button, a, input, select, textarea { touch-action: manipulation; }
   body:has(.mu-exam-layout) .site-header .brand small { color:#e3eaff; }
   body:has(.mu-exam-layout) .site-header .menu-toggle { color:#fff; border-color:rgba(255,255,255,.28); }
 }
+
+
+/* MISSION UNIFORM · Live Command Center */
+.mu-live-monitor { display:grid; gap:18px; }
+.mu-live-status { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:12px 16px; border:1px solid #cfe8dc; background:#f0fdf6; border-radius:14px; color:#14532d; }
+.mu-live-status > span { display:flex; align-items:center; gap:8px; font-weight:800; font-size:12px; letter-spacing:.08em; }
+.mu-live-status i,.mu-live-pill i { width:8px; height:8px; border-radius:50%; background:#16a34a; display:inline-block; box-shadow:0 0 0 4px #bbf7d0; }
+.mu-live-status small { color:#466454; font-size:12px; }
+.mu-live-stat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.mu-live-stat { min-width:0; border:1px solid #e2e8f0; border-radius:16px; padding:18px; background:#fff; box-shadow:0 5px 18px rgba(15,23,42,.045); display:flex; flex-direction:column; gap:7px; }
+.mu-live-stat > span { color:#475569; font-size:13px; font-weight:700; }
+.mu-live-stat > b { color:#0f2747; font-size:34px; line-height:1.1; letter-spacing:-.04em; }
+.mu-live-stat > small { color:#64748b; font-size:11px; line-height:1.4; }
+.mu-live-stat.online { border-top:3px solid #16a34a; }
+.mu-live-stat.test { border-top:3px solid #2563eb; }
+.mu-live-stat.offline { border-top:3px solid #94a3b8; }
+.mu-live-stat.started { border-top:3px solid #d97706; }
+.mu-live-stat.submitted { border-top:3px solid #0d9488; }
+.mu-live-panel { min-width:0; }
+.mu-live-count { padding:7px 11px; border-radius:99px; color:#166534; background:#dcfce7; font-size:11px; font-weight:800; white-space:nowrap; }
+.mu-live-pill { display:inline-flex; align-items:center; gap:8px; border-radius:99px; padding:6px 10px; background:#dcfce7; color:#166534; font-size:11px; font-weight:800; white-space:nowrap; }
+.mu-live-pill.exam { background:#dbeafe; color:#1d4ed8; }
+.mu-live-pill.exam i { background:#2563eb; box-shadow:0 0 0 4px #bfdbfe; }
+.mu-live-activity { display:grid; gap:0; }
+.mu-live-activity article { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid #edf1f6; min-width:0; }
+.mu-live-activity article:last-child { border-bottom:0; }
+.mu-live-activity article > span { width:34px; height:34px; display:grid; place-items:center; border-radius:50%; background:#dbeafe; color:#1d4ed8; font-weight:900; flex:none; }
+.mu-live-activity article > span.done { background:#dcfce7; color:#166534; }
+.mu-live-activity article > div { min-width:0; flex:1; }
+.mu-live-activity article b { color:#0f2747; font-size:13px; }
+.mu-live-activity article p { margin:3px 0; color:#475569; font-size:12px; }
+.mu-live-activity article small { color:#94a3b8; font-size:11px; }
+.mu-live-activity article em { color:#64748b; font-size:11px; font-style:normal; font-weight:700; }
+.mu-live-footnote { font-size:11px; line-height:1.5; }
+@media(max-width:900px) { .mu-live-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:560px) { .mu-live-stat-grid { gap:8px; } .mu-live-stat { padding:13px; border-radius:12px; } .mu-live-stat > b { font-size:28px; } .mu-live-status { align-items:flex-start; flex-direction:column; } .mu-live-activity article { align-items:flex-start; } }

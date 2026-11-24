@@ -64,7 +64,7 @@ export function SiteHeader() {
         <span>MISSION <b>UNIFORM OP</b><small>आपकी वर्दी, आपका सपना।</small></span>
       </Link>
       <button className={open ? "menu-toggle is-open" : "menu-toggle"} onClick={() => setOpen(v => !v)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="mu-primary-navigation">
-        <span className="mu-menu-lines" aria-hidden="true"><i /><i /><i /></span><span className="mu-menu-label">{open ? "CLOSE" : "MENU"}</span>
+        {open ? <><span className="mu-menu-back" aria-hidden="true">←</span><span className="mu-menu-label">BACK</span></> : <><span className="mu-menu-lines" aria-hidden="true"><i /><i /><i /></span><span className="mu-menu-label">MENU</span></>}
       </button>
       <nav id="mu-primary-navigation" className={open ? "nav open" : "nav"} aria-label="Main navigation">
         {links.map(([name, href, icon]) => {

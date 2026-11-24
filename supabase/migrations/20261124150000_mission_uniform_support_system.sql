@@ -34,7 +34,7 @@ create index if not exists support_tickets_status_updated_idx on public.support_
 create index if not exists support_messages_ticket_created_idx on public.support_messages(ticket_id, created_at asc);
 
 create or replace function public.support_touch_ticket()
-returns trigger language plpgsql security definer set search_path=public as $
+returns trigger language plpgsql security definer set search_path=public as $$
 begin
   update public.support_tickets
   set updated_at = now(),

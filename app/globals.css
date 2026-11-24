@@ -6791,3 +6791,14 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .mu-exam-palette .palette-grid { grid-template-columns:repeat(5,minmax(0,1fr)); gap:7px; }
   .mu-exam-palette .palette-grid button { min-height:43px; font-size:15px; }
 }
+
+@media (max-width:800px) {
+  body:has(.mu-exam-layout) .site-header {
+    min-height:66px; padding:10px 16px; background:#102653; color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.14);
+  }
+  body:has(.mu-exam-layout) .site-header .brand { color:#fff; }
+  body:has(.mu-exam-layout) .site-header .brand b { color:#ffd84b; }
+  body:has(.mu-exam-layout) .site-header .brand small { color:#e3eaff; }
+  body:has(.mu-exam-layout) .site-header .menu-toggle { color:#fff; border-color:rgba(255,255,255,.28); }
+}

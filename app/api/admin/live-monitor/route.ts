@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
       attempts_in_progress_today: activeAttemptsToday
     };
     const activity = attemptsToday.slice().sort((a: any, b: any) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime()).slice(0, 15);
-    const activityUserIds = [...new Set(activity.map((a: any) => a.user_id))];
+    const activityUserIds = [...new Set(attemptsToday.map((a: any) => a.user_id))];
     const activityTestIds = [...new Set(activity.map((a: any) => a.test_id))];
     const [activityProfiles, activityTests] = await Promise.all([
       activityUserIds.length ? db.from("profiles").select("id,student_code,full_name").in("id", activityUserIds) : { data: [], error: null },
@@ -88,11 +88,32 @@ export async function GET(req: NextRequest) {
     if (activityProfiles.error || activityTests.error) throw activityProfiles.error || activityTests.error;
     const profileMap = new Map((activityProfiles.data || []).map((s: any) => [s.id, s]));
     const activityTestMap = new Map((activityTests.data || []).map((t: any) => [t.id, t.title]));
+    const performanceMap = new Map<string, any>();
+    for (const attempt of attemptsToday) {
+      const key = attempt.user_id;
+      const current = performanceMap.get(key) || { user_id: key, tests_taken: 0, tests_submitted: 0, pending_tests: 0, total_score: 0, score_count: 0, last_test: "", last_started_at: "", latest_score: null };
+      current.tests_taken += 1;
+      if (attempt.is_submitted) {
+        current.tests_submitted += 1;
+        current.total_score += Number(attempt.score || 0);
+        current.score_count += 1;
+        if (current.latest_score === null || new Date(attempt.started_at).getTime() > new Date(current.last_started_at).getTime()) current.latest_score = Number(attempt.score || 0);
+      } else current.pending_tests += 1;
+      if (!current.last_started_at || new Date(attempt.started_at).getTime() > new Date(current.last_started_at).getTime()) {
+        current.last_started_at = attempt.started_at;
+        current.last_test = activityTestMap.get(attempt.test_id) || "Mock Test";
+      }
+      performanceMap.set(key, current);
+    }
+    const student_performance = [...performanceMap.values()].map((row: any) => {
+      const profile: any = profileMap.get(row.user_id);
+      return { ...row, student: profile?.full_name || "Student", student_code: profile?.student_code || "", average_score: row.score_count ? Number((row.total_score / row.score_count).toFixed(2)) : null };
+    }).sort((x: any, y: any) => y.tests_taken - x.tests_taken);
     const recent_activity = activity.map((a: any) => {
       const s: any = profileMap.get(a.user_id);
       return { id: a.id, student: s?.full_name || "Student", student_code: s?.student_code || "", test: activityTestMap.get(a.test_id) || "Mock Test", started_at: a.started_at, submitted: Boolean(a.is_submitted), score: a.score, correct: a.correct_count, wrong: a.wrong_count, skipped: a.skipped_count, total: a.total_questions, accuracy: a.total_questions ? Number((Number(a.correct_count || 0) / Number(a.total_questions) * 100).toFixed(1)) : 0 };
     });
-    return NextResponse.json({ stats, online_students: online, recent_activity, refreshed_at: now.toISOString() }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ stats, online_students: online, recent_activity, student_performance, refreshed_at: now.toISOString() }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Live monitor could not load." }, { status: 500 });
   }

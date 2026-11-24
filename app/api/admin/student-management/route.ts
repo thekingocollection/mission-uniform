@@ -30,15 +30,30 @@ async function loadStudents(db: ReturnType<typeof getServiceSupabase>, q: string
     if (error) throw error;
     rows.push(...(data || []));
     if (!exportAll || !data || data.length < pageSize) {
+      // Auth email/phone are the source of truth when older profile rows were
+      // created without copying contact details into public.profiles.
+      const authById = new Map<string, any>();
+      for (let page = 1; ; page += 1) {
+        const { data: authData, error: authError } = await db.auth.admin.listUsers({ page, perPage: 1000 });
+        if (authError) throw authError;
+        const users = authData?.users || [];
+        for (const user of users) authById.set(user.id, user);
+        if (users.length < 1000 || page >= 50) break;
+      }
+      const students = rows.map((profile: any) => {
+        const authUser = authById.get(profile.id);
+        const email = String(profile.email || authUser?.email || "");
+        const mobileRaw = String(profile.phone || authUser?.phone || authUser?.user_metadata?.phone || authUser?.user_metadata?.mobile || "");
+        return { ...profile, email, mobile: mobileRaw.replace(/^\\+91/, "") };
+      });
       return {
-        students: rows.map((p: any) => ({ ...p, email: p.email || "", mobile: String(p.phone || "").replace(/^\\+91/, "") })),
+        students,
         total: count ?? rows.length
       };
     }
     if (rows.length >= 50000) throw new Error("Export limit reached (50,000 profiles).");
   }
 }
-
 export async function GET(req: NextRequest) {
   try {
     const admin = await requireSuperAdmin(req);

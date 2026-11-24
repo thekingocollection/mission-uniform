@@ -1515,7 +1515,7 @@
 
 .admin-content .bulk-template-actions {
   display: flex;
-  align-items: end;
+  align-items:flex-end;
   flex-wrap: wrap;
   gap: 12px;
   margin: 16px 0 20px;
@@ -3535,7 +3535,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible { 
 .mu-emblem-ring b { font-size:74px; line-height:1; color:#fff; }
 .mu-emblem-ring span { font-size:10px; letter-spacing:3px; font-weight:900; }
 .mu-hero-emblem small { margin-top:25px; font-size:9px; letter-spacing:2px; }
-.mu-welcome-row,.mu-section-title { display:flex; justify-content:space-between; align-items:end; gap:18px; margin:34px 0 18px; }
+.mu-welcome-row,.mu-section-title { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin:34px 0 18px; }
 .mu-welcome-row h2,.mu-section-title h2 { font-size:clamp(22px,3.4vw,31px); margin:7px 0; color:var(--mu-navy); }
 .mu-welcome-row p { color:var(--mu-muted); margin:0; line-height:1.65; }
 .mu-live-count { display:flex; flex-direction:column; padding:14px 18px; border:1px solid var(--mu-line); border-radius:14px; background:white; min-width:140px; }
@@ -4932,7 +4932,7 @@ button:disabled { opacity:.55; cursor:not-allowed; }
 .mu-result-progress i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#1d4ed8,#d4a72c); }
 .mu-result-note { color:var(--muted-foreground,#64748b); }
 .mu-result-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
-.mu-review-heading { display:flex; justify-content:space-between; align-items:end; gap:12px; flex-wrap:wrap; }
+.mu-review-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; }
 .mu-review-heading h2 { margin:6px 0 0; }
 .mu-review-filters { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
 .mu-review-filters button { border:1px solid var(--border,#dbe2ea); border-radius:999px; padding:8px 13px; background:transparent; cursor:pointer; color:inherit; }
@@ -5091,7 +5091,7 @@ body { background:#f5f7f8; color:#183548; }
 .mu-study-odisha svg { width:145px; height:155px; filter:drop-shadow(0 8px 10px #061c2c88); }
 .mu-study-odisha>b { color:#fff; font-size:10px; letter-spacing:.12em; }
 .mu-study-odisha>small { color:#cbd9de; font-size:9px; letter-spacing:.18em; }
-.mu-study-section-head { display:flex; align-items:end; justify-content:space-between; gap:15px; margin:30px 0 16px; }
+.mu-study-section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:15px; margin:30px 0 16px; }
 .mu-study-section-head>div>span { color:#9a742a; }
 .mu-study-section-head h2 { margin:5px 0; color:#173448; font-size:26px; }
 .mu-study-section-head p { margin:0; color:#657782; font-size:13px; }
@@ -5454,7 +5454,7 @@ body { background:#f5f7f8; color:#183548; }
 .mu-home--defence .mu-topic-grid article { transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }
 .mu-home--defence .mu-topic-grid article:hover { transform:translateY(-5px); border-color:#d2ad59; box-shadow:0 12px 24px #102b4014; }
 .mu-maths-formula-section { margin:34px 0; padding:clamp(20px,3vw,30px); border:1px solid #e2d4b3; border-radius:22px; background:linear-gradient(145deg,#fffdf8,#f7f9f8 62%,#fff); box-shadow:0 12px 32px #102b400b; }
-.mu-maths-formula-section .mu-defence-section-head { display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:18px; }
+.mu-maths-formula-section .mu-defence-section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:18px; }
 .mu-maths-formula-section .mu-defence-section-head h2 { margin:7px 0; color:#173448; font-size:clamp(23px,3vw,31px); }
 .mu-maths-formula-section .mu-defence-section-head p { margin:0; color:#647582; font-size:13px; line-height:1.7; }
 .mu-maths-all-link { display:inline-flex; flex:0 0 auto; align-items:center; gap:10px; padding:10px 13px; border:1px solid #ddc78e; border-radius:10px; background:#fffaf0; color:#76591f; font-size:10px; font-weight:950; letter-spacing:.08em; text-decoration:none; transition:transform .2s ease,box-shadow .2s ease; }

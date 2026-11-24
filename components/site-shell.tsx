@@ -28,17 +28,26 @@ function isPublicPath(path: string) {
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const [signedIn, setSignedIn] = useState(false);\n  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [signedIn, setSignedIn] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const path = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const sb = supabaseBrowser();
     if (!sb) return;
-    sb.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
-    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => setSignedIn(!!session?.user));
+    const refreshSession = async (session: any) => {
+      setSignedIn(!!session?.user);
+      if (!session?.access_token) { setUnreadNotifications(0); return; }
+      try {
+        const response = await fetch("/api/student/notifications", { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" });
+        if (response.ok) { const result = await response.json(); setUnreadNotifications(Number(result.unread_count || 0)); }
+      } catch { /* Notification badge is best-effort. */ }
+    };
+    sb.auth.getSession().then(({ data }) => void refreshSession(data.session));
+    const { data: listener } = sb.auth.onAuthStateChange((_event, session) => void refreshSession(session));
     return () => listener.subscription.unsubscribe();
-  }, []);
+  }, [path]);
 
   async function logout() {
     const sb = supabaseBrowser();

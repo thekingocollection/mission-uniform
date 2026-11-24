@@ -7071,3 +7071,45 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-first-test-push-prompt>div>p{margin:5px 0 0;color:#64748b;font-size:12px;line-height:1.55}
 .mu-first-test-push-dismiss{padding:9px 11px;border:0;background:transparent;color:#64748b;font-size:12px;font-weight:700;cursor:pointer}
 @media(max-width:560px){.mu-first-test-push-prompt{align-items:stretch;flex-direction:column;padding:14px}.mu-first-test-push-prompt .btn{width:100%}.mu-first-test-push-dismiss{width:100%}}
+
+
+/* Mobile menu: persistent sticky access, gentle attention pulse and clear back action */
+@media (max-width: 900px) {
+  .site-header { position: sticky; top: 0; }
+  .menu-toggle {
+    position: relative;
+    z-index: 1002;
+    min-width: 112px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    border-width: 1.5px;
+    border-radius: 15px;
+    box-shadow: 0 0 0 0 rgba(212,167,44,.34);
+    animation: mu-menu-attention 3.2s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .menu-toggle:focus-visible {
+    outline: 3px solid rgba(245,207,101,.75);
+    outline-offset: 4px;
+  }
+  .menu-toggle:active { transform: scale(.96); background: rgba(212,167,44,.18); }
+  .menu-toggle.is-open { animation: none; background: rgba(212,167,44,.13); }
+  .mu-menu-lines { display: inline-flex; width: 25px; flex-direction: column; gap: 5px; }
+  .mu-menu-lines i { display: block; width: 24px; height: 2px; border-radius: 3px; background: #f5cf65; transition: transform .2s ease, width .2s ease; }
+  .mu-menu-lines i:nth-child(2) { width: 17px; }
+  .menu-toggle:not(.is-open):active .mu-menu-lines i:nth-child(2) { width: 24px; }
+  .mu-menu-label { font-size: 12px; font-weight: 900; letter-spacing: 1.5px; color: #f5cf65; }
+  .mu-menu-back { display: inline-grid; place-items: center; width: 25px; height: 25px; border: 1px solid rgba(245,207,101,.65); border-radius: 50%; color: #f5cf65; font-size: 21px; line-height: 1; }
+}
+@keyframes mu-menu-attention {
+  0%, 72%, 100% { box-shadow: 0 0 0 0 rgba(212,167,44,0); }
+  82% { box-shadow: 0 0 0 5px rgba(212,167,44,.16); }
+  90% { box-shadow: 0 0 0 9px rgba(212,167,44,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle { animation: none !important; transition: none !important; }
+}

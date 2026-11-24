@@ -63,7 +63,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       return {
         id:q.id, question:language==="or"?(q.question_or||q.question_en||q.question_hi||""):(q.question_en||q.question_or||q.question_hi||""), options,
         selected, correct_option:correctOption,
-        explanation:language==="or"?(q.explanation_or||q.explanation_en||q.explanation_hi||""):(q.explanation_en||q.explanation_or||q.explanation_hi||""),
+        explanation:language==="or"?(q.explanation_or||q.explanation_en||q.explanation_hi||q.explanation||""):(q.explanation_en||q.explanation_or||q.explanation_hi||q.explanation||""),
         chapter:q.chapter||null, difficulty:q.difficulty||null, status
       };
     });

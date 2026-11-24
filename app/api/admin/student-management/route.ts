@@ -110,6 +110,18 @@ export async function POST(req: NextRequest) {
       if (auditError) throw auditError;
       return NextResponse.json({ success: true, expires_at: expiresAt });
     }
+    if (body.action === "reset_password") {
+      const userId = String(body.user_id || "").trim();
+      const password = String(body.password || "");
+      if (!userId) return NextResponse.json({ error: "Choose a student." }, { status: 400 });
+      if (password.length < 8 || password.length > 72) return NextResponse.json({ error: "Password must be 8–72 characters long." }, { status: 400 });
+      const { data: target, error: lookupError } = await db.auth.admin.getUserById(userId);
+      if (lookupError || !target.user) return NextResponse.json({ error: "Student account not found." }, { status: 404 });
+      if (target.user.id === admin.id) return NextResponse.json({ error: "You cannot reset your own password from Student Management." }, { status: 400 });
+      const { error: updateError } = await db.auth.admin.updateUserById(userId, { password });
+      if (updateError) throw updateError;
+      return NextResponse.json({ success: true, message: "Student password updated successfully." });
+    }
     if (body.action === "message" || body.action === "broadcast") {
       const title = String(body.title || "").trim(), message = String(body.body || "").trim();
       if (!title || title.length > 120 || !message || message.length > 3000) return NextResponse.json({ error: "Title (1–120) and message (1–3000 characters) are required." }, { status: 400 });

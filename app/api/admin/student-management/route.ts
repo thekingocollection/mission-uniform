@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
-async function requireSuperAdmin(req: NextRequest) {
+async function requireAdmin(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) return null;
   const db = getServiceSupabase();
   const { data, error } = await db.auth.getUser(auth.slice(7));
   if (error || !data.user) return null;
-  const { data: profile } = await db.from("profiles").select("role,is_blocked").eq("id", data.user.id).maybeSingle();
-  return profile?.role === "super_admin" && !profile.is_blocked ? data.user : null;
+  const { data: profile } = await db.from("profiles").select("role,is_blocked,permissions").eq("id", data.user.id).maybeSingle();
+  if (!profile || profile.is_blocked || !["super_admin", "staff_admin"].includes(profile.role)) return null;
+  return { user: data.user, role: profile.role as string, permissions: (profile.permissions || {}) as Record<string, boolean> };
 }
 
 // Directory requests stay lightweight: only the latest 500 records are loaded.
@@ -56,11 +57,24 @@ async function loadStudents(db: ReturnType<typeof getServiceSupabase>, q: string
 }
 export async function GET(req: NextRequest) {
   try {
-    const admin = await requireSuperAdmin(req);
-    if (!admin) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
+    const access = await requireAdmin(req);
+    if (!access) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
     const db = getServiceSupabase();
     const q = (req.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
     const isExport = req.nextUrl.searchParams.get("export") === "1";
+    if (access.role === "staff_admin") {
+      if (!access.permissions.manage_students) return NextResponse.json({ error: "Student directory permission is required." }, { status: 403 });
+      if (!q) return NextResponse.json({ error: "Enter the Student ID provided by the Super Admin." }, { status: 400 });
+      const { data: matches, error } = await db.from("profiles").select("id,student_code,full_name,email").eq("student_code", q.toUpperCase()).neq("role", "super_admin").limit(1);
+      if (error) throw error;
+      const profile = matches?.[0];
+      if (!profile) return NextResponse.json({ students: [], total: 0, hasMore: false });
+      const { data: authData } = await db.auth.admin.getUserById(profile.id);
+      return NextResponse.json({
+        students: [{ id: profile.id, student_code: profile.student_code, full_name: profile.full_name || authData?.user?.user_metadata?.full_name || "", email: profile.email || authData?.user?.email || "" }],
+        total: 1, hasMore: false
+      }, { headers: { "Cache-Control": "private, no-store" } });
+    }
     const result = await loadStudents(db, q, isExport);
     if (isExport) {
       return NextResponse.json(result, { headers: { "Cache-Control": "private, no-store" } });
@@ -86,8 +100,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = await requireSuperAdmin(req);
-    if (!admin) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
+    const access = await requireAdmin(req);
+    if (!access || access.role !== "super_admin") return NextResponse.json({ error: "Super Admin access required for student account changes." }, { status: 403 });
+    const admin = access.user;
     const db = getServiceSupabase();
     const body = await req.json();
     if (body.action === "grant" || body.action === "revoke") {

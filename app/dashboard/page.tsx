@@ -12,6 +12,7 @@ const dashboardLinks = [
   { href: "/syllabus", icon: "☷", title: "Exam Syllabus", description: "Check all subjects and important topics.", tag: "LEARN" },
   { href: "/test-history", icon: "◷", title: "Test History", description: "See your completed tests and scores.", tag: "YOUR RECORD" },
   { href: "/leaderboard", icon: "↗", title: "Performance", description: "Track your preparation and progress.", tag: "PROGRESS" },
+  { href: "/feedback", icon: "★", title: "Feedback & Survey", description: "Share your experience and unlock one subject free for 3 days.", tag: "3 DAYS FREE" },
 ];
 
 export default function Dashboard() {

@@ -382,6 +382,25 @@ export default function AdminQuestions() {
     setBusy(false);
   }
 
+  async function bulkPermanentDelete() {
+    if (!supabase || !selected.length) return;
+    const confirmed = window.confirm(
+      "PERMANENTLY DELETE " + selected.length + " selected questions? This cannot be undone. Questions linked to existing tests or records may be rejected by database constraints. Continue?"
+    );
+    if (!confirmed) return;
+    setBusy(true);
+    const ids = [...selected];
+    const { error } = await supabase.from("questions").delete().in("id", ids);
+    if (error) {
+      setMessage("Permanent delete failed: " + error.message + ". If a question is used by a test/history record, archive it instead to preserve student results.");
+    } else {
+      setQuestions(old => old.filter(q => !ids.includes(q.id)));
+      setSelected([]);
+      setMessage(ids.length + " questions permanently deleted.");
+    }
+    setBusy(false);
+  }
+
   async function bulkUpdate() {
     if (!supabase || !selected.length) return;
     const patch:any = {};
@@ -779,6 +798,7 @@ export default function AdminQuestions() {
             <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkSetActive(true)}>Publish Selected</button>
             <button className="admin-qb-light-btn" disabled={busy || !selected.length} onClick={() => void bulkSetActive(false)}>Unpublish Selected</button>
             <button className="admin-qb-danger-btn" disabled={busy || !selected.length} onClick={() => void bulkDelete()}>Archive Selected</button>
+            <button className="admin-qb-danger-btn" style={{background:"#7f1d1d",color:"#fff"}} disabled={busy || !selected.length} onClick={() => void bulkPermanentDelete()}>Delete Permanently</button>
             <button className="admin-qb-reset" onClick={() => setSelected([])}>Clear</button>
           </div>
         </div>

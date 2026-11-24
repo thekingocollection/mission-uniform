@@ -7004,3 +7004,53 @@ button, a, input, select, textarea { touch-action: manipulation; }
 }
 
 .mu-nav-unread { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin-left:6px; padding:0 5px; border-radius:99px; background:#d94848; color:#fff; font-size:9px; line-height:1; font-weight:900; }
+
+/* Student feedback survey and reward */
+.mu-feedback-page{max-width:1000px;margin:0 auto;padding:22px 0 50px;display:grid;gap:20px}
+.mu-feedback-hero{position:relative;overflow:hidden;padding:clamp(24px,5vw,48px);border-radius:24px;color:#fff;background:radial-gradient(circle at 88% 10%,rgba(243,207,132,.24),transparent 30%),linear-gradient(135deg,#0b1d3b,#183d70 60%,#24517a)}
+.mu-feedback-kicker{color:#e9cb8c;font-size:10px;font-weight:900;letter-spacing:.16em}
+.mu-feedback-hero h1{max-width:650px;margin:14px 0 10px;color:#fff;font-size:clamp(30px,5vw,48px);line-height:1.08;letter-spacing:-.045em}
+.mu-feedback-hero>p{max-width:640px;margin:0;color:#d8e3f4;font-size:14px;line-height:1.7}
+.mu-feedback-reward{display:grid;gap:5px;max-width:310px;margin-top:23px;padding:15px 17px;border:1px solid rgba(239,211,155,.35);border-radius:15px;background:rgba(4,17,36,.35)}
+.mu-feedback-reward span{color:#f0d99f;font-size:9px;font-weight:900;letter-spacing:.12em}
+.mu-feedback-reward b{color:#fff;font-size:27px;letter-spacing:-.03em}
+.mu-feedback-reward small{color:#d6e0ef;font-size:11px;line-height:1.5}
+.mu-feedback-form,.mu-feedback-done{padding:clamp(19px,4vw,34px);border:1px solid #e1e7f0;border-radius:20px;background:#fff;box-shadow:0 12px 35px rgba(18,39,74,.06)}
+.mu-feedback-form{display:grid;gap:20px}
+.mu-feedback-form-head span{color:#315ca2;font-size:10px;font-weight:900;letter-spacing:.14em}
+.mu-feedback-form-head h2{margin:7px 0;color:#142b4b;font-size:24px}
+.mu-feedback-form-head p{margin:0;color:#6b7890;font-size:12px;line-height:1.6}
+.mu-feedback-field{display:grid;gap:8px;color:#253653;font-size:12px;font-weight:800}
+.mu-feedback-field>span{color:#8490a3;font-size:10px;font-weight:500}
+.mu-feedback-field select,.mu-feedback-field textarea{width:100%;min-height:46px;padding:11px 13px;border:1px solid #d9e1ec;border-radius:11px;background:#fbfcff;color:#172b49;font:inherit;font-weight:500}
+.mu-feedback-field textarea{resize:vertical}
+.mu-feedback-question{min-width:0;margin:0;padding:14px;border:1px solid #e4eaf2;border-radius:13px}
+.mu-feedback-question legend{padding:0 5px;color:#253653;font-size:12px;font-weight:850}
+.mu-feedback-question>small{display:block;margin-top:8px;color:#8a96a8;font-size:10px}
+.mu-feedback-rating{display:flex;flex-wrap:wrap;gap:7px}
+.mu-feedback-rating button{min-width:42px;min-height:40px;padding:7px 10px;border:1px solid #dce4ef;border-radius:10px;background:#fff;color:#465772;font-size:12px;font-weight:800}
+.mu-feedback-rating button.active{border-color:#bd984e;background:#fff8e8;color:#75531a;box-shadow:0 0 0 2px rgba(189,152,78,.12)}
+.mu-feedback-rating.compact button{min-width:32px;padding:6px}
+.mu-feedback-consent{display:flex;align-items:flex-start;gap:10px;color:#53627a;font-size:11px;line-height:1.6}
+.mu-feedback-consent input{margin-top:2px;accent-color:#2457a6}
+.mu-feedback-submit{min-height:50px;padding:12px 18px;border:0;border-radius:12px;background:linear-gradient(100deg,#173d82,#2a60b8);color:#fff;font-size:13px;font-weight:900}
+.mu-feedback-submit:disabled{opacity:.6}
+.mu-feedback-privacy{margin:-8px 0 0;color:#8994a5;font-size:10px;line-height:1.6;text-align:center}
+.mu-feedback-alert{padding:12px 15px;border-radius:12px;font-size:12px;line-height:1.5}
+.mu-feedback-alert.error{border:1px solid #fecaca;background:#fff1f2;color:#9f1239}
+.mu-feedback-alert.success{border:1px solid #bbf7d0;background:#f0fdf4;color:#166534}
+.mu-feedback-done{text-align:center;display:grid;justify-items:center;gap:12px}
+.mu-feedback-done-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:50%;background:#dcfce7;color:#166534;font-size:27px;font-weight:900}
+.mu-feedback-done h2{margin:0;color:#142b4b;font-size:25px}
+.mu-feedback-done p{max-width:580px;margin:0;color:#65738a;font-size:13px;line-height:1.7}
+.mu-feedback-done a{color:#2457ad;font-size:12px;font-weight:850;text-decoration:none}
+.mu-feedback-admin{display:grid;gap:18px}
+.mu-feedback-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.mu-feedback-stats article{display:grid;gap:7px;padding:16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+.mu-feedback-stats small{color:#718096;font-size:10px}
+.mu-feedback-stats b{color:#15335f;font-size:25px;font-variant-numeric:tabular-nums}
+.mu-feedback-table-wrap{width:100%;overflow:auto}
+.mu-feedback-table-wrap table{min-width:980px}
+.mu-feedback-quote{max-width:280px;margin:9px 0 0;padding:9px 11px;border-left:3px solid #c6a15c;background:#faf8f2;color:#43516a;font-size:11px;white-space:normal}
+.mu-feedback-quote small{display:block;margin-top:5px;color:#8a7446;font-size:9px}
+@media(max-width:760px){.mu-feedback-page{padding:12px 0 32px;gap:14px}.mu-feedback-hero{padding:24px 20px;border-radius:18px}.mu-feedback-hero h1{font-size:31px}.mu-feedback-hero>p{font-size:12px}.mu-feedback-form,.mu-feedback-done{padding:18px 14px;border-radius:16px}.mu-feedback-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-feedback-stats article:last-child{grid-column:1/-1}.mu-feedback-rating{gap:5px}.mu-feedback-rating button{min-width:37px;min-height:38px;padding:6px 8px}}

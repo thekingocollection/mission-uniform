@@ -101,7 +101,7 @@ export default function AdminHome() {
       <section className="admin-panel"><h2>Quick Actions</h2><div className="admin-quick-grid">
         <Link href="/admin/questions">＋ Add / Bulk Import Questions</Link><Link href="/admin/tests">＋ Create Mock Test / Previous Year Mock</Link>
         <Link href="/admin/previous-papers">＋ Upload Previous Year PDF</Link><Link href="/admin/subject-mock-tests">◎ Subject-wise Mock Tests</Link>
-        <Link href="/admin/job-alerts">＋ Publish Job Alert</Link><Link href="/admin/notifications">＋ Send Announcement</Link>
+        <Link href="/admin/job-alerts">＋ Publish Job Alert</Link><Link href="/admin/notifications">＋ Send Announcement</Link><Link href="/admin/feedback">★ View Reviews & Surveys</Link>
         <Link href="/admin/subjects">＋ Manage Subjects</Link><Link href="/admin/finance-report">₹ Finance Report & Sales</Link>
         <Link href="/admin/sponsor-ads">▣ Manage Sponsor Banners</Link><Link href="/admin/settings">⚙ Website Settings</Link>
       </div></section>

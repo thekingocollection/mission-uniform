@@ -17,6 +17,7 @@ const links = [
   ["Leaderboard", "/leaderboard", "♛"],
   ["Test History", "/test-history", "◷"],
   ["Notifications", "/notifications", "♧"],
+  ["Feedback & Survey", "/feedback", "★"],
   ["My Profile", "/profile", "◎"],
   ["Support Centre", "/support", "✉"],
 ];

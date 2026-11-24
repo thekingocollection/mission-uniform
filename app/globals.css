@@ -6320,8 +6320,8 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media (max-width: 800px) {
   .mu-exam-shell:has(.mu-exam-layout) {
     width: 100%;
-    height: calc(100vh - 64px);
-    height: calc(100dvh - 64px);
+    height: calc(100vh - 76px);
+    height: calc(100dvh - 76px);
     padding: 7px 9px;
   }
   .mu-exam-layout { gap: 7px; }

@@ -6907,3 +6907,12 @@ button, a, input, select, textarea { touch-action: manipulation; }
  .mu-signup-intro-copy h1 { font-size:30px; }
  .mu-signup-form-card { padding:20px 15px; }
 }
+
+
+/* Live Command Center · Indian Standard Time clock */
+.mu-live-clock { display:flex; align-items:center; justify-content:flex-end; gap:16px; }
+.mu-live-clock > div { min-width:190px; padding:10px 15px; border:1px solid #dce5f3; border-radius:14px; background:linear-gradient(145deg,#fff,#f5f8ff); text-align:right; box-shadow:0 5px 18px rgba(15,23,42,.045); }
+.mu-live-clock .admin-kicker { display:block; color:#64748b; font-size:9px; font-weight:850; letter-spacing:.13em; }
+.mu-live-clock strong { display:block; margin:3px 0; color:#102b55; font-size:25px; line-height:1.15; font-variant-numeric:tabular-nums; letter-spacing:-.04em; }
+.mu-live-clock small { display:block; color:#64748b; font-size:10px; }
+@media(max-width:600px) { .mu-live-clock { width:100%; justify-content:space-between; gap:9px; } .mu-live-clock > div { min-width:0; flex:1; padding:9px 11px; text-align:left; } .mu-live-clock strong { font-size:21px; } .mu-live-clock .admin-action { padding:9px 10px; font-size:11px; } }

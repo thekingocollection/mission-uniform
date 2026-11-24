@@ -6952,3 +6952,53 @@ button, a, input, select, textarea { touch-action: manipulation; }
  .mu-trial-banner--compact .mu-trial-copy h2 { font-size:17px; }
  .mu-trial-digit strong { font-size:23px; }
 }
+
+
+/* Notification campaign studio */
+.mu-campaign-admin { display:grid; gap:18px; }
+.mu-campaign-info { display:grid; gap:4px; padding:14px 17px; border:1px solid #d9e5f5; border-radius:14px; background:linear-gradient(110deg,#f5f8ff,#fff); color:#17345e; }
+.mu-campaign-info span { color:#526783; font-size:12px; }
+.mu-campaign-info small { color:#8290a5; font-size:10px; }
+.mu-campaign-form form { display:grid; gap:18px; }
+.mu-campaign-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.mu-campaign-fields label { display:grid; gap:7px; color:#253653; font-size:12px; font-weight:750; }
+.mu-campaign-fields label.wide { grid-column:1/-1; }
+.mu-campaign-fields input,.mu-campaign-fields select,.mu-campaign-fields textarea { width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid #dce3ed; border-radius:10px; background:#fff; color:#182b49; font:inherit; font-weight:500; outline:none; }
+.mu-campaign-fields textarea { resize:vertical; }
+.mu-campaign-fields input:focus,.mu-campaign-fields select:focus,.mu-campaign-fields textarea:focus { border-color:#3569bf; box-shadow:0 0 0 3px rgba(53,105,191,.1); }
+.mu-campaign-fields label small { color:#8491a5; font-size:10px; font-weight:500; }
+.mu-campaign-channels { display:flex; align-items:center; flex-wrap:wrap; gap:13px 20px; padding:13px; border:1px solid #e5eaf1; border-radius:12px; background:#fafcff; }
+.mu-campaign-channels>b { width:100%; color:#253653; font-size:12px; }
+.mu-campaign-channels label { display:flex; align-items:center; gap:7px; color:#42536d; font-size:12px; }
+.mu-campaign-channels input { accent-color:#2457a6; }
+.mu-campaign-actions { display:flex; flex-wrap:wrap; gap:10px; }
+.mu-campaign-status { display:inline-flex; padding:5px 8px; border-radius:99px; background:#edf2f8; color:#526176; font-size:9px; font-weight:900; letter-spacing:.06em; }
+.mu-campaign-status.sent { background:#dcfce7; color:#166534; }
+.mu-campaign-status.scheduled { background:#dbeafe; color:#1d4ed8; }
+.mu-campaign-status.failed { background:#fee2e2; color:#991b1b; }
+.mu-campaign-status.sending { background:#fef3c7; color:#92400e; }
+.mu-campaign-error { color:#b91c1c!important; max-width:220px; }
+.mu-campaign-footnote { font-size:11px; line-height:1.6; }
+.mu-notification-hero { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:5px 0 18px; }
+.mu-notification-hero h1 { margin:7px 0; color:#142b4b; font-size:clamp(25px,4vw,34px); }
+.mu-notification-hero p { margin:0; color:#6b7890; font-size:13px; line-height:1.6; }
+.mu-notification-unread { display:grid; place-items:center; min-width:76px; min-height:76px; padding:10px; border:1px solid #d8e4f5; border-radius:18px; background:linear-gradient(145deg,#f5f8ff,#fff); color:#2455a0; }
+.mu-notification-unread b { font-size:28px; line-height:1; font-variant-numeric:tabular-nums; }
+.mu-notification-unread span { margin-top:5px; font-size:8px; font-weight:900; letter-spacing:1px; }
+.mu-push-settings { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:5px 0 20px; padding:15px; border:1px solid #dce6f2; border-radius:14px; background:#f7faff; }
+.mu-push-settings>div { display:grid; gap:4px; }
+.mu-push-settings b { color:#203958; font-size:13px; }
+.mu-push-settings small { color:#718096; font-size:11px; line-height:1.5; }
+.mu-notification-item-actions { display:flex; align-items:center; flex-wrap:wrap; gap:14px; margin-top:12px; }
+.mu-notification-item-actions a { color:#2457ad; font-size:11px; font-weight:850; text-decoration:none; }
+@media(max-width:700px) {
+ .mu-campaign-fields { grid-template-columns:1fr; gap:12px; }
+ .mu-campaign-fields label.wide { grid-column:auto; }
+ .mu-campaign-actions { display:grid; grid-template-columns:1fr; }
+ .mu-campaign-actions button { width:100%; }
+ .mu-campaign-info { padding:12px; }
+ .mu-notification-hero { align-items:flex-start; }
+ .mu-notification-unread { min-width:64px; min-height:64px; border-radius:14px; }
+ .mu-push-settings { align-items:flex-start; flex-direction:column; }
+ .mu-push-settings button { width:100%; }
+}

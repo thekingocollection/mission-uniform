@@ -34,7 +34,7 @@ create index if not exists support_tickets_status_updated_idx on public.support_
 create index if not exists support_messages_ticket_created_idx on public.support_messages(ticket_id, created_at asc);
 
 create or replace function public.support_touch_ticket()
-returns trigger language plpgsql set search_path=public as $$
+returns trigger language plpgsql security definer set search_path=public as $
 begin
   update public.support_tickets
   set updated_at = now(),
@@ -110,3 +110,14 @@ grant update on public.support_tickets to authenticated;
 grant select, insert on public.support_messages to authenticated;
 grant usage, select on sequence public.support_ticket_number_seq to authenticated;
 notify pgrst, 'reload schema';
+
+create or replace function public.support_set_updated_at()
+returns trigger language plpgsql set search_path=public as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+drop trigger if exists support_ticket_set_updated_at on public.support_tickets;
+create trigger support_ticket_set_updated_at before update on public.support_tickets
+for each row execute function public.support_set_updated_at();

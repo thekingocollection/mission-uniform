@@ -153,6 +153,7 @@ export default function TakeTest({ id }: { id: string }) {
         throw new Error(data.error || "Submit failed.");
       }
 
+      delete document.documentElement.dataset.muActiveAttempt;
       setResult(data);
     } catch (e: any) {
       submittedRef.current = false;

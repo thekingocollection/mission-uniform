@@ -48,7 +48,9 @@ export default function PremiumTrialBanner({ compact = false }: { compact?: bool
         <div className="mu-trial-perks"><span>✦ All subjects during trial</span><span>✦ Purchased access stays active</span><span>✦ Secure Razorpay checkout</span></div>
       </div>
       <div className="mu-trial-clock" aria-live="off" aria-label={ended ? "Trial ended" : "Time remaining"}>
-        <span>{ended ? "TRIAL ENDED" : "TIME LEFT"}</span><strong>{countdown}</strong><small>HRS&nbsp;&nbsp; MIN&nbsp;&nbsp; SEC</small>
+        <div className="mu-trial-clock-heading"><span className="mu-trial-clock-icon">◷</span><span>{ended ? "TRIAL ENDED" : "YOUR COUNTDOWN"}</span></div>
+        <div className="mu-trial-digits">{countdown.split(":").map((part, index) => <div className="mu-trial-digit" key={index}><strong>{part}</strong><small>{["HOURS", "MINUTES", "SECONDS"][index]}</small></div>)}</div>
+        <small className="mu-trial-clock-note">{signedIn ? "Time remaining" : "Starts after registration"}</small>
       </div>
       <div className="mu-trial-actions"><small>{signedIn ? "Countdown is linked to your account registration time." : "Your personal 24-hour trial starts automatically after registration."}</small></div>
     </section>

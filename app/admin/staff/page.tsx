@@ -3,7 +3,7 @@ import {useEffect,useMemo,useState} from "react";
 import {supabaseBrowser} from "@/lib/supabase-browser";
 
 type Staff={id:string;email:string|null;full_name:string|null;role:string;permissions:Record<string,boolean>};
-const opts=[["manage_students","Student records"],["manage_subjects","Subjects & Chapters"],["manage_questions","Question Bank"],["manage_tests","Mock Tests & Previous Papers"],["manage_jobs","Job Alerts"],["manage_notifications","Notifications"],["manage_settings","Website Settings"]] as const;
+const opts=[["manage_students","Student records"],["manage_subjects","Subjects & Chapters"],["manage_questions","Question Bank"],["manage_tests","Mock Tests & Previous Papers"],["manage_jobs","Job Alerts"],["manage_notifications","Notifications"],["manage_feedback","Reviews & Surveys"],["manage_settings","Website Settings"]] as const;
 
 export default function StaffManagement(){
  const sb=useMemo(()=>supabaseBrowser(),[]);

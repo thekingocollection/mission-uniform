@@ -35,6 +35,14 @@ export async function GET(req: NextRequest) {
       : { data: [], error: null };
     if (studentsResult.error) throw studentsResult.error;
     const students = studentsResult.data || [];
+    const allStudentIds: string[] = [];
+    for (let from = 0; ; from += 1000) {
+      const page = await db.from("profiles").select("id").eq("role", "student").range(from, from + 999);
+      if (page.error) throw page.error;
+      const rows = page.data || [];
+      allStudentIds.push(...rows.map((row: any) => row.id));
+      if (rows.length < 1000) break;
+    }
     const authUsers: any[] = [];
     for (let page = 1; page <= 50; page += 1) {
       const batch = await db.auth.admin.listUsers({ page, perPage: 1000 });
@@ -70,8 +78,8 @@ export async function GET(req: NextRequest) {
     }).sort((a: any, b: any) => Number(b.is_taking_test) - Number(a.is_taking_test));
 
     const authById = new Map(authUsers.map((u: any) => [u.id, u]));
-    const loggedInToday = students.filter((s: any) => {
-      const user: any = authById.get(s.id);
+    const loggedInToday = allStudentIds.filter((studentId: string) => {
+      const user: any = authById.get(studentId);
       return user?.last_sign_in_at && new Date(user.last_sign_in_at).getTime() >= dayStart.getTime();
     }).length;
     const attemptsToday = started.data || [];

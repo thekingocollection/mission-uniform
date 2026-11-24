@@ -23,7 +23,9 @@ export async function POST(req: NextRequest) {
     if (!admin) return NextResponse.json({ error: "Question Bank admin access required." }, { status: 403 });
 
     const body = await req.json().catch(() => null);
-    const ids = Array.isArray(body?.ids) ? [...new Set(body.ids.map((id: unknown) => String(id)))] : [];
+    const ids: string[] = Array.isArray(body?.ids)
+      ? Array.from(new Set<string>((body.ids as unknown[]).map((id) => String(id))))
+      : [];
     if (!ids.length || ids.length > 100) {
       return NextResponse.json({ error: "Select between 1 and 100 questions per permanent-delete batch." }, { status: 400 });
     }

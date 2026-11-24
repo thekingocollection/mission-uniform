@@ -50,6 +50,8 @@ export default function TakeTest({ id }: { id: string }) {
   const [error, setError] = useState("");
   const [language, setLanguage] = useState<"en" | "or">("en");
   const [paletteOpen, setPaletteOpen] = useState(true);
+  const [showFirstTestPushPrompt, setShowFirstTestPushPrompt] = useState(false);
+  const [pushPromptBusy, setPushPromptBusy] = useState(false);
 
   const submittedRef = useRef(false);
   const submitRef = useRef<() => Promise<void>>(async () => {});
@@ -155,6 +157,15 @@ export default function TakeTest({ id }: { id: string }) {
 
       delete document.documentElement.dataset.muActiveAttempt;
       setResult(data);
+      // Ask for browser push permission only after the student has completed a first test.
+      try {
+        const promptKey = "mu_first_test_push_prompt_seen";
+        const supported = "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+        if (supported && Notification.permission === "default" && !window.localStorage.getItem(promptKey)) {
+          window.localStorage.setItem(promptKey, "1");
+          setShowFirstTestPushPrompt(true);
+        }
+      } catch { /* Storage/privacy settings may block this optional prompt. */ }
     } catch (e: any) {
       submittedRef.current = false;
       setError(e.message || "Result save nahi hua.");
@@ -199,6 +210,52 @@ export default function TakeTest({ id }: { id: string }) {
       setError(e.message || "Test start nahi hua.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function enablePushFromResult() {
+    setPushPromptBusy(true);
+    setError("");
+    try {
+      const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!key) throw new Error("Browser notification service is not configured yet.");
+      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+        throw new Error("This browser does not support push notifications.");
+      }
+      // This function is called directly from the student's button click.
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setShowFirstTestPushPrompt(false);
+        throw new Error("Notifications were not allowed. You can enable them later from Notification Centre.");
+      }
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      const decodeKey = (value: string) => {
+        const padded = value + "=".repeat((4 - value.length % 4) % 4);
+        const raw = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+        return Uint8Array.from(raw, c => c.charCodeAt(0));
+      };
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: decodeKey(key) as BufferSource
+        });
+      }
+      const sb = supabaseBrowser();
+      const { data: { session } } = await sb!.auth.getSession();
+      if (!session) throw new Error("Please log in again to enable notifications.");
+      const response = await fetch("/api/student/push-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        body: JSON.stringify(subscription.toJSON())
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Could not save notification settings.");
+      setShowFirstTestPushPrompt(false);
+    } catch (e: any) {
+      setError(e.message || "Could not enable browser notifications.");
+    } finally {
+      setPushPromptBusy(false);
     }
   }
 
@@ -329,6 +386,11 @@ export default function TakeTest({ id }: { id: string }) {
             <div><b>{summary.positive_marks ?? "—"}</b><span>Positive Marks</span></div>
             <div><b>{summary.negative_marks ?? "—"}</b><span>Negative Marks</span></div>
           </div>
+          {showFirstTestPushPrompt && <div className="mu-first-test-push-prompt" role="region" aria-label="Enable browser notifications">
+            <div><b>🔔 Never miss your next mock test</b><p>Allow browser notifications for daily tests, exam updates and important study reminders.</p></div>
+            <button type="button" className="btn primary" disabled={pushPromptBusy} onClick={() => void enablePushFromResult()}>{pushPromptBusy ? "Enabling…" : "Enable Notifications"}</button>
+            <button type="button" className="mu-first-test-push-dismiss" onClick={() => setShowFirstTestPushPrompt(false)}>Not now</button>
+          </div>}
           <p className="mu-result-note">Your result has been saved to your account. Review each answer below to learn from mistakes.</p>
           <div className="mu-result-links">
             <a className="btn secondary" href="/test-history">View Test History</a>

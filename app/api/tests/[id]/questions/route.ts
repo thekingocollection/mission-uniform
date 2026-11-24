@@ -24,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id).eq("status", "published").maybeSingle();
   if (error || !test) return NextResponse.json({ error: "Test not found or not published." }, { status: 404 });
   const { data: subject } = await db.from("subjects").select("name_en,name_hi").eq("id", test.subject_id).maybeSingle();
-  const testWithSubject = { ...test, subject_name_en: subject?.name_en || "", subject_name_or: subject?.name_hi || "" };
+  const testWithSubject = { ...test, negative_marking: 0.25, subject_name_en: subject?.name_en || "", subject_name_or: subject?.name_hi || "" };
   if (test.question_mode === "subject_random") {
     const [{ data: global }, { data: setting }] = await Promise.all([
       db.from("subject_access_global").select("all_subjects_enabled").eq("singleton", true).maybeSingle(),

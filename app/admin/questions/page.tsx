@@ -221,18 +221,30 @@ export default function AdminQuestions() {
   }
 
   function selectVisible() {
-    const ids = filteredQuestions.map(q => q.id);
+    // One bulk action supports up to 2,000 questions at a time.
+    const ids = filteredQuestions.slice(0, 2000).map(q => q.id);
     const allSelected = ids.length > 0 && ids.every(id => selected.includes(id));
 
-    setSelected(old =>
-      allSelected
-        ? old.filter(id => !ids.includes(id))
-        : [...new Set([...old, ...ids])]
-    );
+    setSelected(old => {
+      if (allSelected) return old.filter(id => !ids.includes(id));
+      const merged = [...new Set([...old, ...ids])];
+      if (merged.length > 2000) {
+        setMessage("Maximum 2,000 questions can be selected for one bulk action. Complete this batch, then select the next batch.");
+        return merged.slice(0, 2000);
+      }
+      return merged;
+    });
+    if (filteredQuestions.length > 2000 && !allSelected) {
+      setMessage("First 2,000 filtered questions selected. Complete this batch, then select the next batch.");
+    }
   }
 
   async function bulkVerify(value: boolean) {
     if (!supabase || !selected.length) return;
+    if (selected.length > 2000) {
+      setMessage("Maximum 2,000 questions can be verified in one bulk action.");
+      return;
+    }
 
     if (!window.confirm(
       `${selected.length} selected questions ko ${value ? "verify" : "unverify"} karein?`
@@ -241,8 +253,8 @@ export default function AdminQuestions() {
     setBusy(true);
     setMessage("");
 
-    // Keep each PostgREST IN filter small. A single request with hundreds
-    // of UUIDs can exceed URL/request limits and return HTTP 400 Bad Request.
+    // Support up to 2,000 questions per action, sent as safe 100-row
+    // PostgREST batches to avoid oversized requests / HTTP 400 errors.
     const ids = [...selected];
     const batchSize = 100;
     let updatedCount = 0;

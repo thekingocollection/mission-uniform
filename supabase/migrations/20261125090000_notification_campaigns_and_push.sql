@@ -29,6 +29,7 @@ create table if not exists public.student_notifications (
   title text not null,
   body text not null,
   target_url text not null default '/notifications',
+  inapp_visible boolean not null default true,
   created_at timestamptz not null default now(),
   read_at timestamptz,
   clicked_at timestamptz,

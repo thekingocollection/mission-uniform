@@ -53,8 +53,9 @@ export async function POST(req: NextRequest) {
     if (body?.inapp_enabled !== true && body?.push_enabled !== true) return NextResponse.json({ error: "Select at least one delivery channel." }, { status: 400 });
     const rawUrl = String(body?.target_url || "/notifications").trim();
     if (!rawUrl.startsWith("/") || rawUrl.startsWith("//")) return NextResponse.json({ error: "Notification link must be a local path." }, { status: 400 });
-    const scheduleAt = body?.send_now ? new Date().toISOString() : new Date(body?.schedule_at || "").toISOString();
-    if (!scheduleAt || Number.isNaN(new Date(scheduleAt).getTime())) return NextResponse.json({ error: "Choose a valid schedule date and time." }, { status: 400 });
+    const scheduleDate = body?.send_now ? new Date() : new Date(body?.schedule_at || "");
+    if (Number.isNaN(scheduleDate.getTime())) return NextResponse.json({ error: "Choose a valid schedule date and time." }, { status: 400 });
+    const scheduleAt = scheduleDate.toISOString();
     const db = getServiceSupabase();
     const { data, error } = await db.from("notification_campaigns").insert({
       title, body: message, target_type: targetType, target_days: Math.min(365, Math.max(1, Number(body?.target_days) || 2)),
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
     }).select("*").single();
     if (error) throw error;
     let delivery: any[] = [];
-    if (body?.send_now) delivery = await dispatchDueNotificationCampaigns(1);
+    if (body?.send_now) delivery = await dispatchDueNotificationCampaigns(20);
     return NextResponse.json({ success: true, campaign: data, delivery }, { headers: { "Cache-Control": "no-store" } });
   } catch (e: any) { return NextResponse.json({ error: e.message || "Could not create campaign." }, { status: 500 }); }
 }

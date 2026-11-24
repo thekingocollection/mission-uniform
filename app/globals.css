@@ -7002,3 +7002,5 @@ button, a, input, select, textarea { touch-action: manipulation; }
  .mu-push-settings { align-items:flex-start; flex-direction:column; }
  .mu-push-settings button { width:100%; }
 }
+
+.mu-nav-unread { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; margin-left:6px; padding:0 5px; border-radius:99px; background:#d94848; color:#fff; font-size:9px; line-height:1; font-weight:900; }

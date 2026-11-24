@@ -21,17 +21,27 @@ export async function GET(req: NextRequest) {
     const onlineCutoff = new Date(now.getTime() - 75000).toISOString();
     const dayStart = new Date(now);
     dayStart.setUTCHours(0, 0, 0, 0);
-    const [profiles, presence, started, submitted, authUsers] = await Promise.all([
-      db.from("profiles").select("id,student_code,full_name,email,phone,role,is_blocked,created_at").eq("role", "student"),
+    const [studentCount, presence, started, submitted] = await Promise.all([
+      db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
       db.from("student_live_presence").select("user_id,last_seen_at,current_path,active_attempt_id").gte("last_seen_at", onlineCutoff).order("last_seen_at", { ascending: false }).limit(2000),
       db.from("test_attempts").select("id,user_id,test_id,started_at,is_submitted,score,correct_count,wrong_count,total_questions").gte("started_at", dayStart.toISOString()).limit(5000),
-      db.from("test_attempts").select("id", { count: "exact", head: true }).eq("is_submitted", true).gte("submitted_at", dayStart.toISOString()),
-      db.auth.admin.listUsers({ page: 1, perPage: 1000 })
+      db.from("test_attempts").select("id", { count: "exact", head: true }).eq("is_submitted", true).gte("submitted_at", dayStart.toISOString())
     ]);
-    for (const result of [profiles, presence, started, submitted]) if (result.error) throw result.error;
-    if (authUsers.error) throw authUsers.error;
+    for (const result of [studentCount, presence, started, submitted]) if (result.error) throw result.error;
 
-    const students = profiles.data || [];
+    const onlineIdsForLookup = [...new Set((presence.data || []).map((p: any) => p.user_id))];
+    const studentsResult = onlineIdsForLookup.length
+      ? await db.from("profiles").select("id,student_code,full_name,email,phone,role,is_blocked,created_at").in("id", onlineIdsForLookup).eq("role", "student")
+      : { data: [], error: null };
+    if (studentsResult.error) throw studentsResult.error;
+    const students = studentsResult.data || [];
+    const authUsers: any[] = [];
+    for (let page = 1; page <= 50; page += 1) {
+      const batch = await db.auth.admin.listUsers({ page, perPage: 1000 });
+      if (batch.error) throw batch.error;
+      authUsers.push(...(batch.data.users || []));
+      if ((batch.data.users || []).length < 1000) break;
+    }
     const onlineRows = presence.data || [];
     const onlineIds = new Set(onlineRows.map((p: any) => p.user_id));
     const onlineStudents = students.filter((s: any) => onlineIds.has(s.id));
@@ -59,7 +69,7 @@ export async function GET(req: NextRequest) {
       };
     }).sort((a: any, b: any) => Number(b.is_taking_test) - Number(a.is_taking_test));
 
-    const authById = new Map((authUsers.data.users || []).map((u: any) => [u.id, u]));
+    const authById = new Map(authUsers.map((u: any) => [u.id, u]));
     const loggedInToday = students.filter((s: any) => {
       const user: any = authById.get(s.id);
       return user?.last_sign_in_at && new Date(user.last_sign_in_at).getTime() >= dayStart.getTime();
@@ -67,9 +77,9 @@ export async function GET(req: NextRequest) {
     const attemptsToday = started.data || [];
     const activeAttemptsToday = attemptsToday.filter((a: any) => !a.is_submitted).length;
     const stats = {
-      total_students: students.length,
+      total_students: studentCount.count || 0,
       online_now: online.length,
-      offline_now: Math.max(0, students.length - online.length),
+      offline_now: Math.max(0, (studentCount.count || 0) - online.length),
       taking_test_now: online.filter((s: any) => s.is_taking_test).length,
       logged_in_today: loggedInToday,
       tests_started_today: attemptsToday.length,

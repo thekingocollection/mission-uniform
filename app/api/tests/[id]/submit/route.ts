@@ -37,7 +37,9 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
         return NextResponse.json({error:"One or more selected answers are invalid."},{status:400});
     }
     const {data:test,error:testError}=await db.from("test_papers")
-      .select("title,marks_per_question,negative_marking").eq("id",id).single();
+      .select("title,marks_per_question").eq("id",id).single();
+    // Apply one consistent negative-marking rule to every mock test.
+    const negativeMarking = 0.25;
     if(testError)throw new Error(testError.message);
     const {data:paper}=await db.from("test_papers").select("subject_id").eq("id",id).maybeSingle();
     const {data:subject}=paper?.subject_id ? await db.from("subjects").select("name_en,name_hi").eq("id",paper.subject_id).maybeSingle() : {data:null};
@@ -54,7 +56,7 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
       let status:"correct"|"wrong"|"skipped";
       if(!valid){status="skipped";skipped++;}
       else if(correctIndex>=0&&selected===correctIndex){status="correct";correct++;score+=Number(test.marks_per_question??1);}
-      else{status="wrong";wrong++;score-=Number(test.negative_marking??0);}
+      else{status="wrong";wrong++;score-=negativeMarking;}
       const rawOptions=Array.isArray(q.options)?q.options.map((x:any)=>typeof x==="string"?x:String(x?.text??x?.value??"")):
         ["A","B","C","D"].map(k=>String(q.options?.[k]??""));
       const options=rawOptions.map((option:string)=>{const parts=option.split(/\s+\/\s+/);return parts.length>1?(language==="or"?parts.slice(1).join(" / "):parts[0]):option;});
@@ -84,12 +86,12 @@ export async function POST(req:NextRequest,{params}:{params:Promise<{id:string}>
     const elapsedSeconds = Math.max(0, Math.floor((new Date(saved.submitted_at || new Date().toISOString()).getTime() - new Date(attempt.started_at).getTime()) / 1000));
     return NextResponse.json({
       success:true, attempt:saved, total, accuracy, review,
-      test:{title:test.title,marks_per_question:Number(test.marks_per_question??1),negative_marking:Number(test.negative_marking??0)},
+      test:{title:test.title,marks_per_question:Number(test.marks_per_question??1),negative_marking:negativeMarking},
       summary:{
         attempted:correct+wrong,
         unanswered:skipped,
         positive_marks:Number((correct*Number(test.marks_per_question??1)).toFixed(2)),
-        negative_marks:Number((wrong*Number(test.negative_marking??0)).toFixed(2)),
+        negative_marks:Number((wrong*negativeMarking).toFixed(2)),
         elapsed_seconds:elapsedSeconds
       }
     },{headers:{"Cache-Control":"no-store"}});

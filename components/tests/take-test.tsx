@@ -185,6 +185,7 @@ export default function TakeTest({ id }: { id: string }) {
       if (!response.ok) throw new Error(data.error || "Test start nahi hua.");
       submittedRef.current = false;
       setAttemptId(data.attempt_id);
+      document.documentElement.dataset.muActiveAttempt = data.attempt_id;
       setTest(data.test);
       setQuestions(data.questions || []);
       setSeconds(Number(data.test.duration_minutes || 30) * 60);

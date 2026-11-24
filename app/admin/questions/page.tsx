@@ -390,13 +390,26 @@ export default function AdminQuestions() {
     if (!confirmed) return;
     setBusy(true);
     const ids = [...selected];
-    const { error } = await supabase.from("questions").delete().in("id", ids);
-    if (error) {
-      setMessage("Permanent delete failed: " + error.message + ". If a question is used by a test/history record, archive it instead to preserve student results.");
-    } else {
-      setQuestions(old => old.filter(q => !ids.includes(q.id)));
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (sessionError || !accessToken) throw new Error("Admin session expired. Please sign in again.");
+      let deletedCount = 0;
+      for (let i = 0; i < ids.length; i += 100) {
+        const response = await fetch("/api/admin/questions/permanent-delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + accessToken },
+          body: JSON.stringify({ ids: ids.slice(i, i + 100) })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "Server rejected permanent delete (HTTP " + response.status + ").");
+        deletedCount += Number(result.deleted_count || 0);
+      }
+      setQuestions(old => old.filter(q => !ids.slice(0, deletedCount).includes(q.id)));
       setSelected([]);
-      setMessage(ids.length + " questions permanently deleted.");
+      setMessage(deletedCount + " questions permanently deleted. Linked test/history questions were protected.");
+    } catch (error: any) {
+      setMessage("Permanent delete failed: " + (error?.message || "Unknown server error"));
     }
     setBusy(false);
   }

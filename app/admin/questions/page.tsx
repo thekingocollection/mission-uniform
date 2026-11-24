@@ -241,18 +241,39 @@ export default function AdminQuestions() {
     setBusy(true);
     setMessage("");
 
-    const { error } = await supabase
-      .from("questions")
-      .update({ verified: value })
-      .in("id", selected);
+    // Keep each PostgREST IN filter small. A single request with hundreds
+    // of UUIDs can exceed URL/request limits and return HTTP 400 Bad Request.
+    const ids = [...selected];
+    const batchSize = 100;
+    let updatedCount = 0;
+    let failedMessage = "";
 
-    if (error) {
-      setMessage("Update failed: " + error.message);
-    } else {
+    for (let i = 0; i < ids.length; i += batchSize) {
+      const batch = ids.slice(i, i + batchSize);
+      const { error } = await supabase
+        .from("questions")
+        .update({ verified: value })
+        .in("id", batch);
+
+      if (error) {
+        failedMessage = error.message;
+        break;
+      }
+      updatedCount += batch.length;
+    }
+
+    if (updatedCount > 0) {
+      const completedIds = new Set(ids.slice(0, updatedCount));
       setQuestions(old =>
-        old.map(q => selected.includes(q.id) ? { ...q, verified: value } : q)
+        old.map(q => completedIds.has(q.id) ? { ...q, verified: value } : q)
       );
-      setMessage(`${selected.length} questions successfully updated.`);
+    }
+
+    if (failedMessage) {
+      setMessage(`Updated ${updatedCount} of ${ids.length}. Remaining batch failed: ${failedMessage}`);
+      setSelected(ids.slice(updatedCount));
+    } else {
+      setMessage(`${updatedCount} questions successfully ${value ? "verified" : "moved to unverified"}.`);
       setSelected([]);
     }
 

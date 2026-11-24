@@ -62,17 +62,16 @@ export async function GET(req: NextRequest) {
     const db = getServiceSupabase();
     const q = (req.nextUrl.searchParams.get("q") || "").trim().slice(0, 100);
     const isExport = req.nextUrl.searchParams.get("export") === "1";
+    if (access.role === "staff_admin" && !access.permissions.manage_students) {
+      return NextResponse.json({ error: "Student directory permission is required." }, { status: 403 });
+    }
     if (access.role === "staff_admin") {
-      if (!access.permissions.manage_students) return NextResponse.json({ error: "Student directory permission is required." }, { status: 403 });
-      if (!q) return NextResponse.json({ error: "Enter the Student ID provided by the Super Admin." }, { status: 400 });
-      const { data: matches, error } = await db.from("profiles").select("id,student_code,full_name,email").eq("student_code", q.toUpperCase()).neq("role", "super_admin").limit(1);
-      if (error) throw error;
-      const profile = matches?.[0];
-      if (!profile) return NextResponse.json({ students: [], total: 0, hasMore: false });
-      const { data: authData } = await db.auth.admin.getUserById(profile.id);
+      const result = await loadStudents(db, q, isExport);
       return NextResponse.json({
-        students: [{ id: profile.id, student_code: profile.student_code, full_name: profile.full_name || authData?.user?.user_metadata?.full_name || "", email: profile.email || authData?.user?.email || "" }],
-        total: 1, hasMore: false
+        students: result.students,
+        total: result.total,
+        hasMore: result.total > result.students.length,
+        export: isExport
       }, { headers: { "Cache-Control": "private, no-store" } });
     }
     const result = await loadStudents(db, q, isExport);

@@ -7054,3 +7054,11 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-feedback-quote{max-width:280px;margin:9px 0 0;padding:9px 11px;border-left:3px solid #c6a15c;background:#faf8f2;color:#43516a;font-size:11px;white-space:normal}
 .mu-feedback-quote small{display:block;margin-top:5px;color:#8a7446;font-size:9px}
 @media(max-width:760px){.mu-feedback-page{padding:12px 0 32px;gap:14px}.mu-feedback-hero{padding:24px 20px;border-radius:18px}.mu-feedback-hero h1{font-size:31px}.mu-feedback-hero>p{font-size:12px}.mu-feedback-form,.mu-feedback-done{padding:18px 14px;border-radius:16px}.mu-feedback-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-feedback-stats article:last-child{grid-column:1/-1}.mu-feedback-rating{gap:5px}.mu-feedback-rating button{min-width:37px;min-height:38px;padding:6px 8px}}
+
+/* Live monitor five-second refresh controls and score table */
+.mu-live-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mu-live-controls .admin-action.active{border-color:#9bd7b5;background:#effcf4;color:#166534}
+.mu-live-panel .admin-table td{vertical-align:top}
+.mu-live-panel .admin-table td small{margin-top:4px;color:#8491a5;font-size:10px}
+.mu-live-footnote{padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;color:#64748b}
+@media(max-width:640px){.mu-live-controls{width:100%}.mu-live-controls .admin-action{flex:1;justify-content:center}.mu-live-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

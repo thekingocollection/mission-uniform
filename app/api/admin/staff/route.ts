@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/server-supabase";
 
 export const runtime = "nodejs";
-const allowedPermissions = ["manage_students","manage_subjects","manage_questions","manage_tests","manage_jobs","manage_notifications","manage_settings"];
+const allowedPermissions = ["manage_students","manage_subjects","manage_questions","manage_tests","manage_jobs","manage_notifications","manage_feedback","manage_settings"];
 
 async function requireSuperAdmin(req: NextRequest) {
   const authorization = req.headers.get("authorization");

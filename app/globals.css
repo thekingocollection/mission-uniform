@@ -6595,3 +6595,20 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .mu-exam-question .option { min-height: 42px; padding: 7px 9px; }
   .mu-exam-question .question-actions { padding-top: 6px; }
 }
+
+
+/* Keep two comfortable rows of question shortcuts visible on phones */
+@media (max-width: 800px) {
+  .mu-exam-layout .test-grid { grid-template-rows: minmax(0, 1fr) 126px; }
+  .mu-exam-palette { height: 126px; max-height: 126px; }
+  .mu-exam-palette .palette-grid {
+    max-height: 52px;
+    grid-auto-rows: 23px;
+  }
+  .mu-exam-palette .palette-grid button { min-height: 23px; }
+}
+@media (max-height: 640px) and (max-width: 800px) {
+  .mu-exam-layout .test-grid { grid-template-rows: minmax(0, 1fr) 98px; }
+  .mu-exam-palette { height: 98px; max-height: 98px; }
+  .mu-exam-palette .palette-grid { max-height: 25px; grid-auto-rows: 23px; }
+}

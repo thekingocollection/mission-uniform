@@ -17,7 +17,7 @@ self.addEventListener("notificationclick", event => {
   const data = event.notification.data || {};
   let target = data.url || "/notifications";
   if (!target.startsWith("/") || target.startsWith("//")) target = "/notifications";
-  if (data.notificationId) target += (target.includes("?") ? "&" : "?") + "openNotification=" + encodeURIComponent(data.notificationId);
+  if (data.notificationId) target = "/notifications?openNotification=" + encodeURIComponent(data.notificationId) + "&target=" + encodeURIComponent(target);
   event.waitUntil(clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
     for (const client of list) {
       if ("focus" in client) { client.navigate(target); return client.focus(); }

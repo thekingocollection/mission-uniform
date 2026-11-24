@@ -18,6 +18,7 @@ const links = [
   ["Test History", "/test-history", "◷"],
   ["Notifications", "/notifications", "♧"],
   ["My Profile", "/profile", "◎"],
+  ["Support Centre", "/support", "✉"],
 ];
 
 const publicPaths = ["/", "/login", "/signup", "/about", "/contact", "/privacy-policy", "/terms", "/forgot-password", "/reset-password"];

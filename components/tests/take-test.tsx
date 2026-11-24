@@ -441,24 +441,9 @@ export default function TakeTest({ id }: { id: string }) {
             <p>Question {index + 1} / {questions.length}</p>
           </div>
 
-          <div className="mu-exam-top-actions">
-            <div className={`timer mu-exam-timer ${seconds <= 300 ? "is-warning" : ""}`} role="timer" aria-live="off" aria-label={`Time remaining ${formatTime(seconds)}`}>
-              <div className="mu-exam-timer-top"><span>⏱ TIME LEFT</span><b>{formatTime(seconds)}</b></div>
-              <div className="mu-exam-time-track"><i style={{ width: `${Math.max(0, Math.min(100, (seconds / (Math.max(1, Number(test.duration_minutes || 30) * 60))) * 100))}%` }} /></div>
-            </div>
-            <button
-              type="button"
-              className="btn danger mu-exam-top-submit"
-              disabled={saving}
-              onClick={() => {
-                const ok = window.confirm(
-                  `Submit test now? Answered: ${answeredCount}, Not answered: ${skippedCount}`
-                );
-                if (ok) void submit();
-              }}
-            >
-              {saving ? "Submitting..." : "Submit"}
-            </button>
+          <div className={`timer mu-exam-timer ${seconds <= 300 ? "is-warning" : ""}`} role="timer" aria-live="off" aria-label={`Time remaining ${formatTime(seconds)}`}>
+            <div className="mu-exam-timer-top"><span>⏱ TIME REMAINING</span><b>{formatTime(seconds)}</b></div>
+            <div className="mu-exam-time-track"><i style={{ width: `${Math.max(0, Math.min(100, (seconds / (Math.max(1, Number(test.duration_minutes || 30) * 60))) * 100))}%` }} /></div>
           </div>
         </div>
 
@@ -578,6 +563,18 @@ export default function TakeTest({ id }: { id: string }) {
               Marked for review: <b>{marked.length}</b>
             </p>
 
+            <button
+              className="btn danger"
+              disabled={saving}
+              onClick={() => {
+                const ok = window.confirm(
+                  `Submit test now? Answered: ${answeredCount}, Not answered: ${skippedCount}`
+                );
+                if (ok) void submit();
+              }}
+            >
+              {saving ? "Submitting..." : "Submit Test"}
+            </button>
           </aside>
         </div>
       </section>

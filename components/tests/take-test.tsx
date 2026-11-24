@@ -49,6 +49,7 @@ export default function TakeTest({ id }: { id: string }) {
   const [flypastRun, setFlypastRun] = useState(0);
   const [error, setError] = useState("");
   const [language, setLanguage] = useState<"en" | "or">("en");
+  const [paletteOpen, setPaletteOpen] = useState(true);
 
   const submittedRef = useRef(false);
   const submitRef = useRef<() => Promise<void>>(async () => {});
@@ -434,17 +435,24 @@ export default function TakeTest({ id }: { id: string }) {
   return (
     <main className="content-wrap mu-exam-shell">
       <section className="test-layout mu-exam-layout">
-        <div className="test-top">
-          <div>
-            <span className="eyebrow">MISSION UNIFORM OP · LIVE EXAM</span>
-            <h1>{test.title}</h1>
-            <p>Question {index + 1} / {questions.length}</p>
+        <div className="test-top mu-mobile-exam-top">
+          <div className="mu-mobile-exam-subject">
+            <span className="mu-mobile-subject-icon">▤</span>
+            <div>
+              <span className="eyebrow">MISSION UNIFORM OP · LIVE EXAM</span>
+              <h1>{test.subject_name_en || test.title}</h1>
+              <p>{test.title}</p>
+            </div>
           </div>
-
+          <span className="mu-mobile-question-count">Q. {index + 1} / {questions.length}</span>
           <div className={`timer mu-exam-timer ${seconds <= 300 ? "is-warning" : ""}`} role="timer" aria-live="off" aria-label={`Time remaining ${formatTime(seconds)}`}>
-            <div className="mu-exam-timer-top"><span>⏱ TIME REMAINING</span><b>{formatTime(seconds)}</b></div>
+            <div className="mu-exam-timer-top"><span>◴ <span className="mu-timer-label">TIME LEFT</span></span><b>{formatTime(seconds)}</b></div>
             <div className="mu-exam-time-track"><i style={{ width: `${Math.max(0, Math.min(100, (seconds / (Math.max(1, Number(test.duration_minutes || 30) * 60))) * 100))}%` }} /></div>
           </div>
+          <button type="button" className="btn danger mu-mobile-submit" disabled={saving} onClick={() => {
+            const ok = window.confirm(`Submit test now? Answered: ${answeredCount}, Not answered: ${skippedCount}`);
+            if (ok) void submit();
+          }}>{saving ? "Submitting..." : "➤ Submit"}</button>
         </div>
 
         {error && <p className="bulk-message">{error}</p>}
@@ -457,9 +465,10 @@ export default function TakeTest({ id }: { id: string }) {
 
         <div className="test-grid">
           <section className="panel question-panel mu-exam-question">
-            <div className="question-meta">
-              <span>{question.chapter || "General"}</span>
-              <span>{answers[question.id] !== undefined ? "Answered" : "Not Answered"}</span>
+            <div className="question-meta mu-mobile-question-meta">
+              <span className="mu-question-number-pill">Question {index + 1}</span>
+              <button type="button" className={`mu-bookmark-button ${marked.includes(question.id) ? "is-marked" : ""}`} aria-label={marked.includes(question.id) ? "Remove bookmark" : "Mark for review"} onClick={() => toggleMark(question.id)}>{marked.includes(question.id) ? "🔖" : "♧"}</button>
+              <span className="mu-question-status">{question.chapter || (answers[question.id] !== undefined ? "Answered" : "Not Answered")}</span>
             </div>
 
             <h2>{questionText}</h2>
@@ -529,10 +538,18 @@ export default function TakeTest({ id }: { id: string }) {
             </div>
           </section>
 
-          <aside className="panel palette mu-exam-palette">
-            <h3>Question Palette</h3>
+          <aside className={`panel palette mu-exam-palette ${paletteOpen ? "is-open" : "is-collapsed"}`}>
+            <div className="mu-palette-heading">
+              <h3><span className="mu-palette-icon">▦</span> Question Palette</h3>
+              <div className="mu-palette-legend">
+                <span><i className="answered-dot" /> Answered</span>
+                <span><i className="marked-dot" /> Marked</span>
+                <span><i className="not-visited-dot" /> Not Visited</span>
+              </div>
+              <button type="button" className="mu-palette-toggle" aria-label={paletteOpen ? "Collapse question palette" : "Expand question palette"} onClick={() => setPaletteOpen((v) => !v)}>{paletteOpen ? "⌃" : "⌄"}</button>
+            </div>
 
-            <div className="palette-grid">
+            {paletteOpen && <div className="palette-grid">
               {questions.map((q, i) => (
                 <button
                   key={q.id}
@@ -547,10 +564,10 @@ export default function TakeTest({ id }: { id: string }) {
                   {i + 1}
                 </button>
               ))}
-            </div>
+            </div>}
 
-            <p className="legend">
-              🟢 Answered · ⚪ Not answered · 🟡 Review
+            <p className="legend mu-palette-mobile-stats">
+              Answered: <b>{answeredCount}</b> · Marked: <b>{marked.length}</b> · Not Visited: <b>{skippedCount}</b>
             </p>
 
             <p>
@@ -563,18 +580,6 @@ export default function TakeTest({ id }: { id: string }) {
               Marked for review: <b>{marked.length}</b>
             </p>
 
-            <button
-              className="btn danger"
-              disabled={saving}
-              onClick={() => {
-                const ok = window.confirm(
-                  `Submit test now? Answered: ${answeredCount}, Not answered: ${skippedCount}`
-                );
-                if (ok) void submit();
-              }}
-            >
-              {saving ? "Submitting..." : "Submit Test"}
-            </button>
           </aside>
         </div>
       </section>

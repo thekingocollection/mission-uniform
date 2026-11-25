@@ -30,68 +30,31 @@ async function loadStudents(db: ReturnType<typeof getServiceSupabase>, q: string
   const rows: any[] = [];
   let total = 0;
   let from = 0;
-
   for (;;) {
-    let query = db
-      .from("profiles")
-      .select("id,student_code,full_name,phone,role,is_blocked,created_at", { count: from === 0 ? "exact" : undefined })
+    let query = db.from("profiles")
+      .select("id,student_code,full_name,email,phone,role,is_blocked,created_at", { count: from === 0 ? "exact" : undefined })
       .neq("role", "super_admin")
       .order("created_at", { ascending: false });
-
     if (q) {
       const safe = q.replace(/[,%()]/g, "").replace(/[*]/g, "").trim();
       if (safe) query = query.or(
-        `student_code.ilike.%${safe}%,full_name.ilike.%${safe}%,phone.ilike.%${safe}%`
+        `student_code.ilike.%${safe}%,full_name.ilike.%${safe}%,email.ilike.%${safe}%,phone.ilike.%${safe}%`
       );
     }
-
     const { data, error, count } = await query.range(from, from + pageSize - 1);
     if (error) throw error;
     if (from === 0) total = count ?? 0;
-
     const pageRows = data || [];
     rows.push(...pageRows);
     if (!exportAll || pageRows.length < pageSize) break;
     from += pageSize;
     if (rows.length >= 50000) throw new Error("Export limit reached (50,000 profiles).");
   }
-
-  const authById = new Map<string, any>();
-  // Supabase Auth Admin listUsers is paginated; use bounded pages.
-  for (let page = 1; ; page += 1) {
-    const { data, error } = await db.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw error;
-    const users = data?.users || [];
-    for (const user of users) authById.set(user.id, user);
-    if (users.length < 1000 || page >= 50) break;
-  }
-
-  const normalizedQuery = q.toLocaleLowerCase();
-  const students = rows.map((profile: any) => {
-    const authUser = authById.get(profile.id);
-    const email = String(authUser?.email || profile.email || "");
-    const mobile = String(
-      profile.phone ||
-      authUser?.phone ||
-      authUser?.user_metadata?.phone ||
-      authUser?.user_metadata?.mobile ||
-      ""
-    ).replace(/^\+91/, "");
-    return {
-      ...profile,
-      email,
-      mobile
-    };
-  }).filter((student: any) => {
-    if (!normalizedQuery) return true;
-    return [
-      student.student_code,
-      student.full_name,
-      student.email,
-      student.mobile
-    ].some(value => String(value || "").toLocaleLowerCase().includes(normalizedQuery));
-  });
-
+  const students = rows.map((p: any) => ({
+    ...p,
+    email: p.email || "",
+    mobile: String(p.phone || "").replace(/^\\+91/, "")
+  }));
   return { students, total: q ? students.length : total };
 }
 
@@ -118,19 +81,30 @@ export async function GET(req: NextRequest) {
       }, { headers: { "Cache-Control": "private, no-store" } });
     }
 
-    const [subjects, grants] = await Promise.all([
-      db.from("subjects").select("id,name_en,name_hi").eq("is_active", true).order("name_en"),
+    // Match the actual Supabase subjects schema (name/name_od/published).
+    // Optional access metadata must never block the student directory response.
+    const [subjectsResult, grantsResult] = await Promise.all([
+      db.from("subjects").select("id,name,name_od,sort_order,published").order("sort_order"),
       db.from("student_subject_access").select("user_id,subject_id,expires_at")
     ]);
-    if (subjects.error) throw subjects.error;
-    if (grants.error) throw grants.error;
+    const subjects = (subjectsResult.data || [])
+      .filter((subject: any) => subject.published !== false)
+      .map((subject: any) => ({
+        id: subject.id,
+        name_en: subject.name_en || subject.name || "",
+        name_hi: subject.name_hi || subject.name_od || ""
+      }));
 
     return NextResponse.json({
       students: result.students,
       total: result.total,
       hasMore: result.total > result.students.length,
-      subjects: subjects.data || [],
-      grants: grants.data || []
+      subjects,
+      grants: grantsResult.error ? [] : (grantsResult.data || []),
+      warnings: [
+        ...(subjectsResult.error ? ["Subjects could not be loaded: " + subjectsResult.error.message] : []),
+        ...(grantsResult.error ? ["Premium access details could not be loaded: " + grantsResult.error.message] : [])
+      ]
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e: any) {
     console.error("[admin/student-management GET]", e);

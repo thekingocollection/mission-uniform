@@ -72,15 +72,15 @@ export default function SubjectMockTestPage() {
     setSelectedId(id);
   }
 
-  async function unlockSubject() {
-    if (!selected || paying) return;
+  async function unlockSubject(subjectToUnlock: Subject | undefined = selected) {
+    if (!subjectToUnlock || paying) return;
     setPaying(true); setError("");
     try {
       const sb = supabaseBrowser();
       const { data: { session } } = await sb!.auth.getSession();
       if (!session) throw new Error("Please login again.");
       const headers = { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token };
-      const response = await fetch("/api/subject-access/order", { method: "POST", headers, body: JSON.stringify({ subject_id: selected.subject_id }), cache: "no-store" });
+      const response = await fetch("/api/subject-access/order", { method: "POST", headers, body: JSON.stringify({ subject_id: subjectToUnlock.subject_id }), cache: "no-store" });
       const order = await response.json();
       if (!response.ok) throw new Error(order.error || "Could not start payment.");
       if (!window.Razorpay) {
@@ -146,7 +146,7 @@ export default function SubjectMockTestPage() {
     {loading ? <div className="mu-fast-empty">Loading subjects...</div> :
       subjects.length === 0 ? <div className="mu-fast-empty">Exam subjects are not configured yet. Please contact the administrator.</div> :
       <section className="mu-subject-clean-grid" aria-label="Exam subjects">
-        {subjects.map((s, index) => {
+        {subjects.filter(s => s.name_en !== "Previous Year Questions").map((s, index) => {
           const active = s.subject_id === selectedId;
           const status = !s.enabled ? "Unavailable" : s.purchased ? "Unlocked" : s.free_forever ? "Free" : s.trial_active ? "Free access" : "₹29 · Pay to Unlock";
           return <button type="button" key={s.subject_id} aria-pressed={active} className={"mu-subject-clean-card " + (active ? "active" : "")} onClick={() => chooseSubject(s.subject_id)} style={{animationDelay: (index * 45) + "ms"}}>
@@ -158,13 +158,33 @@ export default function SubjectMockTestPage() {
         })}
       </section>
     }
-    {selected && <section className="mu-subject-clean-action" aria-live="polite">
+    {(() => {
+      const pyq = subjects.find(s => s.name_en === "Previous Year Questions");
+      if (!pyq) return null;
+      const unlocked = pyq.can_start;
+      return <section className="mu-pyq-promo" aria-label="Previous Year Questions premium access">
+        <div className="mu-pyq-promo-copy">
+          <span className="mu-pyq-promo-kicker">SPECIAL EXAM RESOURCE · PREMIUM</span>
+          <h2>Previous Year Questions</h2>
+          <p>Practice with year-wise Odisha Police previous papers uploaded by our Admin. Each published paper will appear separately after unlocking.</p>
+          <div className="mu-pyq-promo-meta"><span>YEAR-WISE PAPERS</span><span>PDF + ONLINE MOCKS</span></div>
+        </div>
+        <div className="mu-pyq-promo-action">
+          <span className="mu-pyq-promo-price">{unlocked ? "UNLOCKED" : "₹29"}</span>
+          <small>{unlocked ? "Your access is active" : "One-time subject unlock"}</small>
+          {unlocked
+            ? <button type="button" className="mu-pyq-promo-button" onClick={() => { window.location.href = "/previous-papers"; }}>View Previous Year Papers →</button>
+            : <button type="button" className="mu-pyq-promo-button" onClick={() => void unlockSubject(pyq)} disabled={paying}>{paying ? "Please wait..." : "₹29 Pay to Unlock →"}</button>}
+        </div>
+      </section>;
+    })()}
+    {selected && selected.name_en !== "Previous Year Questions" && <section className="mu-subject-clean-action" aria-live="polite">
       {!selected.enabled ? <p className="mu-fast-locked">This subject is currently unavailable.</p>
       : !selected.can_start ? <div className="mu-subject-action-inner">
           <div><b>{selected.name_en || selected.name_hi}</b><span>Pay ₹29 to unlock this subject and start practising.</span></div>
           <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Please wait..." : "₹29 Pay to Unlock →"}</button>
         </div>
-      : selected.name_en === "Previous Year Questions" ? <div className="mu-subject-action-inner"><div><b>Previous Year Questions</b><span>Access previous year papers and exam questions.</span></div><button className="mu-fast-primary mu-subject-start-button" onClick={startTest}>Open Previous Year Questions →</button></div>\n      : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
+      : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
       : <div className="mu-subject-action-inner">
           <div><b>{selected.name_en || selected.name_hi}</b><span>Ready when you are. Your test will include up to 30 questions.</span></div>
           <button className="mu-fast-primary mu-subject-start-button" disabled={starting} onClick={startTest}>{starting ? "Starting..." : "Start Mock Test →"}</button>

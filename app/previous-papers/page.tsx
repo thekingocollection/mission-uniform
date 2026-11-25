@@ -26,11 +26,17 @@ export default function Page() {
       const {data,error}=await sb.auth.getUser();
       if(!active)return;
       if(error||!data.user){router.replace("/login?next=/previous-papers");return;}
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session){router.replace("/login?next=/previous-papers");return;}
+      const accessResponse=await fetch("/api/subject-access",{headers:{Authorization:"Bearer "+session.access_token},cache:"no-store"});
+      const accessBody=await accessResponse.json().catch(()=>({}));
+      if(!accessResponse.ok)throw new Error(accessBody.error||"Could not verify Previous Year Questions access.");
+      const pyq=(accessBody.subjects||[]).find((s:any)=>s.name_en==="Previous Year Questions");
+      if(!pyq){setError("Previous Year Questions subject is not configured yet. Please contact Admin.");setAuthorized(false);setChecking(false);setLoading(false);return;}
+      if(!pyq.can_start){router.replace("/subject-mock-test?subject="+encodeURIComponent(pyq.subject_id));return;}
       setAuthorized(true);setChecking(false);
       try{
-        const {data:{session}}=await sb.auth.getSession();
-        const headers: Record<string,string> = {};
-        if(session?.access_token) headers.Authorization="Bearer "+session.access_token;
+        const headers: Record<string,string> = {Authorization:"Bearer "+session.access_token};
         const [response,pdfResponse]=await Promise.all([
           fetch("/api/tests?type=full",{headers}),
           fetch("/api/previous-year-papers",{headers})

@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       const purchase: any = purchaseMap.get(s.id);
       const purchased = Boolean(purchase && (!purchase.expires_at || new Date(purchase.expires_at).getTime() > Date.now()));
       const freeForever = Number(cfg.price_paise) === 0;
-      const trial = trialActive && !purchased;
+      const trial = trialActive && !purchased && s.name_en !== "Previous Year Questions";
       return {
         id: s.id, name_en: s.name_en, name_hi: s.name_hi,
         price_paise: cfg.price_paise, duration_days: cfg.duration_days,

@@ -1,11 +1,11 @@
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminSupabaseBrowser } from "@/lib/admin-supabase-browser";
 
 /**
  * Get a current admin access token from the shared browser auth client.
  * Refresh once when storage is empty or the access token is close to expiry.
  */
 export async function getAdminAccessToken(forceRefresh = false): Promise<string | null> {
-  const supabase = supabaseBrowser();
+  const supabase = adminSupabaseBrowser();
   if (!supabase) return null;
 
   const { data, error } = await supabase.auth.getSession();

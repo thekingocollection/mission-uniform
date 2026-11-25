@@ -22,22 +22,27 @@ export async function GET(req: NextRequest) {
     if (error) throw error;
     if (!partner) return NextResponse.json({ partner: null, summary: null, referrals: [], commissions: [] });
     const [{ data: referrals, error: referralsError }, { data: commissions, error: commissionsError }, { data: payouts, error: payoutsError }] = await Promise.all([
-      db.from("partner_referrals").select("id,student_id,created_at,profiles:student_id(full_name,student_code)").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),
+      db.from("partner_referrals").select("id,student_id,created_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),
       db.from("partner_commissions").select("id,amount_paise,commission_rate,commission_paise,status,created_at,paid_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),
       db.from("partner_payouts").select("amount_paise,paid_at,payment_reference").eq("partner_id", partner.id).order("paid_at", { ascending: false }).limit(100)
     ]);
     if (referralsError) throw referralsError;
     if (commissionsError) throw commissionsError;
     if (payoutsError) throw payoutsError;
+    const studentIds = (referrals || []).map((r: any) => r.student_id);
+    const profileResult = studentIds.length ? await db.from("profiles").select("id,full_name,student_code").in("id", studentIds) : { data: [], error: null };
+    if (profileResult.error) throw profileResult.error;
+    const profileById = new Map((profileResult.data || []).map((p: any) => [p.id, p]));
+    const referralRows = (referrals || []).map((r: any) => ({ ...r, profiles: profileById.get(r.student_id) || null }));
     const rows = commissions || [];
     const summary = {
-      students: (referrals || []).length,
+      students: referralRows.length,
       premiumSales: rows.length,
       earnedPaise: rows.filter((r: any) => r.status !== "reversed").reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0),
       pendingPaise: rows.filter((r: any) => ["pending","approved"].includes(r.status)).reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0),
       paidPaise: rows.filter((r: any) => r.status === "paid").reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0)
     };
-    return NextResponse.json({ partner, summary, referrals: referrals || [], commissions: rows, payouts: payouts || [] }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ partner, summary, referrals: referralRows, commissions: rows, payouts: payouts || [] }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Could not load partner dashboard." }, { status: 500 });
   }

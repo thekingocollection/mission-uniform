@@ -146,7 +146,7 @@ export default function SubjectMockTestPage() {
       <section className="mu-subject-clean-grid" aria-label="Exam subjects">
         {subjects.map((s, index) => {
           const active = s.subject_id === selectedId;
-          const status = !s.enabled ? "Unavailable" : s.purchased ? "Unlocked" : s.free_forever ? "Free" : s.trial_active ? "Free access" : "Premium";
+          const status = !s.enabled ? "Unavailable" : s.purchased ? "Unlocked" : s.free_forever ? "Free" : s.trial_active ? "Free access" : "₹29 · Pay to Unlock";
           return <button type="button" key={s.subject_id} aria-pressed={active} className={"mu-subject-clean-card " + (active ? "active" : "")} onClick={() => chooseSubject(s.subject_id)} style={{animationDelay: (index * 45) + "ms"}}>
             <span className="mu-subject-card-mark" aria-hidden="true">{String(index + 1).padStart(2,"0")}</span>
             <span className="mu-subject-card-name">{s.name_en || s.name_hi || "Subject"}</span>
@@ -162,7 +162,7 @@ export default function SubjectMockTestPage() {
           <div><b>{selected.name_en || selected.name_hi}</b><span>Unlock this subject to start practising.</span></div>
           <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Please wait..." : "Unlock Subject →"}</button>
         </div>
-      : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
+      : selected.name_en === "Previous Year Questions" ? <div className="mu-subject-action-inner"><div><b>Previous Year Questions</b><span>Access previous year papers and exam questions.</span></div><button className="mu-fast-primary mu-subject-start-button" onClick={startTest}>Open Previous Year Questions →</button></div>\n      : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
       : <div className="mu-subject-action-inner">
           <div><b>{selected.name_en || selected.name_hi}</b><span>Ready when you are. Your test will include up to 30 questions.</span></div>
           <button className="mu-fast-primary mu-subject-start-button" disabled={starting} onClick={startTest}>{starting ? "Starting..." : "Start Mock Test →"}</button>

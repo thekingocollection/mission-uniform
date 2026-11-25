@@ -19,6 +19,7 @@ const dashboardLinks = [
 
 export default function Dashboard() {
   const [name, setName] = useState("Student");
+  const [studentId, setStudentId] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [email, setEmail] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
@@ -35,6 +36,7 @@ export default function Dashboard() {
       if (!sb) return;
       const { data: { user } } = await sb.auth.getUser();
       if (!user) return;
+      setStudentId(user.id);
       const [{ data: profile }, { count }] = await Promise.all([
         sb.from("profiles").select("full_name,email,email_verified").eq("id", user.id).maybeSingle(),
         sb.from("test_attempts").select("id", { count: "exact", head: true }).eq("user_id", user.id),
@@ -111,7 +113,7 @@ export default function Dashboard() {
 
   return (
     <main className="mu-dashboard-simple">
-      <StudentWebsiteTour />
+      <StudentWebsiteTour userId={studentId} />
       <section className="mu-dashboard-welcome" data-tour="welcome">
         <div className="mu-dashboard-welcome-copy">
           <span className="mu-dashboard-eyebrow"><i /> MISSION UNIFORM OP · STUDENT PORTAL</span>

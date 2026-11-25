@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { getServiceSupabase } from "@/lib/server-supabase";
+import { sendFcmNotifications } from "@/lib/firebase-admin";
 
 type Campaign = {
   id: string; title: string; body: string; target_type: string; target_days: number;
@@ -55,19 +56,30 @@ export async function dispatchDueNotificationCampaigns(limit = 10) {
       const userIds = await getTargetStudents(db, campaign);
       let inappCount = 0, pushSent = 0, pushFailed = 0;
       if (userIds.length) {
-        const subscriptionResult = campaign.push_enabled
-          ? await db.from("student_push_subscriptions").select("id,user_id,endpoint,p256dh,auth_key").in("user_id", userIds)
-          : { data: [], error: null };
+        const [subscriptionResult, fcmResult] = campaign.push_enabled
+          ? await Promise.all([
+              db.from("student_push_subscriptions").select("id,user_id,endpoint,p256dh,auth_key").in("user_id", userIds),
+              db.from("student_fcm_tokens").select("token,user_id").in("user_id", userIds)
+            ])
+          : [{ data: [], error: null }, { data: [], error: null }];
         if (subscriptionResult.error) throw subscriptionResult.error;
+        if (fcmResult.error) throw fcmResult.error;
         const subsByUser = new Map<string, any[]>();
         for (const sub of subscriptionResult.data || []) {
           const list = subsByUser.get(sub.user_id) || [];
           list.push(sub); subsByUser.set(sub.user_id, list);
         }
+        const tokensByUser = new Map<string, string[]>();
+        for (const item of fcmResult.data || []) {
+          const list = tokensByUser.get(item.user_id) || [];
+          list.push(item.token); tokensByUser.set(item.user_id, list);
+        }
         const rows = userIds.map(userId => ({
           campaign_id: campaign.id, user_id: userId, title: campaign.title, body: campaign.body,
           target_url: campaign.target_url || "/notifications", inapp_visible: campaign.inapp_enabled,
-          push_status: campaign.push_enabled ? ((subsByUser.get(userId)?.length) ? "pending" : "no_subscription") : "not_requested"
+          push_status: campaign.push_enabled
+            ? ((subsByUser.get(userId)?.length || tokensByUser.get(userId)?.length) ? "pending" : "no_subscription")
+            : "not_requested"
         }));
         for (let offset = 0; offset < rows.length; offset += 500) {
           const batch = rows.slice(offset, offset + 500);
@@ -78,32 +90,50 @@ export async function dispatchDueNotificationCampaigns(limit = 10) {
             const configured = configurePush();
             for (const notice of inserted as any[]) {
               const subscriptions = subsByUser.get(notice.user_id) || [];
-              if (!subscriptions.length || !configured) {
-                if (!configured && subscriptions.length) {
-                  pushFailed++;
-                  await db.from("student_notifications").update({ push_status: "failed", push_error: "VAPID keys are not configured." }).eq("id", notice.id);
-                }
-                continue;
-              }
+              const tokens = tokensByUser.get(notice.user_id) || [];
               let delivered = false;
-              for (const sub of subscriptions) {
+              const errors: string[] = [];
+
+              if (tokens.length) {
                 try {
-                  await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } }, JSON.stringify({
-                    title: campaign.title, body: campaign.body, url: campaign.target_url || "/notifications", notificationId: notice.id
-                  }), { TTL: 60 * 60 * 24 });
-                  delivered = true;
-                } catch (pushError: any) {
-                  if (pushError?.statusCode === 404 || pushError?.statusCode === 410) {
-                    await db.from("student_push_subscriptions").delete().eq("id", sub.id);
+                  const result = await sendFcmNotifications({
+                    tokens, title: campaign.title, body: campaign.body,
+                    url: campaign.target_url || "/notifications"
+                  });
+                  delivered = result.successCount > 0;
+                  if (result.invalidTokens.length) {
+                    await db.from("student_fcm_tokens").delete().in("token", result.invalidTokens);
+                  }
+                  if (result.failureCount) errors.push(result.failureCount + " FCM delivery failure(s)");
+                } catch (fcmError: any) {
+                  errors.push("FCM: " + String(fcmError?.message || "delivery failed").slice(0, 250));
+                }
+              }
+
+              if (subscriptions.length && configured) {
+                for (const sub of subscriptions) {
+                  try {
+                    await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } }, JSON.stringify({
+                      title: campaign.title, body: campaign.body, url: campaign.target_url || "/notifications", notificationId: notice.id
+                    }), { TTL: 60 * 60 * 24 });
+                    delivered = true;
+                  } catch (pushError: any) {
+                    if (pushError?.statusCode === 404 || pushError?.statusCode === 410) {
+                      await db.from("student_push_subscriptions").delete().eq("id", sub.id);
+                    }
+                    errors.push("Web Push delivery failed");
                   }
                 }
+              } else if (subscriptions.length && !configured) {
+                errors.push("VAPID keys are not configured");
               }
+
               if (delivered) {
                 pushSent++;
-                await db.from("student_notifications").update({ push_status: "sent", push_sent_at: new Date().toISOString(), push_error: null }).eq("id", notice.id);
-              } else {
+                await db.from("student_notifications").update({ push_status: "sent", push_sent_at: new Date().toISOString(), push_error: errors.length ? errors.join("; ").slice(0, 500) : null }).eq("id", notice.id);
+              } else if (tokens.length || subscriptions.length) {
                 pushFailed++;
-                await db.from("student_notifications").update({ push_status: "failed", push_error: "Push delivery failed or subscription expired." }).eq("id", notice.id);
+                await db.from("student_notifications").update({ push_status: "failed", push_error: errors.join("; ").slice(0, 500) || "Push delivery failed." }).eq("id", notice.id);
               }
             }
           }

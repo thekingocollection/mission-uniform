@@ -1,13 +1,12 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { adminFetch } from "@/lib/admin-client-session";
 
 type LiveStudent = { user_id:string; student_code:string; name:string; email:string; phone:string; last_seen_at:string; current_path:string; is_taking_test:boolean; test_title:string; test_started_at:string|null };
 type StudentPerformance = { user_id:string; student:string; student_code:string; tests_taken:number; tests_submitted:number; pending_tests:number; average_score:number|null; latest_score:number|null; };
 type MonitorData = { stats:Record<string,number>; online_students:LiveStudent[]; recent_activity:any[]; student_performance:StudentPerformance[]; refreshed_at:string };
 
 export default function LiveMonitorPage() {
-  const sb = useMemo(() => supabaseBrowser(), []);
   const [data,setData] = useState<MonitorData|null>(null);
   const [error,setError] = useState("");
   const [loading,setLoading] = useState(true);
@@ -19,18 +18,15 @@ export default function LiveMonitorPage() {
   const indiaTime = (value: string | Date, withDate = false) => new Date(value).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit", ...(withDate ? { day: "2-digit", month: "short", year: "numeric" } : {}) });
   const load = useCallback(async () => {
     if (inFlight.current) return;
-    if (!sb) { setError("Supabase configuration is missing."); setLoading(false); return; }
     inFlight.current = true;
     try {
-      const { data:{session} } = await sb.auth.getSession();
-      if (!session) throw new Error("Please sign in again.");
-      const response = await fetch("/api/admin/live-monitor",{headers:{Authorization:"Bearer "+session.access_token},cache:"no-store"});
+      const response = await adminFetch("/api/admin/live-monitor");
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Live monitor unavailable.");
       setData(result); setUpdated(result.refreshed_at || new Date().toISOString()); setError("");
     } catch(e:any) { setError(e.message || "Could not refresh live monitor."); }
     finally { setLoading(false); inFlight.current = false; }
-  },[sb]);
+  },[]);
   useEffect(()=>{void load();if(!autoRefresh)return;const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},5000);return()=>window.clearInterval(timer);},[load,autoRefresh]);
   const stats=data?.stats||{};
   const cards=[

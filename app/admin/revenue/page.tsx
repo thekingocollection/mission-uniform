@@ -1,1 +1,1 @@
-import {PageHero} from '@/components/content-page'; export default function AdminModule(){return <><PageHero eyebrow="ADMIN MODULE" title="Revenue" desc="Manage revenue for Mission Uniform OP."/><section className="panel"><p>This module needs administrator authentication and the corresponding Supabase table/API. Configure the admin role before using it with live student data.</p></section></>}
+export { default } from "../finance-report/page";

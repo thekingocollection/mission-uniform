@@ -122,7 +122,7 @@ export default function Dashboard() {
           <p className="mu-dashboard-intro">Prepare for Odisha Police with focused practice, mock tests and daily progress.</p>
           <div className="mu-dashboard-actions">
             <Link href="/subject-mock-test" className="mu-dashboard-primary">Start Mock Test <span>↗</span></Link>
-            <Link href="/syllabus" className="mu-dashboard-secondary">View Syllabus <span>→</span></Link>
+            <Link href="/leaderboard" className="mu-dashboard-secondary">View Leaderboard <span>→</span></Link>
           </div>
         </div>
         <div className="mu-dashboard-emblem" aria-hidden="true">

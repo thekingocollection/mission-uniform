@@ -7,8 +7,6 @@ const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleStri
 
 export default function PartnerDashboard() {
   const [data, setData] = useState<Payload | null>(null);
-  const [name, setName] = useState("");
-  const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -28,34 +26,10 @@ export default function PartnerDashboard() {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function apply(e: React.FormEvent) {
-    e.preventDefault(); setBusy(true); setMessage("");
-    try {
-      const sb = supabaseBrowser();
-      const { data: { session } } = await sb!.auth.getSession();
-      if (!session) throw new Error("Please login first.");
-      const response = await fetch("/api/partner", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token }, body: JSON.stringify({ display_name: name }) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Application failed.");
-      setMessage(result.message || "Request submitted.");
-      await load();
-    } catch (e: any) { setMessage(e.message || "Could not submit request."); }
-    finally { setBusy(false); }
-  }
+
 
   if (loading) return <main style={{maxWidth:1000,margin:"50px auto",padding:20}}>Loading Partnership Panel…</main>;
-  if (!data?.partner) return <main style={{maxWidth:760,margin:"40px auto",padding:20}}>
-    <section style={{padding:28,border:"1px solid #dbe3ed",borderRadius:20,background:"#fff"}}>
-      <span style={{color:"#8b6725",fontWeight:800,fontSize:12,letterSpacing:2}}>MISSION UNIFORM OP</span>
-      <h1 style={{fontSize:32,color:"#152b45",margin:"12px 0"}}>Become a Partnership Partner</h1>
-      <p style={{color:"#5d6d7e",lineHeight:1.7}}>Apply to promote Mission Uniform OP. After a discussion, Admin will approve your account, assign your unique referral link and decide your commission percentage.</p>
-      {message && <p role="status" style={{color:"#9a4b16"}}>{message}</p>}
-      <form onSubmit={apply} style={{display:"grid",gap:12,marginTop:22}}>
-        <label style={{fontWeight:700}}>Your Name<input required minLength={2} value={name} onChange={e=>setName(e.target.value)} placeholder="Enter your name" style={{display:"block",width:"100%",padding:13,border:"1px solid #ccd6e2",borderRadius:10,marginTop:7}}/></label>
-        <button disabled={busy} style={{padding:14,border:0,borderRadius:10,background:"#173e68",color:"#fff",fontWeight:800}}>{busy?"Submitting…":"Submit Partnership Request"}</button>
-      </form>
-    </section>
-  </main>;
+  if (!data?.partner) return <main style={{maxWidth:700,margin:"40px auto",padding:20}}><section style={{padding:28,border:"1px solid #dbe3ed",borderRadius:20,background:"#fff"}}><span style={{color:"#8b6725",fontWeight:800,fontSize:12,letterSpacing:2}}>MISSION UNIFORM OP</span><h1 style={{fontSize:32,color:"#152b45",margin:"12px 0"}}>Partner Access</h1><p style={{color:"#5d6d7e",lineHeight:1.7}}>{message || "This panel is only for partners whose login ID has been created by the Mission Uniform Admin."}</p><a href="/partner/login" style={{display:"inline-block",marginTop:12,padding:"12px 18px",borderRadius:10,background:"#173e68",color:"#fff",fontWeight:800,textDecoration:"none"}}>Go to Partner Login</a></section></main>;
 
   const p = data.partner, s = data.summary || {};
   const link = p.referral_code ? (typeof window !== "undefined" ? window.location.origin : "") + "/signup?ref=" + p.referral_code : "";

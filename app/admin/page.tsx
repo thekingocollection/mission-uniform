@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { adminFetch } from "@/lib/admin-client-session";
 
 type Activity = { id: string; kind: "registration" | "purchase"; user_id: string; name: string; student_code?: string; amount_paise?: number; created_at: string; reference?: string };

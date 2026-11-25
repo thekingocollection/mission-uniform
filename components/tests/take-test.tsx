@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createFcmToken } from "@/lib/firebase";
 
 type Question = {
   id: string;
@@ -169,7 +170,7 @@ export default function TakeTest({ id }: { id: string }) {
       // Ask for browser push permission only after the student has completed a first test.
       try {
         const promptKey = "mu_first_test_push_prompt_seen";
-        const supported = "Notification" in window && "serviceWorker" in navigator && "PushManager" in window;
+        const supported = "Notification" in window && "serviceWorker" in navigator;
         if (supported && Notification.permission === "default" && !window.localStorage.getItem(promptKey)) {
           window.localStorage.setItem(promptKey, "1");
           setShowFirstTestPushPrompt(true);
@@ -226,37 +227,16 @@ export default function TakeTest({ id }: { id: string }) {
     setPushPromptBusy(true);
     setError("");
     try {
-      const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!key) throw new Error("Browser notification service is not configured yet.");
-      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
-        throw new Error("This browser does not support push notifications.");
-      }
-      // This function is called directly from the student's button click.
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        setShowFirstTestPushPrompt(false);
-        throw new Error("Notifications were not allowed. You can enable them later from Notification Centre.");
-      }
-      const registration = await navigator.serviceWorker.register("/sw.js");
-      const decodeKey = (value: string) => {
-        const padded = value + "=".repeat((4 - value.length % 4) % 4);
-        const raw = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
-        return Uint8Array.from(raw, c => c.charCodeAt(0));
-      };
-      let subscription = await registration.pushManager.getSubscription();
-      if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: decodeKey(key) as BufferSource
-        });
-      }
+      // Permission is requested only after an explicit student button click.
+      const token = await createFcmToken();
       const sb = supabaseBrowser();
-      const { data: { session } } = await sb!.auth.getSession();
+      if (!sb) throw new Error("Supabase connection unavailable.");
+      const { data: { session } } = await sb.auth.getSession();
       if (!session) throw new Error("Please log in again to enable notifications.");
-      const response = await fetch("/api/student/push-subscription", {
+      const response = await fetch("/api/student/fcm-token", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
-        body: JSON.stringify(subscription.toJSON())
+        body: JSON.stringify({ token, platform: /Android/i.test(navigator.userAgent) ? "android-web" : "web" })
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Could not save notification settings.");

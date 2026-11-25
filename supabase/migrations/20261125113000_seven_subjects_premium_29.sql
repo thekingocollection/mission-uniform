@@ -26,6 +26,8 @@ all_subject_ids as (
   join desired_subjects d
     on lower(trim(s.name_en)) = lower(trim(d.name_en))
   where s.is_active = true
+  union
+  select id from inserted
 )
 insert into public.subject_access_settings (subject_id, price_paise, duration_days, is_enabled)
 select id, 2900, null, true

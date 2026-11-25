@@ -24,7 +24,7 @@ export default function AdminLogin() {
       const adminClient = adminSupabaseBrowser();
       if (!adminClient) throw new Error("Supabase environment variables are missing.");
 
-      await adminClient.auth.signOut();
+      await adminClient.auth.signOut({ scope: "local" });
       const { data, error } = await adminClient.auth.signInWithPassword({
         email: normalizedEmail,
         password
@@ -69,13 +69,13 @@ export default function AdminLogin() {
         });
         if (partnerSessionError) throw new Error("Partner session could not be saved: " + partnerSessionError.message);
 
-        await adminClient.auth.signOut();
+        await adminClient.auth.signOut({ scope: "local" });
         router.replace("/partner");
         router.refresh();
         return;
       }
 
-      await adminClient.auth.signOut();
+      await adminClient.auth.signOut({ scope: "local" });
       const partnerError = partnerResult.error || (
         partnerResult.partner
           ? "Your Partner account is not approved yet. Please contact the Super Admin."

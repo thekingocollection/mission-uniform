@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
 type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[] };
 const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
@@ -12,7 +12,7 @@ export default function PartnerDashboard() {
 
   const load = useCallback(async () => {
     try {
-      const sb = supabaseBrowser();
+      const sb = partnerSupabaseBrowser();
       if (!sb) throw new Error("Portal unavailable.");
       const { data: { session } } = await sb.auth.getSession();
       if (!session) throw new Error("Please login to continue.");

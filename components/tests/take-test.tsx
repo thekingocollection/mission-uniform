@@ -20,6 +20,15 @@ function cleanStudentQuestion(value: string | null | undefined): string {
     .trim();
 }
 
+function renderExamText(value: string) {
+  return value.split(/(\^\d+)/g).map((part, index) => {
+    const exponent = part.match(/^\^(\d+)$/);
+    return exponent
+      ? <sup key={index}>{exponent[1]}</sup>
+      : <span key={index}>{part}</span>;
+  });
+}
+
 type ReviewItem = {
   id: string;
   question: string;
@@ -420,7 +429,7 @@ export default function TakeTest({ id }: { id: string }) {
                   {item.chapter && <span>{item.chapter}</span>}
                   {item.difficulty && <span>{item.difficulty}</span>}
                 </div>
-                <h3>{cleanStudentQuestion(item.question)}</h3>
+                <h3 className="mu-formatted-question">{renderExamText(cleanStudentQuestion(item.question))}</h3>
                 <div className="mu-review-options">
                   {item.options.map((option, i) => {
                     const isCorrect = i === ["A", "B", "C", "D"].indexOf(String(item.correct_option).toUpperCase());
@@ -535,7 +544,7 @@ export default function TakeTest({ id }: { id: string }) {
               <span className="mu-question-status">{question.chapter || (answers[question.id] !== undefined ? "Answered" : "Not Answered")}</span>
             </div>
 
-            <h2>{questionText}</h2>
+            <h2 className="mu-formatted-question">{renderExamText(questionText)}</h2>
 
             <div className="options">
               {options.map((option, i) => (

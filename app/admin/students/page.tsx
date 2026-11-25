@@ -6,7 +6,26 @@ type Subject={id:string;name_en:string|null;name_hi:string|null};
 type Grant={user_id:string;subject_id:string;expires_at:string|null};
 export default function StudentsPage(){
  const sb=useMemo(()=>supabaseBrowser(),[]),[students,setStudents]=useState<Student[]>([]),[totalStudents,setTotalStudents]=useState(0),[hasMoreStudents,setHasMoreStudents]=useState(false),[subjects,setSubjects]=useState<Subject[]>([]),[grants,setGrants]=useState<Grant[]>([]),[query,setQuery]=useState(""),[selected,setSelected]=useState<Student|null>(null),[subjectId,setSubjectId]=useState(""),[duration,setDuration]=useState("lifetime"),[reason,setReason]=useState(""),[title,setTitle]=useState(""),[body,setBody]=useState(""),[mode,setMode]=useState("grant"),[busy,setBusy]=useState(false),[exporting,setExporting]=useState(false),[msg,setMsg]=useState(""),[giftStudentId,setGiftStudentId]=useState(""),[giftStudent,setGiftStudent]=useState<Student|null>(null),[giftSubjectId,setGiftSubjectId]=useState(""),[giftDuration,setGiftDuration]=useState("lifetime"),[giftReason,setGiftReason]=useState(""),[giftLookupBusy,setGiftLookupBusy]=useState(false),[newPassword,setNewPassword]=useState(""),[confirmPassword,setConfirmPassword]=useState("");
- const request=useCallback(async(method="GET",payload?:any,q=query)=>{if(!sb)throw new Error("Supabase configuration missing.");const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error("Please login as Super Admin.");const r=await fetch("/api/admin/student-management"+(method==="GET"&&q?"?q="+encodeURIComponent(q):""),{method,headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},...(payload?{body:JSON.stringify(payload)}:{})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Request failed.");return d;},[sb,query]);
+ const request=useCallback(async(method="GET",payload?:any,q=query)=>{
+  if(!sb)throw new Error("Supabase configuration missing. Please check the site environment variables.");
+  let {data:{session}}=await sb.auth.getSession();
+  const expiresSoon=!!session?.expires_at&&session.expires_at<=Math.floor(Date.now()/1000)+60;
+  if(!session||expiresSoon){
+    const refreshed=await sb.auth.refreshSession();
+    session=refreshed.data.session||session;
+  }
+  if(!session?.access_token)throw new Error("Admin session expired or unavailable. Please sign out and sign in again from Admin Login.");
+  const url="/api/admin/student-management"+(method==="GET"&&q?"?q="+encodeURIComponent(q):"");
+  const send=async(token:string)=>fetch(url,{method,headers:{Authorization:"Bearer "+token,"Content-Type":"application/json"},...(payload?{body:JSON.stringify(payload)}:{}),cache:"no-store"});
+  let response=await send(session.access_token);
+  if(response.status===401){
+    const refreshed=await sb.auth.refreshSession();
+    if(refreshed.data.session?.access_token)response=await send(refreshed.data.session.access_token);
+  }
+  const data=await response.json().catch(()=>({error:"Server returned an invalid response. Check deployment logs."}));
+  if(!response.ok)throw new Error(data.error||("Student API failed ("+response.status+")."));
+  return data;
+},[sb,query]);
  const load=useCallback(async(q=query)=>{setBusy(true);try{const d=await request("GET",undefined,q);setStudents(d.students||[]);setTotalStudents(Number(d.total ?? d.students?.length ?? 0));setHasMoreStudents(Boolean(d.hasMore));setSubjects(d.subjects||[]);setGrants(d.grants||[]);if(!subjectId&&d.subjects?.[0])setSubjectId(d.subjects[0].id);if(!giftSubjectId&&d.subjects?.[0])setGiftSubjectId(d.subjects[0].id);setMsg("");}catch(e:any){setMsg(e.message||"Could not load students.");}finally{setBusy(false);}},[request,query,subjectId,giftSubjectId]);
  useEffect(()=>{void load("");},[]);
  async function act(payload:any){setBusy(true);try{await request("POST",payload);await load();setMsg("Action completed successfully.");if(payload.action==="message"){setTitle("");setBody("");}}catch(e:any){setMsg(e.message||"Action failed.");}finally{setBusy(false);}}
@@ -19,8 +38,14 @@ export default function StudentsPage(){
   setExporting(true);setMsg("");
   try{
    if(!sb)throw new Error("Supabase configuration missing.");
-   const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error("Please login as Super Admin.");
-   const r=await fetch("/api/admin/student-management?export=1"+(query.trim()?"&q="+encodeURIComponent(query.trim()):""),{headers:{Authorization:"Bearer "+session.access_token},cache:"no-store"});
+   let {data:{session}}=await sb.auth.getSession();
+   if(!session|| (session.expires_at&&session.expires_at<=Math.floor(Date.now()/1000)+60)){
+    const refreshed=await sb.auth.refreshSession();session=refreshed.data.session||session;
+   }
+   if(!session?.access_token)throw new Error("Admin session expired. Please sign in again from Admin Login.");
+   const exportUrl="/api/admin/student-management?export=1"+(query.trim()?"&q="+encodeURIComponent(query.trim()):"");
+   let r=await fetch(exportUrl,{headers:{Authorization:"Bearer "+session.access_token},cache:"no-store"});
+   if(r.status===401){const refreshed=await sb.auth.refreshSession();if(refreshed.data.session?.access_token)r=await fetch(exportUrl,{headers:{Authorization:"Bearer "+refreshed.data.session.access_token},cache:"no-store"});}
    const d=await r.json();if(!r.ok)throw new Error(d.error||"Excel export failed.");
    const XLSX=await import("xlsx");
    const rows=(d.students||[]).map((s:Student,i:number)=>({"S.No.":i+1,"Student ID":s.student_code||"","Full Name":s.full_name||"","Mobile Number":s.mobile||"","Email Address":s.email||"","Registration Date":s.created_at?new Date(s.created_at).toLocaleString("en-IN"):"","Account Status":s.is_blocked?"Blocked":"Active"}));

@@ -7667,3 +7667,18 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) {
   .mu-menu-coach, .mu-menu-coach i { animation: none !important; }
 }
+
+
+/* Strong visual attention on the three-line mobile menu */
+@media (max-width: 900px) {
+  .menu-toggle:not(.is-open) { position:relative; z-index:1102; border:2px solid #f5cf65; box-shadow:0 0 0 4px rgba(245,207,101,.22),0 0 18px rgba(245,207,101,.65); animation:muMenuButtonPulse 1.35s ease-in-out infinite; }
+  .menu-toggle:not(.is-open) .mu-menu-lines { transform:scale(1.12); }
+  .menu-toggle:not(.is-open) .mu-menu-lines i { background:#f5cf65; box-shadow:0 0 7px rgba(245,207,101,.85); }
+  .mu-menu-coach { right:3%; top:calc(100% + 8px); padding:9px 13px; border:2px solid #d4a72c; background:#fff4cf; color:#10264c; font-size:12px; letter-spacing:.25px; box-shadow:0 8px 22px rgba(10,30,55,.28); animation:muMenuCoachBounce 1.15s ease-in-out infinite; }
+  .mu-menu-coach::before { right:32px; border-left:2px solid #d4a72c; border-top:2px solid #d4a72c; }
+  .mu-menu-coach i { font-size:22px; font-weight:900; animation:muMenuArrowPoint 850ms ease-in-out infinite; }
+}
+@keyframes muMenuButtonPulse { 0%,100%{box-shadow:0 0 0 3px rgba(245,207,101,.2),0 0 12px rgba(245,207,101,.42)} 50%{box-shadow:0 0 0 8px rgba(245,207,101,.32),0 0 25px rgba(245,207,101,.9)} }
+@keyframes muMenuCoachBounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(7px) scale(1.025)} }
+@keyframes muMenuArrowPoint { 0%,100%{transform:translate(0,0) rotate(0)} 50%{transform:translate(4px,-5px) rotate(8deg)} }
+@media (prefers-reduced-motion:reduce) { .menu-toggle:not(.is-open),.mu-menu-coach,.mu-menu-coach i{animation:none!important} }

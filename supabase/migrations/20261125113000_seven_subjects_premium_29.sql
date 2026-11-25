@@ -11,8 +11,8 @@ with desired_subjects(name_en, name_hi, name_or, sort_order) as (
     ('Previous Year Questions', 'Previous Year Questions', 'ପୂର୍ବବର୍ଷର ପ୍ରଶ୍ନ', 7)
 ),
 inserted as (
-  insert into public.subjects (name_en, name_hi, name_or, sort_order, is_active)
-  select d.name_en, d.name_hi, d.name_or, d.sort_order, true
+  insert into public.subjects (name_en, name_hi, name_or, is_active)
+  select d.name_en, d.name_hi, d.name_or, true
   from desired_subjects d
   where not exists (
     select 1 from public.subjects s

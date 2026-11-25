@@ -116,7 +116,7 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    if (isPublicPath(path) || path.startsWith("/admin")) {
+    if (isPublicPath(path) || path.startsWith("/admin") || path.startsWith("/partner")) {
       setAllowed(true);
       setChecking(false);
       return;
@@ -152,7 +152,7 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
     };
   }, [path, router]);
 
-  if (isPublicPath(path) || path.startsWith("/admin")) return <>{children}</>;
+  if (isPublicPath(path) || path.startsWith("/admin") || path.startsWith("/partner")) return <>{children}</>;
   if (checking || !allowed) return <main className="mu-access-welcome">
     <section className="mu-access-card">
       <span className="mu-access-kicker">MISSION UNIFORM OP · CADET ENTRY GATE</span>

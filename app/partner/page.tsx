@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
 type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[] };
 const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
-const card: React.CSSProperties = { background: "#fff", border: "1px solid #e3eaf2", borderRadius: 18, padding: 20, boxShadow: "0 8px 24px rgba(20,43,69,.045)" };
-const th: React.CSSProperties = { padding: "13px 14px", color: "#65758a", fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em", textAlign: "left", whiteSpace: "nowrap", borderBottom: "1px solid #e8edf3" };
-const td: React.CSSProperties = { padding: "14px", borderBottom: "1px solid #edf1f5", fontSize: 14, color: "#253b53" };
+const card: CSSProperties = { background: "#fff", border: "1px solid #e3eaf2", borderRadius: 18, padding: 20, boxShadow: "0 8px 24px rgba(20,43,69,.045)" };
+const th: CSSProperties = { padding: "13px 14px", color: "#65758a", fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em", textAlign: "left", whiteSpace: "nowrap", borderBottom: "1px solid #e8edf3" };
+const td: CSSProperties = { padding: "14px", borderBottom: "1px solid #edf1f5", fontSize: 14, color: "#253b53" };
 
 export default function PartnerDashboard() {
   const router = useRouter();

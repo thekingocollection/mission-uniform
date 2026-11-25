@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   try {
     const auth = await adminDb(req);
     if (!auth) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
-    const { data, error } = await auth.db.from("partners").select("*,profiles:user_id(full_name,student_code)").order("created_at", { ascending: false });
+    const { data, error } = await auth.db.from("partners").select("*").order("created_at", { ascending: false });
     if (error) throw error;
     const ids = (data || []).map((p: any) => p.id);
     const [{ data: refs, error: refsError }, { data: commissions, error: commissionsError }] = await Promise.all([
@@ -27,9 +27,13 @@ export async function GET(req: NextRequest) {
     ]);
     if (refsError) throw refsError;
     if (commissionsError) throw commissionsError;
+    const userIds = (data || []).map((p: any) => p.user_id);
+    const profileResult = userIds.length ? await auth.db.from("profiles").select("id,full_name,student_code").in("id", userIds) : { data: [], error: null };
+    if (profileResult.error) throw profileResult.error;
+    const profileById = new Map((profileResult.data || []).map((p: any) => [p.id, p]));
     const partners = (data || []).map((p: any) => {
       const pc = (commissions || []).filter((c: any) => c.partner_id === p.id);
-      return { ...p, referral_count: (refs || []).filter((r: any) => r.partner_id === p.id).length,
+      return { ...p, profiles: profileById.get(p.user_id) || null, referral_count: (refs || []).filter((r: any) => r.partner_id === p.id).length,
         premium_count: pc.length, commission_paise: pc.filter((c: any) => c.status !== "reversed").reduce((s: number,c: any)=>s+Number(c.commission_paise||0),0) };
     });
     return NextResponse.json({ partners }, { headers: { "Cache-Control": "private, no-store" } });

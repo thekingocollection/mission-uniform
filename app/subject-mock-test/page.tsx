@@ -163,6 +163,7 @@ export default function SubjectMockTestPage() {
       if (!pyq) return null;
       const unlocked = pyq.can_start;
       const available = pyq.enabled;
+      const pyqPrice = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format((pyq.price_paise ?? 2900) / 100);
       return <section className="mu-pyq-promo mu-pyq-promo-compact" aria-label="Previous Year Questions premium access">
         <div className="mu-pyq-promo-copy">
           <span className="mu-pyq-promo-kicker">PREMIUM RESOURCE</span>
@@ -171,13 +172,13 @@ export default function SubjectMockTestPage() {
           
         </div>
         <div className="mu-pyq-promo-action">
-          <span className="mu-pyq-promo-price">{!available ? "UNAVAILABLE" : unlocked ? "UNLOCKED" : "₹29"}</span>
+          <span className="mu-pyq-promo-price">{!available ? "UNAVAILABLE" : unlocked ? "UNLOCKED" : pyqPrice}</span>
           <small>{!available ? "Temporarily disabled by Admin" : unlocked ? "Your access is active" : "One-time subject unlock"}</small>
           {!available
             ? <button type="button" className="mu-pyq-promo-button" disabled>Currently Unavailable</button>
             : unlocked
               ? <button type="button" className="mu-pyq-promo-button" onClick={() => { window.location.href = "/previous-papers"; }}>View Previous Year Papers →</button>
-              : <button type="button" className="mu-pyq-promo-button" onClick={() => void unlockSubject(pyq)} disabled={paying}>{paying ? "Please wait..." : "₹29 Pay to Unlock →"}</button>}
+              : <button type="button" className="mu-pyq-promo-button" onClick={() => void unlockSubject(pyq)} disabled={paying}>{paying ? "Please wait..." : pyqPrice + " Pay to Unlock →"}</button>}
         </div>
       </section>;
     })()}

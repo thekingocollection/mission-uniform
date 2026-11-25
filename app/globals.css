@@ -7113,3 +7113,20 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) {
   .menu-toggle { animation: none !important; transition: none !important; }
 }
+
+
+/* Previous Year Questions premium promotional card */
+.mu-pyq-promo{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,280px);gap:22px;align-items:center;overflow:hidden;margin:22px 0 20px;padding:clamp(20px,3vw,30px);border:1px solid rgba(218,184,105,.7);border-radius:22px;background:radial-gradient(circle at 8% 0%,rgba(242,211,143,.2),transparent 34%),linear-gradient(120deg,#0b263d 0%,#123c54 58%,#1b4c58 100%);box-shadow:0 16px 34px rgba(11,38,61,.15)}
+.mu-pyq-promo:after{content:"PYQ";position:absolute;right:25%;top:-20px;color:rgba(255,255,255,.035);font-size:100px;font-weight:950;letter-spacing:-.08em;pointer-events:none}
+.mu-pyq-promo-copy,.mu-pyq-promo-action{position:relative;z-index:1}
+.mu-pyq-promo-kicker{color:#f1d48f;font-size:9px;font-weight:950;letter-spacing:.17em}
+.mu-pyq-promo-copy h2{margin:9px 0;color:#fff7e6;font-size:clamp(23px,3vw,31px);line-height:1.13}
+.mu-pyq-promo-copy p{max-width:620px;margin:0;color:#d3e0e8;font-size:12px;line-height:1.7}
+.mu-pyq-promo-meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:15px}
+.mu-pyq-promo-meta span{padding:6px 9px;border:1px solid rgba(241,212,143,.28);border-radius:99px;color:#f2dfb5;font-size:8px;font-weight:900;letter-spacing:.08em}
+.mu-pyq-promo-action{display:grid;justify-items:center;gap:6px;padding:16px;border:1px solid rgba(241,212,143,.35);border-radius:17px;background:rgba(3,17,31,.42);text-align:center}
+.mu-pyq-promo-price{color:#ffe3a4;font-size:34px;font-weight:950;line-height:1}
+.mu-pyq-promo-action small{color:#d0dce2;font-size:10px}
+.mu-pyq-promo-button{width:100%;min-height:46px;margin-top:8px;padding:11px 13px;border:0;border-radius:11px;background:linear-gradient(100deg,#d4a52e,#edc75f);color:#172b49;font-size:12px;font-weight:950;cursor:pointer}
+.mu-pyq-promo-button:disabled{opacity:.65;cursor:wait}
+@media(max-width:680px){.mu-pyq-promo{grid-template-columns:1fr;gap:15px;margin:16px 0;padding:19px;border-radius:18px}.mu-pyq-promo-action{width:100%;padding:14px}.mu-pyq-promo-copy h2{font-size:23px}.mu-pyq-promo-copy p{font-size:11px}}

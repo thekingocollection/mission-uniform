@@ -4,7 +4,7 @@ import { getServiceSupabase } from "@/lib/server-supabase";
 import { isRegisteredStudentDevice } from "@/lib/verify-student-device";
 
 async function getUser(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+  const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!token || !url || !key) return null;

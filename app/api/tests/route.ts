@@ -26,7 +26,24 @@ export async function GET(req: NextRequest) {
     if (year) q = q.eq("exam_year", Number(year));
     const { data, error } = await q.limit(200);
     if (error) return NextResponse.json({error:error.message},{status:500});
-    return NextResponse.json({ tests: data ?? [] }, { headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" } });
+    const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    let visibleTests = data ?? [];
+    if (profile?.role !== "super_admin") {
+      const { data: pyq } = await db.from("subjects").select("id").eq("name_en", "Previous Year Questions").eq("is_active", true).maybeSingle();
+      let hasPyqAccess = false;
+      if (pyq) {
+        const [{ data: purchase }, { data: config }] = await Promise.all([
+          db.from("student_subject_access").select("expires_at").eq("user_id", user.id).eq("subject_id", pyq.id).maybeSingle(),
+          db.from("subject_access_settings").select("is_enabled").eq("subject_id", pyq.id).maybeSingle()
+        ]);
+        const trialEnd = new Date(new Date(user.created_at).getTime() + 86400000).getTime();
+        const hasTrial = Number.isFinite(trialEnd) && trialEnd > Date.now();
+        const hasPurchase = Boolean(purchase && (!purchase.expires_at || new Date(purchase.expires_at).getTime() > Date.now()));
+        hasPyqAccess = config?.is_enabled !== false && (hasTrial || hasPurchase);
+      }
+      if (!hasPyqAccess) visibleTests = visibleTests.filter((test: any) => !test.is_previous_year);
+    }
+    return NextResponse.json({ tests: visibleTests }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e:any) {
     return NextResponse.json({error:e.message || "Unable to load tests."},{status:500});
   }

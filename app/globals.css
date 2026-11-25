@@ -7608,3 +7608,62 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @keyframes muTourPulse{0%,100%{outline-offset:5px}50%{outline-offset:8px}}
 @media(max-width:600px){.mu-tour-layer{padding:12px;align-items:flex-end}.mu-tour-card{padding:18px;border-radius:17px}.mu-tour-description{font-size:13px}.mu-tour-actions button{padding:9px 12px}}
 @media(prefers-reduced-motion:reduce){.mu-tour-card,.mu-tour-backdrop,.mu-tour-highlight{animation:none!important}.mu-tour-progress span,.mu-tour-replay{transition:none!important}}
+
+
+/* Animated hint pointing students to the mobile three-line MENU */
+@media (max-width: 900px) {
+  .site-header { position: sticky; }
+  .mu-menu-coach {
+    position: absolute;
+    top: calc(100% + 9px);
+    right: 4%;
+    z-index: 1101;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border: 1px solid #e3bd55;
+    border-radius: 999px;
+    background: #fffdf5;
+    color: #17334d;
+    box-shadow: 0 5px 18px rgba(10, 30, 55, .18);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: muMenuCoachFloat 1.8s ease-in-out infinite;
+  }
+  .mu-menu-coach::before {
+    content: "";
+    position: absolute;
+    right: 34px;
+    top: -6px;
+    width: 10px;
+    height: 10px;
+    background: #fffdf5;
+    border-left: 1px solid #e3bd55;
+    border-top: 1px solid #e3bd55;
+    transform: rotate(45deg);
+  }
+  .mu-menu-coach i {
+    color: #b88717;
+    font-size: 17px;
+    font-style: normal;
+    line-height: 1;
+    animation: muMenuArrowNudge 1s ease-in-out infinite;
+  }
+  .mu-menu-coach b { position: relative; z-index: 1; }
+  .site-header.mu-nav-open .mu-menu-coach { display: none; }
+}
+@media (min-width: 901px) { .mu-menu-coach { display: none; } }
+@keyframes muMenuCoachFloat {
+  0%, 100% { transform: translateY(0); box-shadow: 0 5px 18px rgba(10,30,55,.18); }
+  50% { transform: translateY(5px); box-shadow: 0 9px 20px rgba(10,30,55,.23); }
+}
+@keyframes muMenuArrowNudge {
+  0%, 100% { transform: translate(0,0); }
+  50% { transform: translate(3px,-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mu-menu-coach, .mu-menu-coach i { animation: none !important; }
+}

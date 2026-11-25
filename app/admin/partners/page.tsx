@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 
-async function getAdminToken(sb:any){if(!sb)throw new Error("Supabase client unavailable. Check Render environment variables.");let {data:{session}}=await sb.auth.getSession();if(!session?.access_token){const refreshed=await sb.auth.refreshSession();session=refreshed.data.session;if(refreshed.error||!session?.access_token)throw new Error("Admin session expired. Please sign in again.");}return session.access_token;}
+async function getAdminToken(sb:any){if(!sb)throw new Error("Supabase client unavailable. Check Render environment variables.");let {data:{session}}=await sb.auth.getSession();if(!session?.access_token){const refreshed=await sb.auth.refreshSession();session=refreshed.data.session;if(refreshed.error)throw new Error("Admin session refresh failed: "+refreshed.error.message);if(!session?.access_token)throw new Error("No saved Admin login session found in this browser. Please sign in again at /admin/login.");}return session.access_token;}
 
 export default function AdminPartners() {
   const [rows,setRows]=useState<any[]>([]);

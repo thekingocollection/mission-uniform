@@ -6,7 +6,7 @@ function isPublicPath(pathname: string) { return publicPaths.includes(pathname);
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (isPublicPath(pathname) || pathname.startsWith("/admin") || pathname.startsWith("/api/")) return NextResponse.next();
+  if (isPublicPath(pathname) || pathname.startsWith("/admin") || pathname.startsWith("/api/")) { const response = NextResponse.next(); const referral = request.nextUrl.searchParams.get("ref"); if (referral && /^[A-Za-z0-9]{3,20}$/.test(referral)) response.cookies.set("mu_partner_ref", referral.toUpperCase(), { httpOnly: false, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 30 }); return response; }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) {

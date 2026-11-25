@@ -80,6 +80,11 @@ as $$
 declare v_referral public.partner_referrals%rowtype;
 declare v_rate numeric(5,2);
 begin
+  if new.status in ('refunded','failed') then
+    update public.partner_commissions set status = 'reversed'
+      where payment_transaction_id = new.id and status <> 'paid';
+    return new;
+  end if;
   if new.status <> 'paid' or new.user_id is null or coalesce(new.amount_paise,0) <= 0 then
     return new;
   end if;

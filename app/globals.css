@@ -7146,3 +7146,74 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-pyq-promo-compact .mu-pyq-promo-button{grid-column:1/-1;width:auto;min-height:34px;margin-top:4px;padding:8px 10px;border-radius:9px;font-size:10px}
 @media(max-width:680px){.mu-pyq-promo-compact{grid-template-columns:minmax(0,1fr) 128px;gap:8px;min-height:96px;margin:12px 0;padding:12px;border-radius:12px}.mu-pyq-promo-compact .mu-pyq-promo-copy h2{font-size:13px}.mu-pyq-promo-compact .mu-pyq-promo-copy p{font-size:10px}.mu-pyq-promo-compact .mu-pyq-promo-action{width:auto;padding:0}.mu-pyq-promo-compact .mu-pyq-promo-button{width:100%;min-height:32px;padding:7px 6px;font-size:9px}}
 @media(max-width:360px){.mu-pyq-promo-compact{grid-template-columns:minmax(0,1fr) 112px;padding:10px}.mu-pyq-promo-compact .mu-pyq-promo-copy h2{font-size:12px}}
+
+
+/* Exam UI refinement: clearer timer, compact review control and smaller palette */
+.mu-review-toggle {
+  display:inline-flex; align-items:center; justify-content:center; gap:5px;
+  min-width:76px; min-height:34px; padding:6px 11px;
+  border:1px solid #c9d5ee; border-radius:999px;
+  background:#f3f6ff; color:#243b82; font-size:12px; font-weight:850;
+  line-height:1; cursor:pointer;
+}
+.mu-review-toggle span { font-size:16px; line-height:1; }
+.mu-review-toggle.is-marked {
+  border-color:#e5a52d; background:#fff5d9; color:#8a5700;
+}
+.timer.mu-exam-timer {
+  border:1px solid rgba(45,212,191,.42);
+  background:linear-gradient(135deg,#102b55 0%,#145b70 100%);
+  color:#f8fbff; box-shadow:0 7px 18px rgba(16,43,85,.18);
+}
+.mu-exam-timer-top span { color:#a7f3e7; }
+.mu-exam-timer-top b { color:#fff; }
+.mu-exam-time-track { background:rgba(255,255,255,.2); }
+.mu-exam-time-track i { background:linear-gradient(90deg,#34d399,#facc15); }
+.mu-exam-timer.is-warning {
+  border-color:#fb923c;
+  background:linear-gradient(135deg,#7c2d12,#c2410c);
+}
+.mu-exam-timer.is-warning .mu-exam-timer-top span { color:#ffedd5; }
+.mu-exam-timer.is-warning .mu-exam-timer-top b { color:#fff7ed; }
+.mu-exam-timer.is-warning .mu-exam-time-track i { background:#fde68a; }
+@media (max-width:800px) {
+  .mu-mobile-exam-top .mu-exam-timer {
+    background:linear-gradient(135deg,#123b70,#087f8c);
+    border:1px solid #55d6c2; color:#fff;
+    box-shadow:0 4px 12px rgba(8,79,105,.18);
+  }
+  .mu-mobile-exam-top .mu-exam-timer-top > span { color:#b9fff0; }
+  .mu-mobile-exam-top .mu-exam-timer-top b { color:#fff; }
+  .mu-mobile-exam-top .mu-exam-timer.is-warning {
+    background:linear-gradient(135deg,#9a3412,#ea580c);
+    border-color:#fdba74;
+  }
+  .mu-mobile-exam-top .mu-exam-timer.is-warning .mu-exam-timer-top > span { color:#ffedd5; }
+  .mu-mobile-question-meta { gap:8px; }
+  .mu-review-toggle { min-width:68px; min-height:32px; padding:5px 9px; font-size:11px; }
+  .mu-review-toggle span { font-size:15px; }
+  .mu-exam-palette {
+    padding:12px 13px; border-radius:17px;
+  }
+  .mu-palette-heading { margin-bottom:9px; }
+  .mu-palette-heading h3 { font-size:15px; }
+  .mu-palette-icon { font-size:19px; }
+  .mu-palette-legend { gap:5px 8px; font-size:10px; }
+  .mu-palette-legend i { width:10px; height:10px; }
+  .mu-exam-palette .palette-grid {
+    grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px;
+  }
+  .mu-exam-palette .palette-grid button {
+    min-height:34px; height:34px; padding:2px;
+    border-radius:9px; font-size:13px;
+  }
+  .mu-palette-mobile-stats { margin-top:8px !important; font-size:11px !important; }
+}
+@media (max-width:520px) {
+  .mu-exam-palette { padding:11px 10px; }
+  .mu-palette-heading { grid-template-columns:1fr auto; }
+  .mu-exam-palette .palette-grid {
+    grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px;
+  }
+  .mu-exam-palette .palette-grid button { min-height:32px; height:32px; font-size:12px; }
+}

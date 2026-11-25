@@ -128,7 +128,9 @@ export default function SubjectMockTestPage() {
   }
 
   function startTest() {
-    if (!selected?.id || !selected.can_start || selected.verified_questions < 1) return;
+    if (!selected?.can_start) return;
+    if (selected.name_en === "Previous Year Questions") { window.location.href = "/previous-papers"; return; }
+    if (!selected.id || selected.verified_questions < 1) return;
     setStarting(true);
     const defaultCount = Math.min(30, selected.verified_questions);
     window.location.href = "/tests/paper/" + selected.id + "?count=" + defaultCount;

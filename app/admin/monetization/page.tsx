@@ -72,7 +72,7 @@ export default function SubjectMonetizationAdmin() {
   return <div className="admin-subject-mock">
     <div className="admin-page-heading">
       <div><span className="admin-kicker">REVENUE & ACCESS CONTROL</span><h1>Subject Monetization</h1>
-      <p>Set subject price, access duration and global availability. Only Super Admin can change these controls.</p></div>
+      <p>All 7 student subjects, including Previous Year Questions (PYQ), are managed here. Set its price, validity and student access from this page.</p></div>
       <button className="admin-ghost" onClick={() => void load()} disabled={loading}>↻ Refresh</button>
     </div>
 
@@ -94,7 +94,7 @@ export default function SubjectMonetizationAdmin() {
 
     <section className="admin-panel">
       <h2>Bulk Update</h2>
-      <p className="admin-muted">Apply one price and duration to every active subject.</p>
+      <p className="admin-muted">Apply one price and duration to every active subject, including Previous Year Questions. Use Individual Subject Settings to price PYQ separately.</p>
       <div className="admin-form-grid">
         <label>Price per subject (₹)<input type="number" min="0" step="1" value={bulkPrice} onChange={e => setBulkPrice(e.target.value)} /></label>
         <label>Access duration<select value={bulkDays} onChange={e => setBulkDays(e.target.value)}>
@@ -105,9 +105,9 @@ export default function SubjectMonetizationAdmin() {
     </section>
 
     <section className="admin-panel">
-      <div className="admin-panel-title"><div><h2>Individual Subject Settings</h2><p className="admin-muted">Each subject can have a different price, duration and lock state.</p></div></div>
+      <div className="admin-panel-title"><div><h2>Individual Subject Settings</h2><p className="admin-muted">Each subject can have a different price, duration and lock state. Previous Year Questions (PYQ) has the same controls here.</p></div></div>
       {loading ? <p className="admin-muted">Loading subjects…</p> : rows.map(row => <article key={row.id} className="admin-subject-mock-row">
-        <div className="admin-subject-mock-info"><h3>{row.name_en || row.name_hi || "Subject"}</h3>{row.name_hi && <small>{row.name_hi}</small>}
+        <div className="admin-subject-mock-info"><h3>{row.name_en || row.name_hi || "Subject"}{String(row.name_en || "").toLowerCase().includes("previous year") && <span className="admin-pill active" style={{marginLeft:8}}>PYQ</span>}</h3>{row.name_hi && <small>{row.name_hi}</small>}
           <span className={"admin-pill " + (row.is_enabled && allEnabled ? "active" : "blocked")}>{row.is_enabled && allEnabled ? "Unlocked" : "Locked"}</span>
         </div>
         <div className="admin-subject-mock-meta">

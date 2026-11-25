@@ -531,7 +531,7 @@ export default function TakeTest({ id }: { id: string }) {
           <section className="panel question-panel mu-exam-question">
             <div className="question-meta mu-mobile-question-meta">
               <span className="mu-question-number-pill">Question {index + 1}</span>
-              <button type="button" className={`mu-bookmark-button ${marked.includes(question.id) ? "is-marked" : ""}`} aria-label={marked.includes(question.id) ? "Remove bookmark" : "Mark for review"} onClick={() => toggleMark(question.id)}>{marked.includes(question.id) ? "🔖" : "♧"}</button>
+              <button type="button" className={`mu-bookmark-button mu-review-toggle ${marked.includes(question.id) ? "is-marked" : ""}`} aria-pressed={marked.includes(question.id)} aria-label={marked.includes(question.id) ? "Remove from review" : "Mark for review"} onClick={() => toggleMark(question.id)}><span aria-hidden="true">{marked.includes(question.id) ? "★" : "☆"}</span>{marked.includes(question.id) ? "Marked" : "Review"}</button>
               <span className="mu-question-status">{question.chapter || (answers[question.id] !== undefined ? "Answered" : "Not Answered")}</span>
             </div>
 
@@ -566,15 +566,6 @@ export default function TakeTest({ id }: { id: string }) {
                 onClick={() => setIndex((i) => i - 1)}
               >
                 Previous
-              </button>
-
-              <button
-                className="btn secondary"
-                onClick={() => toggleMark(question.id)}
-              >
-                {marked.includes(question.id)
-                  ? "Remove Review"
-                  : "Mark for Review"}
               </button>
 
               <button

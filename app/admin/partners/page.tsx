@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminSupabaseBrowser } from "@/lib/admin-supabase-browser";
 
 async function getAdminToken(sb:any){if(!sb)throw new Error("Supabase client unavailable. Check Render environment variables.");let {data:{session}}=await sb.auth.getSession();if(!session?.access_token){const refreshed=await sb.auth.refreshSession();session=refreshed.data.session;if(refreshed.error)throw new Error("Admin session refresh failed: "+refreshed.error.message);if(!session?.access_token)throw new Error("No saved Admin login session found in this browser. Please sign in again at /admin/login.");}return session.access_token;}
 
@@ -14,7 +14,7 @@ export default function AdminPartners() {
   const load=useCallback(async()=>{
     setLoading(true);
     try{
-      const sb=supabaseBrowser();const token=await getAdminToken(sb);
+      const sb=adminSupabaseBrowser();const token=await getAdminToken(sb);
       const res=await fetch("/api/admin/partners",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
       const body=await res.json();if(!res.ok)throw new Error(body.error||"Could not load partners.");
       setRows(body.partners||[]);
@@ -25,7 +25,7 @@ export default function AdminPartners() {
   async function createPartner(e:React.FormEvent){
     e.preventDefault();setBusy("create");setMessage("");setCreatedCredentials(null);
     try{
-      const sb=supabaseBrowser();const token=await getAdminToken(sb);
+      const sb=adminSupabaseBrowser();const token=await getAdminToken(sb);
       const res=await fetch("/api/admin/partners/create",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify(createForm)});
       const body=await res.json();if(!res.ok)throw new Error(body.error||"Could not create partner.");
       setCreatedCredentials(body.credentials);setMessage("Partner ID created successfully. Share these login details securely with the partner.");
@@ -35,7 +35,7 @@ export default function AdminPartners() {
   async function save(row:any,status:string){
     setBusy(row.id);setMessage("");
     try{
-      const sb=supabaseBrowser();const token=await getAdminToken(sb);
+      const sb=adminSupabaseBrowser();const token=await getAdminToken(sb);
       const res=await fetch("/api/admin/partners",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({id:row.id,status,commission_rate:Number(row.commission_rate),referral_code:row.referral_code})});
       const body=await res.json();if(!res.ok)throw new Error(body.error||"Could not save partner.");
       setMessage("Partner details updated.");await load();

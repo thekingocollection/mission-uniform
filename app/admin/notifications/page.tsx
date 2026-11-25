@@ -57,7 +57,7 @@ export default function NotificationCampaignsPage() {
 
   return <main className="mu-campaign-admin">
     <div className="admin-page-heading"><div><span className="admin-kicker">STUDENT ENGAGEMENT · CAMPAIGN STUDIO</span><h1>Notification Campaigns</h1><p>Create in-app updates and Web Push campaigns, target student groups and track engagement.</p></div><button className="admin-action" onClick={()=>void load()} disabled={loading}>↻ Refresh</button></div>
-    <div className="mu-campaign-info"><b>Delivery channels</b><span>In-app inbox · Browser push · Scheduled campaigns · Read and click tracking</span><small>Push delivery requires VAPID environment keys and student browser permission.</small></div>
+    <div className="mu-campaign-info"><b>Delivery channels</b><span>In-app inbox · Browser push · Scheduled campaigns · Read and click tracking</span><small>Browser push uses Firebase Cloud Messaging (FCM); legacy VAPID Web Push remains supported. Students must allow notifications.</small></div>
     {message&&<div className="admin-inline-message" role="status">{message}</div>}
     {error&&<div className="admin-inline-message" role="alert">{error}</div>}
     <section className="admin-panel mu-campaign-form">

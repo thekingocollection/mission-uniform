@@ -21,6 +21,11 @@ export async function GET(req: NextRequest) {
     const { data: partner, error } = await db.from("partners").select("*").eq("user_id", user.id).maybeSingle();
     if (error) throw error;
     if (!partner) return NextResponse.json({ partner: null, summary: null, referrals: [], commissions: [] });
+    // Lightweight authentication check used by the shared login page.
+    // Do not load dashboard tables until the partner enters the workspace.
+    if (new URL(req.url).searchParams.get("verify") === "1") {
+      return NextResponse.json({ partner }, { headers: { "Cache-Control": "private, no-store" } });
+    }
     const [{ data: referrals, error: referralsError }, { data: commissions, error: commissionsError }, { data: payouts, error: payoutsError }] = await Promise.all([
       db.from("partner_referrals").select("id,student_id,created_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),
       db.from("partner_commissions").select("id,amount_paise,commission_rate,commission_paise,status,created_at,paid_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),

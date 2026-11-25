@@ -65,7 +65,7 @@ const tourSteps = [
   ["[data-tour='history']", 6],
 ] as const;
 
-export default function StudentWebsiteTour() {
+export default function StudentWebsiteTour({ userId }: { userId: string }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [lang, setLang] = useState<Lang>("en");
@@ -73,8 +73,9 @@ export default function StudentWebsiteTour() {
   const t = copy[lang];
 
   useEffect(() => {
+    if (!userId) return;
     try {
-      if (window.localStorage.getItem("mu-student-tour-complete") !== "1") {
+      if (window.localStorage.getItem("mu-student-tour-complete:" + userId) !== "1") {
         const timer = window.setTimeout(() => setOpen(true), 700);
         return () => window.clearTimeout(timer);
       }
@@ -102,7 +103,7 @@ export default function StudentWebsiteTour() {
     document.querySelectorAll(".mu-tour-highlight").forEach(el => el.classList.remove("mu-tour-highlight"));
     if (save) {
       setCompleted(true);
-      try { window.localStorage.setItem("mu-student-tour-complete", "1"); } catch { /* storage may be unavailable */ }
+      try { if (userId) window.localStorage.setItem("mu-student-tour-complete:" + userId, "1"); } catch { /* storage may be unavailable */ }
     }
   };
 

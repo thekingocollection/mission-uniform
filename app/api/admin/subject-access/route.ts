@@ -10,7 +10,16 @@ const ALLOWED_SUBJECTS = new Set([
   "odiagrammar",
   "odia",
   "english",
-  "englishgrammar"
+  "englishgrammar",
+  "basiccomputerliteracy",
+  "computerliteracy",
+  "computer",
+  "basiccomputer",
+  "previousyearquestions",
+  "previousyearquestion",
+  "previouspapers",
+  "previousyearpapers",
+  "pyq"
 ]);
 
 function normalizeSubject(value: unknown) {

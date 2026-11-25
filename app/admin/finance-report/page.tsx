@@ -29,8 +29,12 @@ export default function FinanceReportPage() {
   const [error, setError] = useState("");
   const [appliedQuery, setAppliedQuery] = useState("");
 
-  const load = useCallback(async (search = q) => {
-    if (from && to && from > to) {
+  const load = useCallback(async (search = q, overrides?: { from?: string; to?: string; status?: string; type?: string }) => {
+    const dateFrom = overrides?.from ?? from;
+    const dateTo = overrides?.to ?? to;
+    const paymentStatus = overrides?.status ?? status;
+    const paymentType = overrides?.type ?? type;
+    if (dateFrom && dateTo && dateFrom > dateTo) {
       setError("From Date cannot be later than To Date.");
       return;
     }
@@ -38,10 +42,10 @@ export default function FinanceReportPage() {
     setError("");
     try {
       const params = new URLSearchParams();
-      if (from) params.set("from", from);
-      if (to) params.set("to", to);
-      if (status) params.set("status", status);
-      if (type) params.set("type", type);
+      if (dateFrom) params.set("from", dateFrom);
+      if (dateTo) params.set("to", dateTo);
+      if (paymentStatus) params.set("status", paymentStatus);
+      if (paymentType) params.set("type", paymentType);
       if (search.trim()) params.set("q", search.trim());
       const response = await adminFetch("/api/admin/finance-report?" + params.toString());
       const data = await response.json();
@@ -99,7 +103,7 @@ export default function FinanceReportPage() {
 
   function clearFilters() {
     setFrom(""); setTo(""); setStatus(""); setType(""); setQ("");
-    setTimeout(() => { void load(""); }, 0);
+    void load("", { from: "", to: "", status: "", type: "" });
   }
 
   return (

@@ -1,25 +1,23 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
 export default function PartnerLogin(){
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState("");
-  const router=useRouter();
   async function submit(e:React.FormEvent){
     e.preventDefault();setBusy(true);setMessage("");
     try{
-      const sb=supabaseBrowser();if(!sb)throw new Error("Login service unavailable.");
+      const sb=partnerSupabaseBrowser();if(!sb)throw new Error("Login service unavailable.");
       const {data,error}=await sb.auth.signInWithPassword({email:email.trim().toLowerCase(),password});
       if(error)throw error;
       if(!data.session)throw new Error("Could not create login session.");
       const response=await fetch("/api/partner",{headers:{Authorization:"Bearer "+data.session.access_token},cache:"no-store"});
       const result=await response.json();
       if(!response.ok||!result.partner){await sb.auth.signOut();throw new Error("This login is not registered as a Mission Uniform partner. Please contact Admin.");}
-      router.replace("/partner");router.refresh();
+      window.location.replace("/partner");
     }catch(e:any){setMessage(e.message||"Login failed.");}
     finally{setBusy(false);}
   }

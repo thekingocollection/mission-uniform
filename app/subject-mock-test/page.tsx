@@ -162,12 +162,12 @@ export default function SubjectMockTestPage() {
       const pyq = subjects.find(s => s.name_en === "Previous Year Questions");
       if (!pyq) return null;
       const unlocked = pyq.can_start;
-      return <section className="mu-pyq-promo" aria-label="Previous Year Questions premium access">
+      return <section className="mu-pyq-promo mu-pyq-promo-compact" aria-label="Previous Year Questions premium access">
         <div className="mu-pyq-promo-copy">
-          <span className="mu-pyq-promo-kicker">SPECIAL EXAM RESOURCE · PREMIUM</span>
+          <span className="mu-pyq-promo-kicker">PREMIUM RESOURCE</span>
           <h2>Previous Year Questions</h2>
-          <p>Practice with year-wise Odisha Police previous papers uploaded by our Admin. Each published paper will appear separately after unlocking.</p>
-          <div className="mu-pyq-promo-meta"><span>YEAR-WISE PAPERS</span><span>PDF + ONLINE MOCKS</span></div>
+          <p>Year-wise Odisha Police papers · PDF + Online Mocks</p>
+          
         </div>
         <div className="mu-pyq-promo-action">
           <span className="mu-pyq-promo-price">{unlocked ? "UNLOCKED" : "₹29"}</span>

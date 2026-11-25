@@ -52,9 +52,24 @@ export default function AdminHome() {
     (async () => {
       if (!sb) { setLoading(false); return; }
       const tables = ["profiles", "subjects", "questions", "test_papers", "attempts", "job_alerts"] as const;
-      const vals = await Promise.all(tables.map(table => sb.from(table).select("id", { count: "exact", head: true })));
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { setLoading(false); return; }
+      // Use the same server-authorized profile count as the Student Management page.
+      const studentResponse = await fetch("/api/admin/student-management", {
+        headers: { Authorization: "Bearer " + session.access_token },
+        cache: "no-store"
+      });
+      const studentData = await studentResponse.json();
+      const vals = await Promise.all(tables.slice(1).map(table => sb.from(table).select("id", { count: "exact", head: true })));
       if (live) {
-        setStats({ students: vals[0].count || 0, subjects: vals[1].count || 0, questions: vals[2].count || 0, tests: vals[3].count || 0, attempts: vals[4].count || 0, jobs: vals[5].count || 0 });
+        setStats({
+          students: studentResponse.ok ? Number(studentData.total ?? studentData.students?.length ?? 0) : 0,
+          subjects: vals[0]?.count || 0,
+          questions: vals[1]?.count || 0,
+          tests: vals[2]?.count || 0,
+          attempts: vals[3]?.count || 0,
+          jobs: vals[4]?.count || 0
+        });
         setLoading(false);
       }
     })();

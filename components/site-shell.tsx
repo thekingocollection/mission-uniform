@@ -66,6 +66,7 @@ export function SiteHeader() {
       <button className={open ? "menu-toggle is-open" : "menu-toggle"} onClick={() => setOpen(v => !v)} aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="mu-primary-navigation">
         {open ? <><span className="mu-menu-back" aria-hidden="true">←</span><span className="mu-menu-label">BACK</span></> : <><span className="mu-menu-lines" aria-hidden="true"><i /><i /><i /></span><span className="mu-menu-label">MENU</span></>}
       </button>
+      <span className="mu-menu-coach" aria-hidden="true"><i>↗</i><b>Tap MENU to explore</b></span>
       <nav id="mu-primary-navigation" className={open ? "nav open" : "nav"} aria-label="Main navigation">
         {links.map(([name, href, icon]) => {
           const target = name === "Home" && signedIn ? "/dashboard" : href;

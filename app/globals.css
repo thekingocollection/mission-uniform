@@ -7502,3 +7502,38 @@ button, a, input, select, textarea { touch-action: manipulation; }
  .admin-sidebar nav a{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.admin-sidebar nav a>b{transition:none}}
+
+
+/* DASHBOARD COMPACT ROYAL REFRESH */
+.mu-dashboard-simple{width:min(100% - 28px,1080px);margin:0 auto;padding:18px 0 34px}
+.mu-dashboard-welcome{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(150px,.65fr);align-items:center;gap:18px;min-height:0;padding:26px 30px 48px;border-radius:19px;overflow:hidden;background:radial-gradient(circle at 82% 72%,rgba(230,190,91,.13),transparent 30%),linear-gradient(125deg,#102b43,#173c58 58%,#102d46);box-shadow:0 12px 28px rgba(12,38,60,.13);animation:muDashFade .55s ease both}
+.mu-dashboard-welcome:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.22;background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);background-size:54px 54px;mask-image:linear-gradient(90deg,#000,transparent 85%)}
+.mu-dashboard-welcome-copy{min-width:0}
+.mu-dashboard-eyebrow{font-size:9px;letter-spacing:1.5px}
+.mu-dashboard-welcome-label{margin:16px 0 5px;font-size:10px;letter-spacing:2px}
+.mu-dashboard-welcome h1{margin:5px 0;font-size:clamp(27px,3.6vw,39px);line-height:1.08;letter-spacing:-.8px}
+.mu-dashboard-intro{max-width:520px;margin:12px 0 0;font-size:13px;line-height:1.65}
+.mu-dashboard-actions{gap:9px;margin-top:19px}
+.mu-dashboard-primary,.mu-dashboard-secondary{min-height:43px;padding:0 17px;border-radius:11px;font-size:12px}
+.mu-dashboard-emblem{transform:scale(.78);transform-origin:center}
+.mu-dashboard-welcome-foot{right:30px;bottom:14px;left:30px;padding-top:9px;font-size:8px;letter-spacing:1.3px}
+.mu-dashboard-overview{margin:23px 0 12px}
+.mu-dashboard-overview h2{font-size:clamp(18px,2.4vw,23px)}
+.mu-dashboard-links{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.mu-dashboard-link-card{min-height:137px;padding:13px;border-radius:13px}
+.mu-dashboard-card-icon{width:31px;height:31px;border-radius:9px;font-size:17px}
+.mu-dashboard-card-tag{font-size:7px;letter-spacing:.7px}
+.mu-dashboard-link-card h3{margin:10px 0 4px;font-size:13px;line-height:1.3}
+.mu-dashboard-link-card p{font-size:10px;line-height:1.45}
+.mu-dashboard-card-open{padding-top:10px;font-size:8px}
+.mu-dashboard-quote{margin-top:17px;padding:16px 18px}
+.mu-dashboard-quote h2{font-size:18px}
+@keyframes muDashGlow{0%,100%{box-shadow:0 12px 28px rgba(12,38,60,.13)}50%{box-shadow:0 16px 34px rgba(12,38,60,.2),0 0 0 3px rgba(218,181,92,.08)}}
+.mu-dashboard-welcome{animation:muDashFade .55s ease both,muDashGlow 6s ease-in-out 1s infinite}
+.mu-dashboard-emblem-ring{animation:muDashFloat 4.5s ease-in-out infinite}
+.mu-dashboard-link-card{animation:muDashFade .45s ease both;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.mu-dashboard-link-card:nth-child(2){animation-delay:.04s}.mu-dashboard-link-card:nth-child(3){animation-delay:.08s}.mu-dashboard-link-card:nth-child(4){animation-delay:.12s}.mu-dashboard-link-card:nth-child(5){animation-delay:.16s}.mu-dashboard-link-card:nth-child(6){animation-delay:.2s}.mu-dashboard-link-card:nth-child(7){animation-delay:.24s}
+@media(max-width:900px){.mu-dashboard-links{grid-template-columns:repeat(3,minmax(0,1fr))}.mu-dashboard-emblem{transform:scale(.68)}}
+@media(max-width:680px){.mu-dashboard-simple{width:min(100% - 22px,600px);padding-top:13px}.mu-dashboard-welcome{grid-template-columns:1fr;padding:22px 19px 43px;gap:5px}.mu-dashboard-emblem{display:none}.mu-dashboard-welcome h1{font-size:clamp(25px,7vw,32px)}.mu-dashboard-intro{font-size:12px}.mu-dashboard-actions{margin-top:15px}.mu-dashboard-primary,.mu-dashboard-secondary{min-height:40px;padding:0 12px;font-size:11px}.mu-dashboard-welcome-foot{left:19px;right:19px;bottom:12px;font-size:7px;gap:8px}.mu-dashboard-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mu-dashboard-link-card{min-height:125px;padding:11px}.mu-dashboard-link-card h3{font-size:12px}.mu-dashboard-link-card p{font-size:9px}.mu-dashboard-card-open{font-size:7px}.mu-dashboard-overview{margin-top:19px}}
+@media(max-width:370px){.mu-dashboard-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.mu-dashboard-link-card{padding:9px;min-height:120px}.mu-dashboard-card-tag{font-size:6px}.mu-dashboard-link-card h3{font-size:11px}.mu-dashboard-welcome-foot{letter-spacing:.7px}}
+@media(prefers-reduced-motion:reduce){.mu-dashboard-welcome,.mu-dashboard-emblem-ring,.mu-dashboard-link-card{animation:none!important;transition:none!important}}

@@ -182,7 +182,7 @@ export default function SubjectMockTestPage() {
       {!selected.enabled ? <p className="mu-fast-locked">This subject is currently unavailable.</p>
       : !selected.can_start ? <div className="mu-subject-action-inner">
           <div><b>{selected.name_en || selected.name_hi}</b><span>Pay ₹29 to unlock this subject and start practising.</span></div>
-          <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Please wait..." : "₹29 Pay to Unlock →"}</button>
+          <button className="mu-fast-primary" onClick={() => void unlockSubject(selected)} disabled={paying}>{paying ? "Please wait..." : "₹29 Pay to Unlock →"}</button>
         </div>
       : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
       : <div className="mu-subject-action-inner">

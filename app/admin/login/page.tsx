@@ -53,7 +53,7 @@ export default function AdminLogin() {
 
       // The same authenticated Supabase token is checked for Partner access.
       // This avoids a second password sign-in and keeps Partner permissions separate.
-      const partnerResponse = await fetch("/api/partner", {
+      const partnerResponse = await fetch("/api/partner?verify=1", {
         headers: { Authorization: "Bearer " + accessToken },
         cache: "no-store"
       });

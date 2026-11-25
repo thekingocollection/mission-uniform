@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminFetch } from "@/lib/admin-client-session";
 
 type FinanceRow = {
   id: string; type: string; student_id: string; student_name: string; mobile: string; email: string;
@@ -12,7 +12,6 @@ type ProductRow = { product: string; buyers: number; purchases: number; revenue_
 const money = (paise: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format((paise || 0) / 100);
 const dateTime = (value: string | null) => value ? new Date(value).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "—";
 export default function FinanceReportPage() {
-  const sb = useMemo(() => supabaseBrowser(), []);
   const [rows, setRows] = useState<FinanceRow[]>([]);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [summary, setSummary] = useState({ total_transactions: 0, paid_purchases: 0, unique_buyers: 0, revenue_paise: 0, pending: 0, failed: 0 });
@@ -22,18 +21,15 @@ export default function FinanceReportPage() {
   const load = useCallback(async () => {
     setLoading(true); setError("");
     try {
-      if (!sb) throw new Error("Supabase configuration missing.");
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) throw new Error("Please login as Super Admin.");
       const params = new URLSearchParams();
       if (from) params.set("from", from); if (to) params.set("to", to);
       if (status) params.set("status", status); if (type) params.set("type", type); if (q.trim()) params.set("q", q.trim());
-      const response = await fetch("/api/admin/finance-report?" + params.toString(), { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" });
+      const response = await adminFetch("/api/admin/finance-report?" + params.toString());
       const data = await response.json(); if (!response.ok) throw new Error(data.error || "Could not load report.");
       setRows(data.rows || []); setProducts(data.products || []); setSummary(data.summary || { total_transactions: 0, paid_purchases: 0, unique_buyers: 0, revenue_paise: 0, pending: 0, failed: 0 });
     } catch (e: any) { setError(e.message || "Finance report load failed."); }
     finally { setLoading(false); }
-  }, [sb, from, to, status, type, q]);
+  }, [from, to, status, type, q]);
   useEffect(() => { void load(); }, [load]);
   async function exportExcel() {
     setExporting(true);

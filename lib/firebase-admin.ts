@@ -40,7 +40,7 @@ export async function sendFcmNotifications(input: {
     notification: { title: input.title, body: input.body },
     data: { title: input.title, body: input.body, url: input.url },
     webpush: {
-      fcmOptions: { link: input.url.startsWith("/") ? input.url : "/notifications" },
+      fcmOptions: { link: new URL(input.url.startsWith("/") ? input.url : "/notifications", process.env.NEXT_PUBLIC_SITE_URL || "https://mission-uniform.onrender.com").toString() },
       notification: { icon: "/icon-192.png", badge: "/icon-192.png" },
     },
   });

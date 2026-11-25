@@ -531,7 +531,7 @@ export default function TakeTest({ id }: { id: string }) {
           <section className="panel question-panel mu-exam-question">
             <div className="question-meta mu-mobile-question-meta">
               <span className="mu-question-number-pill">Question {index + 1}</span>
-              <button type="button" className={`mu-bookmark-button mu-review-toggle ${marked.includes(question.id) ? "is-marked" : ""}`} aria-pressed={marked.includes(question.id)} aria-label={marked.includes(question.id) ? "Remove from review" : "Mark for review"} onClick={() => toggleMark(question.id)}><span aria-hidden="true">{marked.includes(question.id) ? "★" : "☆"}</span>{marked.includes(question.id) ? "Marked" : "Review"}</button>
+              <button type="button" className={`mu-bookmark-button mu-review-toggle ${marked.includes(question.id) ? "is-marked" : ""}`} aria-pressed={marked.includes(question.id)} aria-label={marked.includes(question.id) ? "Remove from review" : "Mark for review"} onClick={() => toggleMark(question.id)}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill={marked.includes(question.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4.75A1.75 1.75 0 0 1 7.75 3h8.5A1.75 1.75 0 0 1 18 4.75V21l-6-4-6 4V4.75Z" /></svg>{marked.includes(question.id) ? "Marked" : "Review"}</button>
               <span className="mu-question-status">{question.chapter || (answers[question.id] !== undefined ? "Answered" : "Not Answered")}</span>
             </div>
 

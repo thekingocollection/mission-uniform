@@ -46,6 +46,7 @@ export default function AdminHome() {
   useEffect(() => {
     let live = true;
     (async () => {
+      if (!sb) { setLoading(false); return; }
       const tables = ["profiles", "subjects", "questions", "test_papers", "attempts", "job_alerts"] as const;
       // Use the same server-authorized profile count as the Student Management page.
       const studentResponse = await adminFetch("/api/admin/student-management");

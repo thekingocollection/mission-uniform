@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         db.from("subject_access_settings").select("is_enabled").eq("subject_id", pyq.id).maybeSingle()
       ]);
       const trialEnd = new Date(new Date(user.created_at).getTime() + 86400000).getTime();
-      const hasTrial = Number.isFinite(trialEnd) && trialEnd > Date.now();
+      const hasTrial = false; // Previous Year Questions requires explicit purchase.
       const hasPurchase = Boolean(pyqPurchase && (!pyqPurchase.expires_at || new Date(pyqPurchase.expires_at).getTime() > Date.now()));
       if (config?.is_enabled === false || (!hasTrial && !hasPurchase)) return NextResponse.json({ error: "Unlock Previous Year Questions for ₹29 to view papers." }, { status: 403 });
     }

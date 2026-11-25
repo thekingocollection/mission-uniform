@@ -30,6 +30,18 @@ export async function GET(req: NextRequest) {
     const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).maybeSingle();
     const isAdmin = profile?.role === "super_admin";
     if (!isAdmin && !(await isRegisteredStudentDevice(req, user.id))) return NextResponse.json({ error: "This account is not active on this registered device." }, { status: 403 });
+    if (!isAdmin) {
+      const { data: pyq } = await db.from("subjects").select("id").eq("name_en", "Previous Year Questions").eq("is_active", true).maybeSingle();
+      if (!pyq) return NextResponse.json({ error: "Previous Year Questions subject is not configured." }, { status: 503 });
+      const [{ data: pyqPurchase }, { data: config }] = await Promise.all([
+        db.from("student_subject_access").select("expires_at").eq("user_id", user.id).eq("subject_id", pyq.id).maybeSingle(),
+        db.from("subject_access_settings").select("is_enabled").eq("subject_id", pyq.id).maybeSingle()
+      ]);
+      const trialEnd = new Date(new Date(user.created_at).getTime() + 86400000).getTime();
+      const hasTrial = Number.isFinite(trialEnd) && trialEnd > Date.now();
+      const hasPurchase = Boolean(pyqPurchase && (!pyqPurchase.expires_at || new Date(pyqPurchase.expires_at).getTime() > Date.now()));
+      if (config?.is_enabled === false || (!hasTrial && !hasPurchase)) return NextResponse.json({ error: "Unlock Previous Year Questions for ₹29 to view papers." }, { status: 403 });
+    }
     const admin = isAdmin && req.nextUrl.searchParams.get("admin") === "1";
     let query = db.from("previous_year_papers").select("id,title,exam_name,exam_year,session_label,description,source_label,pdf_url,pdf_file_name,status,created_at").order("exam_year", { ascending: false }).order("created_at", { ascending: false });
     if (!admin) query = query.eq("status", "published");

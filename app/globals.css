@@ -7440,3 +7440,65 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media(max-width:680px){.mu-finance{gap:15px}.mu-finance-hero{align-items:flex-start;flex-direction:column;min-height:0;padding:21px;border-radius:17px}.mu-finance-hero-actions{align-self:stretch;width:100%}.mu-finance-hero-actions .mu-finance-btn{flex:1}.mu-finance-hero-watermark{right:3%;bottom:-60px;font-size:190px}.mu-finance-hero h1{font-size:30px}.mu-finance-section-head{align-items:flex-start;flex-direction:column}.mu-finance-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mu-finance-metric{padding:13px 12px;border-radius:13px}.mu-finance-metric-top{margin-bottom:11px}.mu-finance-metric strong{font-size:20px}.mu-finance-panel{padding:15px;border-radius:15px}.mu-finance-panel-heading h2{font-size:16px}.mu-finance-filters{grid-template-columns:1fr 1fr;gap:10px}.mu-finance-search{grid-column:1/-1}.mu-finance-filter-footer{align-items:flex-start;flex-direction:column}.mu-finance-filter-footer>div{width:100%}.mu-finance-filter-footer .mu-finance-btn{flex:1}.mu-finance-register-foot{flex-direction:column;gap:5px}.mu-finance-product{grid-template-columns:30px minmax(0,1fr) auto;gap:8px}.mu-finance-product-rank{width:28px;height:28px}}
 @media(max-width:390px){.mu-finance-metrics{grid-template-columns:1fr 1fr}.mu-finance-metric strong{font-size:17px}.mu-finance-filters{grid-template-columns:1fr}.mu-finance-search{grid-column:auto}.mu-finance-record-chip{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.mu-finance *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* Admin workspace usability: searchable menu, page context and always-visible logout */
+.admin-layout{background:#f5f7fb}
+.admin-sidebar{position:sticky;top:0;height:100vh;min-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#34496e #101d43}
+.admin-nav-label{display:flex;align-items:center;justify-content:space-between;margin:23px 9px 10px}
+.admin-nav-label span{color:#7185a9;font-size:8px;letter-spacing:.08em}
+.admin-nav-search{display:flex;align-items:center;gap:8px;margin:0 2px 12px;padding:0 11px;height:39px;border:1px solid rgba(255,255,255,.13);border-radius:10px;background:rgba(255,255,255,.07);color:#e9bd59}
+.admin-nav-search>span{font-size:20px}
+.admin-nav-search input{width:100%;min-width:0;height:35px;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;color:#fff!important;font-size:11px!important}
+.admin-nav-search input::placeholder{color:#9cabc4}
+.admin-sidebar nav{gap:4px}
+.admin-sidebar nav a{min-height:42px;padding:9px 11px;border:1px solid transparent;font-size:11px}
+.admin-sidebar nav a i{flex:0 0 22px}
+.admin-sidebar nav a span{flex:1;min-width:0}
+.admin-sidebar nav a>b{color:#8194b4;font-size:17px;font-weight:500;opacity:0;transform:translateX(-3px);transition:.18s ease}
+.admin-sidebar nav a:hover>b,.admin-sidebar nav a.active>b{opacity:1;transform:translateX(0)}
+.admin-sidebar nav a.active{border-color:rgba(237,189,69,.22);background:linear-gradient(90deg,rgba(237,189,69,.15),rgba(36,55,97,.9))}
+.admin-nav-empty{padding:12px;color:#aab8d0;font-size:11px;text-align:center}
+.admin-sidebar-bottom{gap:5px;padding-top:13px}
+.admin-sidebar-bottom small{overflow-wrap:anywhere;line-height:1.5}
+.admin-topbar{position:sticky;top:0;z-index:40;min-height:72px;padding:12px clamp(16px,2.5vw,32px);box-shadow:0 3px 14px rgba(19,38,67,.035)}
+.admin-topbar-title{display:flex;flex-direction:column;gap:5px;min-width:0}
+.admin-topbar-title small{color:#8794a6;font-size:9px;font-weight:800;letter-spacing:.11em}
+.admin-topbar-title small span{padding:0 5px;color:#c4a45e}
+.admin-topbar-title b{color:#172b46;font-size:17px;font-weight:900}
+.admin-topbar-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px}
+.admin-topbar .admin-status{padding:8px 11px;font-size:9px}
+.admin-topbar-site,.admin-topbar-logout{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 12px;border:1px solid #e1e7ef;border-radius:10px;background:#fff;color:#4c6078;text-decoration:none;font-size:10px;font-weight:850;white-space:nowrap;transition:.18s ease}
+.admin-topbar-site:hover{border-color:#c9d5e3;background:#f7f9fc}
+.admin-topbar-logout{border-color:#f0d1d1;background:#fff7f7;color:#a53b3b;cursor:pointer}
+.admin-topbar-logout:hover{border-color:#e7aaaa;background:#ffeded}
+.admin-topbar-logout:focus-visible,.admin-topbar-site:focus-visible,.admin-nav-search input:focus-visible{outline:3px solid rgba(214,173,86,.35);outline-offset:2px}
+.admin-content{max-width:1700px;padding:clamp(16px,2.2vw,30px)}
+@media(max-width:900px){
+ .admin-layout{display:block}
+ .admin-sidebar{position:relative;top:auto;width:100%;min-width:0;height:auto;min-height:0;max-height:none;padding:13px 14px 9px;overflow:visible}
+ .admin-brand{padding:3px 4px 11px}
+ .admin-crest{width:39px;height:39px}
+ .admin-nav-label{margin:13px 5px 8px}
+ .admin-nav-search{height:36px;margin-bottom:8px}
+ .admin-sidebar nav{display:flex;gap:6px;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:thin}
+ .admin-sidebar nav a{flex:0 0 auto;min-height:37px;padding:8px 10px;white-space:nowrap}
+ .admin-sidebar nav a>b{display:none}
+ .admin-sidebar-bottom{display:none}
+ .admin-topbar{position:sticky;top:0;min-height:64px;padding:10px 14px}
+ .admin-topbar-title small{font-size:8px}
+ .admin-topbar-title b{font-size:14px}
+ .admin-topbar-actions{gap:6px}
+ .admin-topbar .admin-status{padding:7px 8px;font-size:8px}
+ .admin-topbar-site,.admin-topbar-logout{min-height:36px;padding:7px 9px;font-size:10px}
+ .admin-content{padding:16px 13px 28px}
+}
+@media(max-width:560px){
+ .admin-topbar{align-items:flex-start;gap:8px}
+ .admin-topbar-title{flex:1 1 100%}
+ .admin-topbar-actions{width:100%;justify-content:flex-start}
+ .admin-topbar .admin-status{margin-right:auto}
+ .admin-topbar-site,.admin-topbar-logout{min-height:36px}
+ .admin-sidebar nav a{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.admin-sidebar nav a>b{transition:none}}

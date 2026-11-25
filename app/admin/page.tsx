@@ -1,12 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminFetch } from "@/lib/admin-client-session";
 
 type Activity = { id: string; kind: "registration" | "purchase"; user_id: string; name: string; student_code?: string; amount_paise?: number; created_at: string; reference?: string };
 
 export default function AdminHome() {
-  const sb = useMemo(() => supabaseBrowser(), []);
   const [stats, setStats] = useState({ students: 0, subjects: 0, questions: 0, tests: 0, attempts: 0, jobs: 0 });
   const [loading, setLoading] = useState(true);
   const [activity, setActivity] = useState<Activity[]>([]);
@@ -16,14 +15,9 @@ export default function AdminHome() {
   const seen = useRef<Set<string>>(new Set());
 
   const loadActivity = useCallback(async (isFirst = false) => {
-    if (!sb) return;
     try {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) return;
       const since = isFirst ? "" : lastChecked.current;
-      const response = await fetch("/api/admin/activity-feed" + (since ? "?since=" + encodeURIComponent(since) : ""), {
-        headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store"
-      });
+      const response = await adminFetch("/api/admin/activity-feed" + (since ? "?since=" + encodeURIComponent(since) : ""));
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Activity feed load nahi hua.");
       const events: Activity[] = data.events || [];
@@ -50,15 +44,9 @@ export default function AdminHome() {
   useEffect(() => {
     let live = true;
     (async () => {
-      if (!sb) { setLoading(false); return; }
       const tables = ["profiles", "subjects", "questions", "test_papers", "attempts", "job_alerts"] as const;
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) { setLoading(false); return; }
       // Use the same server-authorized profile count as the Student Management page.
-      const studentResponse = await fetch("/api/admin/student-management", {
-        headers: { Authorization: "Bearer " + session.access_token },
-        cache: "no-store"
-      });
+      const studentResponse = await adminFetch("/api/admin/student-management");
       const studentData = await studentResponse.json();
       const vals = await Promise.all(tables.slice(1).map(table => sb.from(table).select("id", { count: "exact", head: true })));
       if (live) {
@@ -76,7 +64,7 @@ export default function AdminHome() {
     void loadActivity(true);
     const timer = window.setInterval(() => { void loadActivity(false); }, 15000);
     return () => { live = false; window.clearInterval(timer); };
-  }, [sb, loadActivity]);
+  }, [loadActivity]);
 
   const cards = [
     ["Registered Students", stats.students, "/admin/students", "♙"], ["Subjects", stats.subjects, "/admin/subjects", "▤"],

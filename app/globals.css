@@ -7217,3 +7217,56 @@ button, a, input, select, textarea { touch-action: manipulation; }
   }
   .mu-exam-palette .palette-grid button { min-height:32px; height:32px; font-size:12px; }
 }
+
+
+/* High-visibility exam countdown and bookmark review icon */
+.timer.mu-exam-timer {
+  border:2px solid #fbbf24 !important;
+  background:linear-gradient(135deg,#fff176 0%,#fbbf24 58%,#f59e0b 100%) !important;
+  color:#172554 !important;
+  box-shadow:0 0 0 3px rgba(250,204,21,.2),0 8px 22px rgba(161,98,7,.2) !important;
+}
+.mu-exam-timer .mu-exam-timer-top span { color:#713f12 !important; }
+.mu-exam-timer .mu-exam-timer-top b {
+  color:#172554 !important; font-size:26px; font-weight:950;
+  text-shadow:0 1px 0 rgba(255,255,255,.5);
+}
+.mu-exam-timer .mu-exam-time-track { background:rgba(120,75,0,.2) !important; }
+.mu-exam-timer .mu-exam-time-track i {
+  background:linear-gradient(90deg,#15803d,#166534) !important;
+}
+.mu-exam-timer.is-warning {
+  border-color:#fecaca !important;
+  background:linear-gradient(135deg,#ef4444 0%,#b91c1c 100%) !important;
+  box-shadow:0 0 0 4px rgba(239,68,68,.18),0 8px 22px rgba(153,27,27,.25) !important;
+}
+.mu-exam-timer.is-warning .mu-exam-timer-top span,
+.mu-exam-timer.is-warning .mu-exam-timer-top b { color:#fff !important; }
+.mu-exam-timer.is-warning .mu-exam-time-track { background:rgba(255,255,255,.25) !important; }
+.mu-exam-timer.is-warning .mu-exam-time-track i { background:#fff !important; }
+.mu-review-toggle {
+  min-width:82px; min-height:36px; gap:6px;
+  border:1.5px solid #c5a04b; background:#fff9e8; color:#79530a;
+  box-shadow:0 2px 7px rgba(120,85,15,.08);
+}
+.mu-review-toggle svg { flex:0 0 16px; display:block; }
+.mu-review-toggle.is-marked {
+  border-color:#d89b18; background:#ffedb3; color:#754400;
+  box-shadow:0 0 0 2px rgba(245,158,11,.13);
+}
+@media (max-width:800px) {
+  .mu-mobile-exam-top .mu-exam-timer {
+    background:linear-gradient(135deg,#fff176 0%,#fbbf24 58%,#f59e0b 100%) !important;
+    border:2px solid #f59e0b !important; color:#172554 !important;
+    box-shadow:0 0 0 3px rgba(250,204,21,.2),0 5px 14px rgba(161,98,7,.18) !important;
+  }
+  .mu-mobile-exam-top .mu-exam-timer .mu-exam-timer-top > span { color:#713f12 !important; }
+  .mu-mobile-exam-top .mu-exam-timer .mu-exam-timer-top b { color:#172554 !important; }
+  .mu-mobile-exam-top .mu-exam-timer.is-warning {
+    background:linear-gradient(135deg,#ef4444,#b91c1c) !important;
+    border-color:#fecaca !important;
+  }
+  .mu-mobile-exam-top .mu-exam-timer.is-warning .mu-exam-timer-top > span,
+  .mu-mobile-exam-top .mu-exam-timer.is-warning .mu-exam-timer-top b { color:#fff !important; }
+  .mu-review-toggle { min-width:76px; min-height:34px; }
+}

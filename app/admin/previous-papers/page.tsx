@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import Link from "next/link";
 
 type Paper = { id:string; title:string; exam_name:string; exam_year:number; session_label:string|null; pdf_url:string; pdf_file_name:string; status:string; description:string|null };
 
@@ -80,6 +81,10 @@ export default function PreviousPaperManager() {
       <span className="eyebrow">MISSION UNIFORM OP · ADMIN LIBRARY</span>
       <h1>Previous Year Paper Library</h1>
       <p>Original question paper PDF upload karke students ko download / view ke liye publish karein. Online mock test banane ke liye Mock Test Builder ka Previous Year Papers mode use karein.</p>
+      <div className="result-actions" style={{marginTop:16}}>
+        <Link className="btn secondary" href="/admin/monetization">PYQ Price & Access Settings ↗</Link>
+        <Link className="btn secondary" href="/admin/tests">Create / Manage Online PYQ Mocks ↗</Link>
+      </div>
       <form onSubmit={upload} className="mu-prev-admin-form">
         <div className="form-grid">
           <label>Paper title<input className="input" required value={title} onChange={e=>setTitle(e.target.value)} placeholder="Odisha Police Constable Official Paper"/></label>

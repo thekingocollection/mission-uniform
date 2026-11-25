@@ -37,10 +37,8 @@ export async function GET(req: NextRequest) {
         db.from("student_subject_access").select("expires_at").eq("user_id", user.id).eq("subject_id", pyq.id).maybeSingle(),
         db.from("subject_access_settings").select("is_enabled").eq("subject_id", pyq.id).maybeSingle()
       ]);
-      const trialEnd = new Date(new Date(user.created_at).getTime() + 86400000).getTime();
-      const hasTrial = false; // Previous Year Questions requires explicit purchase.
       const hasPurchase = Boolean(pyqPurchase && (!pyqPurchase.expires_at || new Date(pyqPurchase.expires_at).getTime() > Date.now()));
-      if (config?.is_enabled === false || (!hasTrial && !hasPurchase)) return NextResponse.json({ error: "Unlock Previous Year Questions for ₹29 to view papers." }, { status: 403 });
+      if (config?.is_enabled === false || !hasPurchase) return NextResponse.json({ error: "Unlock Previous Year Questions for ₹29 to view papers." }, { status: 403 });
     }
     const admin = isAdmin && req.nextUrl.searchParams.get("admin") === "1";
     let query = db.from("previous_year_papers").select("id,title,exam_name,exam_year,session_label,description,source_label,pdf_url,pdf_file_name,status,created_at").order("exam_year", { ascending: false }).order("created_at", { ascending: false });

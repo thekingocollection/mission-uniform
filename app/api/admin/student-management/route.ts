@@ -101,7 +101,7 @@ async function loadStudents(db: ReturnType<typeof getServiceSupabase>, q: string
     ...profile,
     student_code: profile.student_code || null,
     email: profile.email || "",
-    mobile: String(profile.phone || "").replace(/^\\+91/, ""),
+    mobile: String(profile.phone || "").replace(/^\+91/, ""),
     is_blocked: Boolean(profile.is_blocked)
   }));
 

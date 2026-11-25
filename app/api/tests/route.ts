@@ -36,10 +36,8 @@ export async function GET(req: NextRequest) {
           db.from("student_subject_access").select("expires_at").eq("user_id", user.id).eq("subject_id", pyq.id).maybeSingle(),
           db.from("subject_access_settings").select("is_enabled").eq("subject_id", pyq.id).maybeSingle()
         ]);
-        const trialEnd = new Date(new Date(user.created_at).getTime() + 86400000).getTime();
-        const hasTrial = false; // Previous Year Questions requires explicit purchase.
         const hasPurchase = Boolean(purchase && (!purchase.expires_at || new Date(purchase.expires_at).getTime() > Date.now()));
-        hasPyqAccess = config?.is_enabled !== false && (hasTrial || hasPurchase);
+        hasPyqAccess = config?.is_enabled !== false && hasPurchase;
       }
       if (!hasPyqAccess) visibleTests = visibleTests.filter((test: any) => !test.is_previous_year);
     }

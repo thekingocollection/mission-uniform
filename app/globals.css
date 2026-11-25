@@ -7537,3 +7537,45 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media(max-width:680px){.mu-dashboard-simple{width:min(100% - 22px,600px);padding-top:13px}.mu-dashboard-welcome{grid-template-columns:1fr;padding:22px 19px 43px;gap:5px}.mu-dashboard-emblem{display:none}.mu-dashboard-welcome h1{font-size:clamp(25px,7vw,32px)}.mu-dashboard-intro{font-size:12px}.mu-dashboard-actions{margin-top:15px}.mu-dashboard-primary,.mu-dashboard-secondary{min-height:40px;padding:0 12px;font-size:11px}.mu-dashboard-welcome-foot{left:19px;right:19px;bottom:12px;font-size:7px;gap:8px}.mu-dashboard-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mu-dashboard-link-card{min-height:125px;padding:11px}.mu-dashboard-link-card h3{font-size:12px}.mu-dashboard-link-card p{font-size:9px}.mu-dashboard-card-open{font-size:7px}.mu-dashboard-overview{margin-top:19px}}
 @media(max-width:370px){.mu-dashboard-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.mu-dashboard-link-card{padding:9px;min-height:120px}.mu-dashboard-card-tag{font-size:6px}.mu-dashboard-link-card h3{font-size:11px}.mu-dashboard-welcome-foot{letter-spacing:.7px}}
 @media(prefers-reduced-motion:reduce){.mu-dashboard-welcome,.mu-dashboard-emblem-ring,.mu-dashboard-link-card{animation:none!important;transition:none!important}}
+
+
+/* MISSION UNIFORM — COMPACT MOCK TEST INTRO */
+.mu-exam-shell{width:min(100% - 24px,980px);margin:0 auto;padding:18px 0 34px}
+.mu-exam-intro{position:relative;isolation:isolate;max-width:850px;margin:0 auto;padding:clamp(20px,3vw,32px);border:1px solid #e1e6ed;border-radius:19px;background:linear-gradient(145deg,#fff 0%,#fbfcff 100%);box-shadow:0 10px 30px rgba(15,35,65,.07);animation:muExamIntroIn .5s ease both;overflow:hidden}
+.mu-exam-intro:before{content:"";position:absolute;z-index:-1;top:-85px;right:-65px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(218,177,75,.13),transparent 70%);pointer-events:none}
+.mu-exam-intro>.eyebrow{font-size:10px;letter-spacing:1.7px}
+.mu-exam-intro>h1{margin:12px 0 9px;color:#172554;font-size:clamp(25px,4vw,36px);line-height:1.16;letter-spacing:-.55px}
+.mu-exam-intro>p{max-width:680px;margin:10px 0 15px;color:#64748b;font-size:clamp(13px,1.6vw,16px);line-height:1.65}
+.mu-exam-intro .mu-language-choice{margin:14px 0!important}
+.mu-exam-intro .mu-language-choice h3{margin:0 0 11px;font-size:clamp(15px,2vw,19px);line-height:1.45;color:#183149}
+.mu-exam-intro .mu-language-choice .btn{min-height:39px;padding:8px 17px;font-size:13px;border-radius:10px}
+.mu-exam-intro .test-result-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.mu-exam-intro .test-result-grid>div{padding:12px 9px;border-radius:12px;background:rgba(255,255,255,.85);gap:3px}
+.mu-exam-intro .test-result-grid b{font-size:clamp(19px,2.5vw,25px);color:#183149}
+.mu-exam-intro .test-result-grid span{font-size:11px}
+.mu-exam-intro .mu-exam-instructions{margin:16px 0;padding:15px 17px;border:1px solid #e5e9f0;border-radius:14px;background:#f8faff}
+.mu-exam-intro .mu-exam-instructions h3{margin:0 0 10px;font-size:16px;color:#183149}
+.mu-exam-intro .mu-exam-instructions ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 15px;margin:0;padding:0;list-style:none}
+.mu-exam-intro .mu-exam-instructions li{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.mu-exam-intro .mu-exam-instructions li>span{flex:0 0 25px;width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:#17364f;color:#f1cf78;font-size:10px;font-weight:800}
+.mu-exam-intro .mu-exam-instructions li p{margin:0;color:#24364c;font-size:12px;line-height:1.4}
+.mu-exam-intro .mu-exam-instructions li small{display:block;margin-top:3px;color:#738095;font-size:10px;line-height:1.45}
+.mu-exam-intro>.btn.primary{min-height:43px;padding:10px 22px;border-radius:10px;font-size:13px;box-shadow:0 6px 16px rgba(195,150,37,.18);transition:transform .2s ease,box-shadow .2s ease}
+.mu-exam-intro>.btn.primary:hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(195,150,37,.25)}
+@keyframes muExamIntroIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+ .mu-exam-shell{width:calc(100% - 20px);padding:13px 0 25px}
+ .mu-exam-intro{padding:19px 16px;border-radius:16px}
+ .mu-exam-intro>h1{font-size:clamp(24px,7vw,30px);margin:10px 0 8px}
+ .mu-exam-intro>p{font-size:13px;line-height:1.55;margin:9px 0 12px}
+ .mu-exam-intro .test-result-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0}
+ .mu-exam-intro .test-result-grid>div{padding:10px 7px}
+ .mu-exam-intro .test-result-grid b{font-size:22px}
+ .mu-exam-intro .test-result-grid span{font-size:10px}
+ .mu-exam-intro .mu-exam-instructions{padding:13px 12px;margin:13px 0}
+ .mu-exam-intro .mu-exam-instructions ul{grid-template-columns:1fr;gap:9px}
+ .mu-exam-intro .mu-exam-instructions li p{font-size:11px}
+ .mu-exam-intro .mu-exam-instructions li small{font-size:9px}
+ .mu-exam-intro>.btn.primary{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.mu-exam-intro{animation:none}.mu-exam-intro>.btn.primary{transition:none}}

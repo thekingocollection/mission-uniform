@@ -14,14 +14,25 @@ async function requireAdmin(req: NextRequest) {
     .eq("id", data.user.id)
     .maybeSingle();
 
-  if (profileError || !profile || profile.is_blocked || !["super_admin", "staff_admin"].includes(profile.role)) {
+  // Older databases may not yet have the staff-RBAC columns. The role column
+  // is part of the original schema, so fall back to it without weakening the
+  // blocked-account check on databases where the newer columns exist.
+  let resolvedProfile: any = profile;
+  if (profileError && isMissingOptionalColumn(profileError)) {
+    const fallback = await db.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+    if (fallback.error || !fallback.data) return null;
+    resolvedProfile = { ...fallback.data, is_blocked: false, permissions: {} };
+  }
+
+  if (profileError && !isMissingOptionalColumn(profileError)) return null;
+  if (!resolvedProfile || resolvedProfile.is_blocked || !["super_admin", "staff_admin"].includes(resolvedProfile.role)) {
     return null;
   }
 
   return {
     user: data.user,
-    role: profile.role as string,
-    permissions: (profile.permissions || {}) as Record<string, boolean>
+    role: resolvedProfile.role as string,
+    permissions: (resolvedProfile.permissions || {}) as Record<string, boolean>
   };
 }
 

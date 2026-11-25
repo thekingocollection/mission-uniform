@@ -152,7 +152,7 @@ export default function SubjectMockTestPage() {
           return <button type="button" key={s.subject_id} aria-pressed={active} className={"mu-subject-clean-card " + (active ? "active" : "")} onClick={() => chooseSubject(s.subject_id)} style={{animationDelay: (index * 45) + "ms"}}>
             <span className="mu-subject-card-mark" aria-hidden="true">{String(index + 1).padStart(2,"0")}</span>
             <span className="mu-subject-card-name">{s.name_en || s.name_hi || "Subject"}</span>
-            <span className={"mu-subject-card-status " + (status === "Premium" || status === "Unavailable" ? "muted" : "")}>{status}</span>
+            <span className={"mu-subject-card-status " + (status.includes("₹29") || status === "Premium" || status === "Unavailable" ? "muted" : "")}>{status}</span>
             <span className="mu-subject-card-arrow" aria-hidden="true">↗</span>
           </button>;
         })}

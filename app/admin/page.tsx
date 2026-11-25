@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminFetch } from "@/lib/admin-client-session";
 
 type Activity = { id: string; kind: "registration" | "purchase"; user_id: string; name: string; student_code?: string; amount_paise?: number; created_at: string; reference?: string };
 
@@ -16,14 +17,9 @@ export default function AdminHome() {
   const seen = useRef<Set<string>>(new Set());
 
   const loadActivity = useCallback(async (isFirst = false) => {
-    if (!sb) return;
     try {
-      const { data: { session } } = await sb.auth.getSession();
-      if (!session) return;
       const since = isFirst ? "" : lastChecked.current;
-      const response = await fetch("/api/admin/activity-feed" + (since ? "?since=" + encodeURIComponent(since) : ""), {
-        headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store"
-      });
+      const response = await adminFetch("/api/admin/activity-feed" + (since ? "?since=" + encodeURIComponent(since) : ""));
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Activity feed load nahi hua.");
       const events: Activity[] = data.events || [];
@@ -45,16 +41,25 @@ export default function AdminHome() {
     } catch (error: any) {
       setActivityError(error.message || "Activity feed unavailable.");
     }
-  }, [sb]);
+  }, []);
 
   useEffect(() => {
     let live = true;
     (async () => {
-      if (!sb) { setLoading(false); return; }
       const tables = ["profiles", "subjects", "questions", "test_papers", "attempts", "job_alerts"] as const;
-      const vals = await Promise.all(tables.map(table => sb.from(table).select("id", { count: "exact", head: true })));
+      // Use the same server-authorized profile count as the Student Management page.
+      const studentResponse = await adminFetch("/api/admin/student-management");
+      const studentData = await studentResponse.json();
+      const vals = await Promise.all(tables.slice(1).map(table => sb.from(table).select("id", { count: "exact", head: true })));
       if (live) {
-        setStats({ students: vals[0].count || 0, subjects: vals[1].count || 0, questions: vals[2].count || 0, tests: vals[3].count || 0, attempts: vals[4].count || 0, jobs: vals[5].count || 0 });
+        setStats({
+          students: studentResponse.ok ? Number(studentData.total ?? studentData.students?.length ?? 0) : 0,
+          subjects: vals[0]?.count || 0,
+          questions: vals[1]?.count || 0,
+          tests: vals[2]?.count || 0,
+          attempts: vals[3]?.count || 0,
+          jobs: vals[4]?.count || 0
+        });
         setLoading(false);
       }
     })();

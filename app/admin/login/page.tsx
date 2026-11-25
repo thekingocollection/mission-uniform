@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminSupabaseBrowser } from "@/lib/admin-supabase-browser";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -18,8 +18,9 @@ export default function AdminLogin() {
     setBusy(true);
     setMessage("");
     try {
-      const sb = supabaseBrowser();
+      const sb = adminSupabaseBrowser();
       if (!sb) throw new Error("Supabase environment variables are missing.");
+      await sb.auth.signOut();
       const { data, error } = await sb.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password
@@ -27,6 +28,7 @@ export default function AdminLogin() {
       if (error || !data.session?.access_token) {
         throw new Error(error?.message || "Login failed. Please check your email and password.");
       }
+      await sb.auth.setSession({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
       const verify = await fetch("/api/admin/session", {
         headers: { Authorization: "Bearer " + data.session.access_token },
         cache: "no-store"

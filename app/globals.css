@@ -7270,3 +7270,33 @@ button, a, input, select, textarea { touch-action: manipulation; }
   .mu-mobile-exam-top .mu-exam-timer.is-warning .mu-exam-timer-top b { color:#fff !important; }
   .mu-review-toggle { min-width:76px; min-height:34px; }
 }
+
+
+/* Clear, readable question typography and mathematical notation in live exams */
+.mu-formatted-question {
+  color:#172554;
+  font-size:clamp(21px,3.2vw,27px);
+  font-weight:850;
+  line-height:1.55;
+  letter-spacing:-.018em;
+  overflow-wrap:anywhere;
+}
+.mu-formatted-question sup {
+  position:relative;
+  top:-.08em;
+  margin-left:1px;
+  color:inherit;
+  font-size:.68em;
+  line-height:0;
+  vertical-align:super;
+}
+.mu-review-card .mu-formatted-question {
+  margin:12px 0 18px;
+}
+@media(max-width:640px) {
+  .mu-exam-question .mu-formatted-question {
+    margin:16px 0 20px;
+    font-size:clamp(21px,5.4vw,25px);
+    line-height:1.5;
+  }
+}

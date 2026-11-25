@@ -11,13 +11,13 @@ async function adminDb(req: NextRequest) {
   const { data, error } = await db.auth.getUser(auth.slice(7));
   if (error || !data.user) return null;
   const { data: profile } = await db.from("profiles").select("role,is_blocked").eq("id", data.user.id).maybeSingle();
-  return profile?.role === "super_admin" && !profile.is_blocked ? { db, user: data.user } : null;
+  return profile?.role === "super_admin" && !profile.is_blocked ? { db, user: data.user } : { db, user: data.user, deniedRole: profile?.role || "profile_missing", blocked: !!profile?.is_blocked };
 }
 
 export async function GET(req: NextRequest) {
   try {
     const auth = await adminDb(req);
-    if (!auth) return NextResponse.json({ error: "Super Admin access required." }, { status: 403 });
+    if (!auth || "deniedRole" in auth) return NextResponse.json({ error: !auth ? "Admin login token is missing or expired. Sign out and sign in again." : auth.blocked ? "This administrator account is blocked." : `This login has role "${auth.deniedRole}". Partnership Management requires the profile role "super_admin".` }, { status: 403 });
     const { data, error } = await auth.db.from("partners").select("*").order("created_at", { ascending: false });
     if (error) throw error;
     const ids = (data || []).map((p: any) => p.id);

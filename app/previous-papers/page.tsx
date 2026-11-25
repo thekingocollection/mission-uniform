@@ -32,7 +32,7 @@ export default function Page() {
       const accessBody=await accessResponse.json().catch(()=>({}));
       if(!accessResponse.ok)throw new Error(accessBody.error||"Could not verify Previous Year Questions access.");
       const pyq=(accessBody.subjects||[]).find((s:any)=>s.name_en==="Previous Year Questions");
-      if(!pyq){setError("Previous Year Questions subject is not configured yet. Please contact Admin.");setAuthorized(false);setChecking(false);setLoading(false);return;}
+      if(!pyq){setError("Previous Year Questions subject is not configured yet. Please contact Admin.");setAuthorized(true);setChecking(false);setLoading(false);return;}
       if(!pyq.can_start){router.replace("/subject-mock-test?subject="+encodeURIComponent(pyq.subject_id));return;}
       setAuthorized(true);setChecking(false);
       try{

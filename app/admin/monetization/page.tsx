@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { adminFetch } from "@/lib/admin-client-session";
 
 type Row = { id: string; name_en: string | null; name_hi: string | null; price_paise: number; duration_days: number | null; is_enabled: boolean };
 
@@ -17,10 +17,7 @@ export default function SubjectMonetizationAdmin() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const sb = supabaseBrowser();
-      const { data: { session } } = await sb!.auth.getSession();
-      if (!session) throw new Error("Please login as Super Admin.");
-      const response = await fetch("/api/admin/subject-access", { headers: { Authorization: "Bearer " + session.access_token } });
+      const response = await adminFetch("/api/admin/subject-access");
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not load settings.");
       setRows(data.subjects || []);
@@ -34,11 +31,8 @@ export default function SubjectMonetizationAdmin() {
   async function save(payload: any) {
     setBusy(true); setMessage("");
     try {
-      const sb = supabaseBrowser();
-      const { data: { session } } = await sb!.auth.getSession();
-      if (!session) throw new Error("Admin session expired.");
-      const response = await fetch("/api/admin/subject-access", {
-        method: "PATCH", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+      const response = await adminFetch("/api/admin/subject-access", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
       const data = await response.json();

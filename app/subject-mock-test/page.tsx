@@ -161,8 +161,8 @@ export default function SubjectMockTestPage() {
     {selected && <section className="mu-subject-clean-action" aria-live="polite">
       {!selected.enabled ? <p className="mu-fast-locked">This subject is currently unavailable.</p>
       : !selected.can_start ? <div className="mu-subject-action-inner">
-          <div><b>{selected.name_en || selected.name_hi}</b><span>Unlock this subject to start practising.</span></div>
-          <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Please wait..." : "Unlock Subject →"}</button>
+          <div><b>{selected.name_en || selected.name_hi}</b><span>Pay ₹29 to unlock this subject and start practising.</span></div>
+          <button className="mu-fast-primary" onClick={unlockSubject} disabled={paying}>{paying ? "Please wait..." : "₹29 Pay to Unlock →"}</button>
         </div>
       : selected.name_en === "Previous Year Questions" ? <div className="mu-subject-action-inner"><div><b>Previous Year Questions</b><span>Access previous year papers and exam questions.</span></div><button className="mu-fast-primary mu-subject-start-button" onClick={startTest}>Open Previous Year Questions →</button></div>\n      : selected.verified_questions < 1 ? <p className="mu-fast-locked">Questions will be available soon.</p>
       : <div className="mu-subject-action-inner">

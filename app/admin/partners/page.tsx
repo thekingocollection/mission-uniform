@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { adminSupabaseBrowser } from "@/lib/admin-supabase-browser";
 
 async function getAdminToken(sb:any){if(!sb)throw new Error("Supabase client unavailable. Check Render environment variables.");let {data:{session}}=await sb.auth.getSession();if(!session?.access_token){const refreshed=await sb.auth.refreshSession();session=refreshed.data.session;if(refreshed.error)throw new Error("Admin session refresh failed: "+refreshed.error.message);if(!session?.access_token)throw new Error("No saved Admin login session found in this browser. Please sign in again at /admin/login.");}return session.access_token;}
@@ -42,7 +43,7 @@ export default function AdminPartners() {
     }catch(e:any){setMessage(e.message||"Update failed.");}finally{setBusy("");}
   }
   return <div>
-    <div className="admin-page-heading"><div><span className="admin-kicker">GROWTH & AFFILIATE CONTROL</span><h1>Partnership Management</h1><p>Review partner requests, approve referral IDs and set individual commission percentages.</p></div><button className="admin-ghost" onClick={()=>void load()}>↻ Refresh</button></div>
+    <div className="admin-page-heading"><div><span className="admin-kicker">GROWTH & AFFILIATE CONTROL</span><h1>Partnership Management</h1><p>Review partner requests, approve referral IDs and set individual commission percentages.</p></div><div className="admin-actions"><Link href="/partner/login" className="admin-primary" style={{textDecoration:"none",display:"inline-flex",alignItems:"center"}}>↗ Open Partner Portal</Link><button className="admin-ghost" onClick={()=>void load()}>↻ Refresh</button></div></div>
     <div className="admin-stat-grid">
       <div className="admin-stat-card"><small>Total Partners</small><b>{rows.length}</b></div>
       <div className="admin-stat-card"><small>Pending Requests</small><b>{rows.filter(r=>r.status==="pending").length}</b></div>

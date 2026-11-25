@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
 export default function PartnerLogin(){

@@ -98,7 +98,7 @@ export default function AdminLogin() {
         <p style={{ margin: 0, color: "#a07832", fontSize: 11, fontWeight: 900, letterSpacing: 2.2 }}>MISSION UNIFORM OP</p>
         <h1 style={{ color: "#142d49", fontSize: 29, lineHeight: 1.2, margin: "10px 0 8px" }}>Secure Login</h1>
         <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.6, margin: "0 0 24px" }}>
-          One login for Super Admin, authorized Staff and approved Partners. Your account role opens the correct workspace automatically.
+          One secure login for Super Admin, authorized Staff and approved Partners. Your account role opens the correct workspace automatically.
         </p>
 
         <form onSubmit={submit} style={{ display: "grid", gap: 16 }}>

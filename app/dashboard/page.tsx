@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import PremiumTrialBanner from "@/components/premium-trial-banner";
 import { createFcmToken } from "@/lib/firebase";
+import StudentWebsiteTour from "@/components/student-website-tour";
 
 const dashboardLinks = [
   { href: "/subject-mock-test", icon: "✦", title: "Subject Mock Tests", description: "Practice topic by topic and improve your score.", tag: "MOST POPULAR" },
@@ -110,7 +111,8 @@ export default function Dashboard() {
 
   return (
     <main className="mu-dashboard-simple">
-      <section className="mu-dashboard-welcome">
+      <StudentWebsiteTour />
+      <section className="mu-dashboard-welcome" data-tour="welcome">
         <div className="mu-dashboard-welcome-copy">
           <span className="mu-dashboard-eyebrow"><i /> MISSION UNIFORM OP · STUDENT PORTAL</span>
           <p className="mu-dashboard-welcome-label">WELCOME BACK</p>
@@ -182,14 +184,14 @@ export default function Dashboard() {
         </section>
       )}
 
-      <section className="mu-dashboard-overview">
+      <section className="mu-dashboard-overview" data-tour="overview">
         <div><span className="mu-dashboard-section-kicker">YOUR PREPARATION</span><h2>Ready for today’s practice?</h2><p>Keep learning one step at a time.</p></div>
         <div className="mu-dashboard-attempts"><b>{attempts}</b><span>Tests attempted</span></div>
       </section>
 
       <section className="mu-dashboard-links" aria-label="Student study sections">
         {dashboardLinks.map((item, index) => (
-          <Link href={item.href} className="mu-dashboard-link-card" key={item.href}>
+          <Link href={item.href} className="mu-dashboard-link-card" key={item.href} data-tour={item.href === "/subject-mock-test" ? "subject" : item.href === "/tests" ? "mock" : item.href === "/previous-papers" ? "papers" : item.href === "/syllabus" ? "syllabus" : item.href === "/test-history" ? "history" : undefined}>
             <div className="mu-dashboard-card-top"><span className="mu-dashboard-card-icon">{item.icon}</span><span className="mu-dashboard-card-tag">{item.tag}</span></div>
             <h3>{item.title}</h3>
             <p>{item.description}</p>

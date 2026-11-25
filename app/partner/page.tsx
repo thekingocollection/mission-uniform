@@ -58,7 +58,7 @@ export default function PartnerDashboard() {
   </main>;
 
   const p = data.partner, s = data.summary || {};
-  const link = p.referral_code ? (typeof window !== "undefined" ? window.location.origin : "") + "/?ref=" + p.referral_code : "";
+  const link = p.referral_code ? (typeof window !== "undefined" ? window.location.origin : "") + "/signup?ref=" + p.referral_code : "";
   return <main style={{maxWidth:1120,margin:"30px auto",padding:"16px",color:"#152b45"}}>
     <header style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",alignItems:"center",marginBottom:22}}>
       <div><span style={{fontSize:12,fontWeight:800,letterSpacing:2,color:"#99712c"}}>MISSION UNIFORM OP</span><h1 style={{fontSize:30,margin:"6px 0"}}>Partnership Dashboard</h1><p style={{margin:0,color:"#68788a"}}>Welcome, {p.display_name}</p></div>

@@ -173,7 +173,7 @@ export default function SubjectMockTestPage() {
         </div>
         <div className="mu-pyq-promo-action">
           <span className="mu-pyq-promo-price">{!available ? "UNAVAILABLE" : unlocked ? "UNLOCKED" : pyqPrice}</span>
-          <small>{!available ? "Temporarily disabled by Admin" : unlocked ? "Your access is active" : "One-time subject unlock"}</small>
+          <small>{!available ? "Temporarily disabled by Admin" : unlocked ? "Your access is active" : pyq.duration_days ? pyq.duration_days + "-day access" : "Lifetime access"}</small>
           {!available
             ? <button type="button" className="mu-pyq-promo-button" disabled>Currently Unavailable</button>
             : unlocked

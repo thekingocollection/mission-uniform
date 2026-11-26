@@ -8096,3 +8096,15 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-live-clock-bottom small{color:#c4d1e0;font-size:9px;text-align:right}
 .mu-live-controls{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
 @media(max-width:760px){.mu-live-clock{width:100%;align-items:stretch}.mu-live-clock-card{min-width:0;width:100%}.mu-live-clock .mu-live-clock-digits{font-size:37px}.mu-live-controls{justify-content:flex-start}}
+
+
+/* Live Command Center · Partner intelligence */
+.mu-partner-live-section{display:grid;gap:14px;margin-top:28px}
+.mu-partner-live-section>.admin-panel-title{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;padding:0 2px}
+.mu-partner-live-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mu-partner-live-stats article{display:grid;gap:8px;min-width:0;padding:16px;border:1px solid #e1e8f1;border-radius:14px;background:linear-gradient(145deg,#fff,#f7f9fd);box-shadow:0 5px 16px rgba(20,39,69,.035)}
+.mu-partner-live-stats article span{color:#66758d;font-size:11px;font-weight:750}
+.mu-partner-live-stats article b{color:#172e53;font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}
+.mu-partner-live-section .mu-live-panel{margin:0}
+@media(max-width:760px){.mu-partner-live-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-partner-live-stats article{padding:13px}.mu-partner-live-stats article b{font-size:22px}}
+@media(max-width:390px){.mu-partner-live-stats{gap:8px}.mu-partner-live-stats article span{font-size:10px}}

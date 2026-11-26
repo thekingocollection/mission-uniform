@@ -104,8 +104,8 @@ async function createPayoutRequest(req: NextRequest) {
     const details = body.payout_details && typeof body.payout_details === "object" ? body.payout_details : {};
     if (!Number.isSafeInteger(amountPaise) || amountPaise < 10000) return NextResponse.json({ error: "Minimum payout request is ₹100." }, { status: 400 });
     if (!["upi","bank"].includes(method)) return NextResponse.json({ error: "Choose UPI or bank transfer." }, { status: 400 });
-    if (method === "upi" && !/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(String(details.upi_id || "").trim())) return NextResponse.json({ error: "Enter a valid UPI ID." }, { status: 400 });
-    if (method === "bank" && (String(details.account_holder || "").trim().length < 2 || !/^\d{9,18}$/.test(String(details.account_number || "")) || String(details.ifsc || "").trim().length !== 11)) return NextResponse.json({ error: "Enter account holder, valid account number and 11-character IFSC." }, { status: 400 });
+    if (method === "upi" && !/^[a-zA-Z0-9._-]{2,}@[a-zA-Z0-9.-]{2,}$/.test(String(details.upi_id || "").trim())) return NextResponse.json({ error: "Enter a valid UPI ID." }, { status: 400 });
+    if (method === "bank" && (String(details.account_holder || "").trim().length < 2 || !/^\d{9,18}$/.test(String(details.account_number || "")) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(String(details.ifsc || "").trim().toUpperCase()))) return NextResponse.json({ error: "Enter account holder, valid account number and 11-character IFSC." }, { status: 400 });
     const [{ data: commissions, error: commissionError }, { data: requests, error: requestError }, { data: payouts, error: payoutError }] = await Promise.all([
       db.from("partner_commissions").select("commission_paise,status").eq("partner_id", partner.id).neq("status","reversed"),
       db.from("partner_payout_requests").select("amount_paise,status").eq("partner_id", partner.id).in("status",["requested","approved"]),

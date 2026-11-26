@@ -7978,3 +7978,42 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-ist-clock small{color:#9aa5b3;font-size:9px;font-weight:800;letter-spacing:.06em}
 .mu-footer-bottom>small{margin:0}
 @media(max-width:520px){.mu-footer-bottom{justify-content:center;flex-direction:column;gap:7px}.mu-ist-clock{justify-content:center;flex-wrap:wrap}}
+
+
+/* Unified Super Admin Smart Command Centre */
+.mu-command{display:grid;gap:17px}
+.mu-command-updated{align-self:center;color:#8290a2;font-size:10px;font-weight:800}
+.mu-command-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.mu-command-stats article{min-width:0;padding:16px;border:1px solid #e4eaf1;border-radius:13px;background:linear-gradient(145deg,#fff,#f8fafd);box-shadow:0 5px 18px rgba(22,43,68,.035)}
+.mu-command-stats small,.mu-command-stats span{display:block;color:#78889b;font-size:10px;font-weight:800}
+.mu-command-stats strong{display:block;margin:8px 0 4px;color:#173451;font-size:26px;font-weight:950;letter-spacing:-.04em;overflow-wrap:anywhere}
+.mu-command-panel{padding:20px}
+.mu-command-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.mu-command-toolbar h2{margin:5px 0;color:#173451;font-size:21px}
+.mu-command-toolbar .admin-search{width:min(100%,330px);min-height:42px}
+.mu-command-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:17px 0 3px;padding:5px;border:1px solid #e7edf4;border-radius:11px;background:#f7f9fc}
+.mu-command-tabs button{border:0;border-radius:8px;padding:10px 14px;background:transparent;color:#65768b;font-size:11px;font-weight:850;cursor:pointer}
+.mu-command-tabs button.active{background:#173e68;color:#fff;box-shadow:0 3px 10px rgba(23,62,104,.15)}
+.mu-command-section{padding-top:18px;margin-top:16px;border-top:1px solid #edf1f5}
+.mu-command-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.mu-command-section-head h3{margin:0;color:#173451;font-size:16px}
+.mu-command-section-head p{margin:4px 0 0;color:#8995a5;font-size:10px}
+.mu-command-section-head>a{color:#285a9e;font-size:11px;font-weight:900;text-decoration:none}
+.mu-command-section .admin-table-wrap{max-width:100%;overflow-x:auto}
+.mu-command-section .admin-table{min-width:680px}
+.mu-command-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mu-command-actions>a{display:grid;grid-template-columns:1fr auto;gap:5px 12px;padding:15px;border:1px solid #e3eaf2;border-radius:12px;background:#fff;text-decoration:none;transition:transform .15s,border-color .15s}
+.mu-command-actions>a:hover{transform:translateY(-2px);border-color:#b8c9dc}
+.mu-command-actions b{color:#173451;font-size:12px}
+.mu-command-actions span{grid-column:1;color:#8390a1;font-size:10px;line-height:1.5}
+.mu-command-actions i{grid-column:2;grid-row:1/3;align-self:center;color:#285a9e;font-size:10px;font-style:normal;font-weight:900;white-space:nowrap}
+.mu-command-note{margin:0;color:#8a96a6;font-size:10px;line-height:1.7}
+.mu-command-launch{display:flex;align-items:center;gap:13px;padding:17px 19px;border:1px solid #d9e4f0;border-radius:14px;background:linear-gradient(110deg,#f4f8fd,#fff);text-decoration:none;box-shadow:0 5px 18px rgba(22,43,68,.035)}
+.mu-command-launch>span{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#173e68;color:#f4d58f;font-size:23px}
+.mu-command-launch>div{flex:1;min-width:0}
+.mu-command-launch b,.mu-command-launch small{display:block}
+.mu-command-launch b{color:#173451;font-size:14px}
+.mu-command-launch small{margin-top:4px;color:#8190a1;font-size:10px;line-height:1.5}
+.mu-command-launch>strong{color:#285a9e;font-size:11px;white-space:nowrap}
+@media(max-width:900px){.mu-command-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){.mu-command-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mu-command-stats article{padding:12px}.mu-command-stats strong{font-size:22px}.mu-command-panel{padding:14px}.mu-command-toolbar{align-items:stretch}.mu-command-toolbar .admin-search{width:100%}.mu-command-tabs{overflow-x:auto;flex-wrap:nowrap}.mu-command-tabs button{white-space:nowrap}.mu-command-actions{grid-template-columns:1fr}.mu-command-launch{align-items:flex-start;flex-wrap:wrap;padding:14px}.mu-command-launch>div{min-width:calc(100% - 60px)}.mu-command-launch>strong{margin-left:55px}}

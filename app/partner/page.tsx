@@ -73,7 +73,7 @@ export default function PartnerDashboard() {
       const {data:{session}}=await sb!.auth.getSession();
       if(!session?.access_token) throw new Error("Please login again.");
       const payout_details=payoutMethod==="upi"?{upi_id:upiId.trim()}:{account_holder:accountHolder.trim(),account_number:accountNumber.trim(),ifsc:ifsc.trim().toUpperCase()};
-      const response=await fetch("/api/partner",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({amount_rupees:availablePaise/100,payout_method:payoutMethod,payout_details})});
+      const response=await fetch("/api/partner",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({action:"payout_request",amount_rupees:availablePaise/100,payout_method:payoutMethod,payout_details})});
       const result=await response.json(); if(!response.ok) throw new Error(result.error||"Could not submit payout request.");
       setMessage("Payout request submitted. Admin will review it and update the status here."); setUpiId("");setAccountHolder("");setAccountNumber("");setIfsc("");await load(true);
     } catch(e:any) { setMessage(e.message||"Payout request failed."); } finally { setPayoutBusy(false); }

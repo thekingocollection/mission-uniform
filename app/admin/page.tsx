@@ -80,6 +80,8 @@ export default function AdminHome() {
     <div className="admin-page-heading"><div><span className="admin-kicker">COMMAND OVERVIEW</span><h1>Super Admin Dashboard</h1><p>Manage the learning platform, student access and published content.</p></div><span className="admin-date">V2 · CONTROL CENTRE</span></div>
     <div className="admin-stat-grid">{cards.map(card => <Link href={card[2] as string} className="admin-stat-card" key={card[0] as string}><span>{card[3]}</span><small>{card[0]}</small><b>{loading ? "—" : card[1]}</b><em>Open module →</em></Link>)}</div>
 
+    <Link href="/admin/command-center" className="mu-command-launch"><span>✧</span><div><b>Open Smart Command Centre</b><small>Students + Partners · Unified intelligence, smart search and quick management</small></div><strong>Open Workspace →</strong></Link>
+
     <section className="mu-admin-activity-panel">
       <div className="mu-admin-activity-head"><div><span className="admin-kicker">LIVE COMMAND FEED</span><h2>New Registrations & Purchases</h2><p>New student registrations and successful payments appear automatically.</p></div><span className="mu-admin-live"><i /> LIVE · 15 SEC</span></div>
       {activityError && <p className="admin-muted">{activityError}</p>}

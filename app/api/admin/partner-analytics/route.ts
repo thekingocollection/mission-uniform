@@ -34,16 +34,26 @@ export async function GET(req: NextRequest) {
 
     const partnerIds = (partners || []).map((p: any) => p.id);
     const [clickTotals, referralTotals, todayClicks, todayReferrals, recentClicks, recentReferrals] = await Promise.all([
-      ...partnerIds.map((id: string) => db.from("partner_clicks").select("id", { count: "exact", head: true }).eq("partner_id", id)),
-      ...partnerIds.map((id: string) => db.from("partner_referrals").select("id", { count: "exact", head: true }).eq("partner_id", id)),
+      Promise.all(partnerIds.map((id: string) =>
+        db.from("partner_clicks").select("id", { count: "exact", head: true }).eq("partner_id", id)
+      )),
+      Promise.all(partnerIds.map((id: string) =>
+        db.from("partner_referrals").select("id", { count: "exact", head: true }).eq("partner_id", id)
+      )),
       db.from("partner_clicks").select("id", { count: "exact", head: true }).gte("created_at", dayStart),
       db.from("partner_referrals").select("id", { count: "exact", head: true }).gte("created_at", dayStart),
       db.from("partner_clicks").select("id,partner_id,created_at,landing_path").order("created_at", { ascending: false }).limit(40),
       db.from("partner_referrals").select("id,partner_id,created_at").order("created_at", { ascending: false }).limit(40)
     ]);
 
-    const n = partnerIds.length;
-    const errors = [...clickTotals.slice(0, n), ...referralTotals.slice(n), todayClicks, todayReferrals, recentClicks, recentReferrals].filter((x: any) => x.error);
+    const errors = [
+      ...clickTotals,
+      ...referralTotals,
+      todayClicks,
+      todayReferrals,
+      recentClicks,
+      recentReferrals
+    ].filter((result: any) => result.error);
     if (errors.length) throw errors[0].error;
 
     const byPartner = new Map<string, any>();

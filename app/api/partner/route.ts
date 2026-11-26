@@ -51,7 +51,20 @@ export async function GET(req: NextRequest) {
       pendingPaise: rows.filter((r: any) => ["pending","approved"].includes(r.status)).reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0),
       paidPaise: rows.filter((r: any) => r.status === "paid").reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0)
     };
-    return NextResponse.json({ partner, summary, referrals: referralRows, commissions: rows, payouts: payouts || [], clicks: clicks || [], clickCount: clickCount || 0, payoutRequests: payoutRequests || [] }, { headers: { "Cache-Control": "private, no-store" } });
+    const [{ data: approvedPartners, error: leaderboardPartnersError }, { data: allReferrals, error: leaderboardReferralsError }, { data: allCommissions, error: leaderboardCommissionsError }] = await Promise.all([
+      db.from("partners").select("id,display_name").eq("status","approved"),
+      db.from("partner_referrals").select("partner_id"),
+      db.from("partner_commissions").select("partner_id,status")
+    ]);
+    if (leaderboardPartnersError) throw leaderboardPartnersError;
+    if (leaderboardReferralsError) throw leaderboardReferralsError;
+    if (leaderboardCommissionsError) throw leaderboardCommissionsError;
+    const leaderboard = (approvedPartners || []).map((entry:any) => ({
+      display_name: entry.display_name,
+      students: (allReferrals || []).filter((row:any)=>row.partner_id===entry.id).length,
+      premium_sales: (allCommissions || []).filter((row:any)=>row.partner_id===entry.id && row.status!=="reversed").length
+    })).sort((a:any,b:any)=>b.premium_sales-a.premium_sales || b.students-a.students).slice(0,10);
+    return NextResponse.json({ partner, summary, referrals: referralRows, commissions: rows, payouts: payouts || [], clicks: clicks || [], clickCount: clickCount || 0, payoutRequests: payoutRequests || [], leaderboard, partnerEmail: user.email || "" }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Could not load partner dashboard." }, { status: 500 });
   }

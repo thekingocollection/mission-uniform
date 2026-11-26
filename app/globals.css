@@ -8334,3 +8334,47 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media(prefers-reduced-motion:reduce){
  .mu-partner-app *, .mu-partner-app *:before, .mu-partner-app *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+
+/* ADMINISTRATION TOPBAR · SMALL-SCREEN LAYOUT FIX */
+@media(max-width:560px){
+  .admin-layout .admin-topbar{
+    display:flex;flex-direction:column;align-items:stretch;justify-content:center;
+    gap:9px;min-height:0;padding:11px 13px 10px;
+  }
+  .admin-layout .admin-topbar-leading{
+    display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;
+    gap:9px;width:100%;min-width:0;
+  }
+  .admin-layout .admin-mobile-menu-btn{
+    display:inline-grid;place-items:center;width:36px;height:36px;flex:0 0 36px;
+    border-radius:10px;background:#f7f9fc;border-color:#dce5ef;color:#19395f;
+  }
+  .admin-layout .admin-topbar-title{
+    display:flex;flex-direction:column;gap:3px;min-width:0;width:100%;flex:1 1 auto;
+  }
+  .admin-layout .admin-topbar-title small{
+    display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    color:#8794a6;font-size:7px;line-height:1.3;letter-spacing:.1em;
+  }
+  .admin-layout .admin-topbar-title b{
+    display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    color:#173553;font-size:15px;line-height:1.25;font-weight:900;
+  }
+  .admin-layout .admin-topbar-actions{
+    display:flex;align-items:center;justify-content:flex-end;gap:7px;
+    width:100%;min-width:0;margin:0;
+  }
+  .admin-layout .admin-topbar .admin-status{display:inline-flex;margin-right:auto}
+  .admin-layout .admin-topbar-site,.admin-layout .admin-topbar-logout{
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    min-height:34px;padding:7px 10px;border-radius:9px;font-size:9px;white-space:nowrap;
+  }
+}
+@media(max-width:380px){
+  .admin-layout .admin-topbar{padding:10px 10px 9px}
+  .admin-layout .admin-topbar .admin-status{display:none}
+  .admin-layout .admin-topbar-actions{justify-content:flex-end}
+  .admin-layout .admin-topbar-site,.admin-layout .admin-topbar-logout{min-height:32px;padding:6px 8px}
+  .admin-layout .admin-topbar-title b{font-size:14px}
+}

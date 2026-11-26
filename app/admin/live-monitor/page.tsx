@@ -11,7 +11,7 @@ export default function LiveMonitorPage() {
   const [error,setError] = useState("");
   const [loading,setLoading] = useState(true);
   const [updated,setUpdated] = useState("");
-  const [indiaNow,setIndiaNow] = useState(() => new Date());
+  const [indiaNow,setIndiaNow] = useState<Date | null>(null);
   const [autoRefresh,setAutoRefresh] = useState(true);
   const inFlight = useRef(false);
   useEffect(() => { const timer = window.setInterval(() => setIndiaNow(new Date()), 1000); return () => window.clearInterval(timer); }, []);
@@ -40,7 +40,7 @@ export default function LiveMonitorPage() {
     ["Total Students",stats.total_students??0,"Registered student accounts","total"]
   ];
   return <main className="mu-live-monitor">
-    <div className="admin-page-heading"><div><span className="admin-kicker">REAL-TIME STUDENT INTELLIGENCE</span><h1>Live Command Center</h1><p>Student presence, live exam activity and daily engagement monitoring.</p></div><div className="mu-live-clock"><div><span className="admin-kicker">INDIAN STANDARD TIME · IST</span><strong>{indiaNow.toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true })}</strong><small>{indiaNow.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</small></div><div className="mu-live-controls"><button className={"admin-action "+(autoRefresh?"active":"")} onClick={()=>setAutoRefresh(v=>!v)}>{autoRefresh?"● Auto-refresh ON":"○ Auto-refresh OFF"}</button><button className="admin-action" onClick={()=>void load()} disabled={loading}>↻ Refresh Now</button></div></div></div>
+    <div className="admin-page-heading"><div><span className="admin-kicker">REAL-TIME STUDENT INTELLIGENCE</span><h1>Live Command Center</h1><p>Student presence, live exam activity and daily engagement monitoring.</p></div><div className="mu-live-clock"><div><span className="admin-kicker">INDIAN STANDARD TIME · IST</span><strong>{indiaNow ? indiaNow.toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }) : "--:--:--"}</strong><small>{indiaNow ? indiaNow.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", day: "2-digit", month: "long", year: "numeric" }) : "India time loading…"}</small></div><div className="mu-live-controls"><button className={"admin-action "+(autoRefresh?"active":"")} onClick={()=>setAutoRefresh(v=>!v)}>{autoRefresh?"● Auto-refresh ON":"○ Auto-refresh OFF"}</button><button className="admin-action" onClick={()=>void load()} disabled={loading}>↻ Refresh Now</button></div></div></div>
     <div className="mu-live-status"><span><i/> LIVE MONITORING</span><small>{autoRefresh?"Auto refresh every 5 seconds":"Auto refresh paused"} · Online means heartbeat within 75 seconds</small><small>{updated? "Last updated: "+indiaTime(updated):"Waiting for data…"}</small></div>
     {error&&<div className="admin-inline-message" role="alert">{error}</div>}
     <section className="mu-live-stat-grid">{cards.map(([title,value,desc,key])=><article className={"mu-live-stat "+key} key={String(key)}><span>{title}</span><b>{loading?"—":Number(value).toLocaleString("en-IN")}</b><small>{desc}</small></article>)}</section>

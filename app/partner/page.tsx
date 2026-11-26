@@ -25,6 +25,7 @@ export default function PartnerDashboard() {
   const [newPassword,setNewPassword]=useState("");
   const [confirmPassword,setConfirmPassword]=useState("");
   const [passwordBusy,setPasswordBusy]=useState(false);
+  const [showPasswordForm,setShowPasswordForm]=useState(false);
   const sb = partnerSupabaseBrowser();
 
   const load = useCallback(async (quiet = false) => {
@@ -126,10 +127,13 @@ export default function PartnerDashboard() {
           </div>
           <div className="mu-partner-kit-link"><span>Your personal link: <b>{link}</b></span><button onClick={copyReferral}>Copy personal link</button></div>
         </section>
-        <section className="mu-partner-profile"><div><span className="mu-partner-kicker">ACCOUNT DETAILS</span><h2>My Partner Profile</h2><p>Partner: <b>{p.display_name}</b> · Email: <b>{data.partnerEmail||"Not available"}</b> · Referral ID: <b>{p.referral_code||"Not assigned"}</b></p></div><Link href="/contact">Contact Admin →</Link></section>
-        <section className="mu-partner-password">
-          <div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">ACCOUNT SECURITY</span><h2>Change Password</h2><p>Enter your current password and choose a new password for your partner login.</p></div></div>
-          <form className="mu-partner-password-form" onSubmit={async (e) => {
+        <section className="mu-partner-account-compact">
+          <div className="mu-partner-account-head"><div className="mu-partner-account-avatar">{String(p.display_name||"P").charAt(0).toUpperCase()}</div><div className="mu-partner-account-title"><span className="mu-partner-kicker">MY ACCOUNT</span><h2>{p.display_name}</h2><small>Partner account</small></div><Link href="/contact" className="mu-partner-contact-link">Contact Admin ↗</Link></div>
+          <div className="mu-partner-account-meta"><div><small>REGISTERED EMAIL</small><b>{data.partnerEmail||"Not available"}</b></div><div><small>REFERRAL ID</small><b>{p.referral_code||"Not assigned"}</b></div></div>
+        </section>
+        <section className="mu-partner-password mu-partner-password-compact">
+          <div className="mu-partner-password-top"><div><span className="mu-partner-kicker">ACCOUNT SECURITY</span><h2>Change Password</h2><p>Keep your partner account secure.</p></div><button type="button" className="mu-partner-password-toggle" onClick={()=>setShowPasswordForm(v=>!v)}>{showPasswordForm?"Close":"Change password"} <span>{showPasswordForm?"−":"＋"}</span></button></div>
+          {showPasswordForm&&<form className="mu-partner-password-form" onSubmit={async (e) => {
             e.preventDefault();
             setMessage("");
             if (newPassword.length < 8) { setMessage("New password must contain at least 8 characters."); return; }
@@ -143,6 +147,7 @@ export default function PartnerDashboard() {
               const { error: updateError } = await sb!.auth.updateUser({ password: newPassword });
               if (updateError) throw updateError;
               setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+              setShowPasswordForm(false);
               setMessage("Password changed successfully. Use your new password next time you login.");
             } catch (err: any) {
               setMessage(err.message || "Could not change password. Please try again.");
@@ -152,8 +157,8 @@ export default function PartnerDashboard() {
             <label>New password<input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} minLength={8} autoComplete="new-password" required /></label>
             <label>Confirm new password<input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} minLength={8} autoComplete="new-password" required /></label>
             <button type="submit" disabled={passwordBusy || !currentPassword || newPassword.length<8 || !confirmPassword}>{passwordBusy ? "Updating…" : "Update Password"}</button>
-          </form>
-          <p className="mu-partner-payout-note">Use at least 8 characters. Never share your password or OTP with anyone.</p>
+          </form>}
+          {showPasswordForm&&<p className="mu-partner-password-hint">Minimum 8 characters. Never share your password or OTP.</p>}
         </section>
         <section className="mu-partner-insights"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PERFORMANCE SNAPSHOT</span><h2>Your partner insights</h2></div><label>Period <select value={period} onChange={e => setPeriod(e.target.value as any)}><option value="all">All time</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select></label></div><div className="mu-partner-insight-grid"><article><small>Referral conversion</small><strong>{conversion}%</strong><span>{s.premiumSales || 0} premium purchases from {s.students || 0} referred students</span><div className="mu-partner-progress"><i style={{ width: Math.min(100, conversion) + "%" }}/></div></article><article><small>Average commission per sale</small><strong>{money(avgCommission)}</strong><span>Average based on recorded commission entries</span></article><article><small>New referrals in selected period</small><strong>{filtered.referrals.length}</strong><span>Students who joined during this period</span></article></div></section>
         <section className="mu-partner-records"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">YOUR ACTIVITY</span><h2>Partner records</h2><p>Review referred students, commission transactions and payout history.</p></div><div className="mu-partner-tabs"><button className={tab==="students"?"active":""} onClick={()=>setTab("students")}>Students ({filtered.referrals.length})</button><button className={tab==="commissions"?"active":""} onClick={()=>setTab("commissions")}>Commissions ({filtered.commissions.length})</button><button className={tab==="payouts"?"active":""} onClick={()=>setTab("payouts")}>Payouts ({(data.payouts||[]).length})</button></div></div>

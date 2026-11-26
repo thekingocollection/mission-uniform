@@ -8108,3 +8108,73 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-partner-live-section .mu-live-panel{margin:0}
 @media(max-width:760px){.mu-partner-live-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-partner-live-stats article{padding:13px}.mu-partner-live-stats article b{font-size:22px}}
 @media(max-width:390px){.mu-partner-live-stats{gap:8px}.mu-partner-live-stats article span{font-size:10px}}
+
+
+/* =========================================================
+   MISSION UNIFORM · ADMIN VISUAL POLISH & MICRO-INTERACTIONS
+   Scoped to the administration workspace only.
+========================================================= */
+.admin-layout{--admin-ink:#142746;--admin-muted:#718096;--admin-line:#e5ebf3;--admin-gold:#d8ad55;--admin-blue:#183b68}
+.admin-layout .admin-main{background:linear-gradient(145deg,#f7f9fc 0%,#f2f5fa 55%,#f8f9fc 100%)}
+.admin-layout .admin-content{animation:muAdminPageIn .42s cubic-bezier(.2,.75,.25,1) both}
+.admin-layout .admin-topbar{backdrop-filter:blur(14px);background:rgba(255,255,255,.91);border-bottom:1px solid rgba(222,230,240,.9)}
+.admin-layout .admin-topbar-title b{letter-spacing:-.025em}
+.admin-layout .admin-sidebar{box-shadow:8px 0 28px rgba(9,22,49,.09)}
+.admin-layout .admin-crest{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.015));box-shadow:inset 0 1px rgba(255,255,255,.14),0 5px 16px rgba(0,0,0,.12)}
+.admin-layout .admin-crest:after{content:"";position:absolute;inset:-60% auto -60% -35%;width:25%;transform:rotate(25deg);background:rgba(255,255,255,.22);animation:muAdminShine 5.5s ease-in-out infinite}
+.admin-layout .admin-collapse-btn,.admin-layout .admin-mobile-menu-btn,.admin-layout .admin-topbar-site,.admin-layout .admin-topbar-logout{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease}
+.admin-layout .admin-collapse-btn:hover,.admin-layout .admin-mobile-menu-btn:hover,.admin-layout .admin-topbar-site:hover,.admin-layout .admin-topbar-logout:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(12,31,59,.12)}
+.admin-layout .admin-nav-group-title{transition:background .2s ease,color .2s ease,transform .2s ease}
+.admin-layout .admin-nav-group-title:hover{transform:translateX(2px)}
+.admin-layout .admin-nav-group-items a{position:relative;overflow:hidden;transition:background .2s ease,color .2s ease,transform .2s ease,border-color .2s ease}
+.admin-layout .admin-nav-group-items a:before{content:"";position:absolute;inset:0 auto 0 -110%;width:70%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.09),transparent);transform:skewX(-18deg);transition:left .45s ease}
+.admin-layout .admin-nav-group-items a:hover{transform:translateX(3px)}
+.admin-layout .admin-nav-group-items a:hover:before{left:140%}
+.admin-layout .admin-page-heading{animation:muAdminRise .45s .04s both}
+.admin-layout .admin-page-heading h1{letter-spacing:-.035em}
+.admin-layout .admin-panel,.admin-layout .admin-card,.admin-layout .admin-stat-card{border-color:var(--admin-line);border-radius:17px;box-shadow:0 5px 18px rgba(20,39,69,.035);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.admin-layout .admin-panel{background:rgba(255,255,255,.96)}
+.admin-layout .admin-panel:hover{border-color:#d4dfec;box-shadow:0 12px 28px rgba(20,39,69,.065)}
+.admin-layout .admin-panel-title h2{letter-spacing:-.02em}
+.admin-layout .admin-kicker{letter-spacing:.14em}
+.admin-layout .admin-table-wrap{border-radius:12px;scrollbar-width:thin;scrollbar-color:#c4cfde transparent}
+.admin-layout .admin-table thead th{position:sticky;top:0;z-index:1;background:#f5f8fc;color:#63738a;font-size:10px;font-weight:850;letter-spacing:.055em;text-transform:uppercase}
+.admin-layout .admin-table tbody tr{transition:background .18s ease}
+.admin-layout .admin-table tbody tr:hover{background:#f5f8fd}
+.admin-layout .admin-table tbody td{transition:color .18s ease}
+.admin-layout button:not(:disabled){transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease}
+.admin-layout button:not(:disabled):active{transform:translateY(1px) scale(.985)}
+.admin-layout button:focus-visible,.admin-layout a:focus-visible,.admin-layout input:focus-visible,.admin-layout select:focus-visible,.admin-layout textarea:focus-visible{outline:3px solid rgba(216,173,85,.38);outline-offset:2px}
+.admin-layout input,.admin-layout select,.admin-layout textarea{transition:border-color .18s ease,box-shadow .18s ease}
+.admin-layout input:focus,.admin-layout select:focus,.admin-layout textarea:focus{border-color:#8da9cb!important;box-shadow:0 0 0 3px rgba(54,105,163,.1)!important}
+.admin-layout .admin-primary,.admin-layout button.admin-primary{background:linear-gradient(135deg,#183b68,#244f7e);box-shadow:0 5px 13px rgba(24,59,104,.15)}
+.admin-layout .admin-primary:hover,.admin-layout button.admin-primary:hover{transform:translateY(-2px);box-shadow:0 9px 19px rgba(24,59,104,.22)}
+.admin-layout .admin-action{border-radius:10px;transition:all .2s ease}
+.admin-layout .admin-action:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(20,39,69,.1)}
+.admin-layout .admin-status i,.admin-layout .mu-live-status>span i{animation:muAdminPulse 1.8s ease-out infinite}
+.admin-layout .mu-live-pill{transition:transform .18s ease,box-shadow .18s ease}
+.admin-layout .mu-live-pill:hover{transform:translateY(-1px);box-shadow:0 3px 9px rgba(20,39,69,.1)}
+.admin-layout .admin-inline-message,.admin-layout .admin-alert{animation:muAdminRise .25s ease both;border-radius:12px}
+.admin-layout .admin-denied{box-shadow:0 15px 40px rgba(20,39,69,.08)}
+.admin-layout .admin-nav-search:focus-within{border-color:rgba(233,189,89,.55);box-shadow:0 0 0 3px rgba(233,189,89,.09)}
+.admin-layout .admin-sidebar nav{overscroll-behavior:contain}
+@keyframes muAdminPageIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes muAdminRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes muAdminShine{0%,65%,100%{left:-35%}80%{left:130%}}
+@keyframes muAdminPulse{0%{box-shadow:0 0 0 0 rgba(25,166,106,.42)}70%{box-shadow:0 0 0 7px rgba(25,166,106,0)}100%{box-shadow:0 0 0 0 rgba(25,166,106,0)}}
+@media(min-width:761px){
+ .admin-layout .admin-sidebar nav .admin-nav-group:nth-child(1){animation:muAdminRise .32s .02s both}
+ .admin-layout .admin-sidebar nav .admin-nav-group:nth-child(2){animation:muAdminRise .32s .05s both}
+ .admin-layout .admin-sidebar nav .admin-nav-group:nth-child(3){animation:muAdminRise .32s .08s both}
+ .admin-layout .admin-sidebar nav .admin-nav-group:nth-child(4){animation:muAdminRise .32s .11s both}
+ .admin-layout .admin-sidebar nav .admin-nav-group:nth-child(5){animation:muAdminRise .32s .14s both}
+ .admin-layout .admin-sidebar nav .admin-nav-group:nth-child(6){animation:muAdminRise .32s .17s both}
+}
+@media(max-width:760px){
+ .admin-layout .admin-content{padding:16px}
+ .admin-layout .admin-panel{border-radius:14px}
+ .admin-layout .admin-topbar{box-shadow:0 4px 15px rgba(19,38,67,.055)}
+}
+@media(prefers-reduced-motion:reduce){
+ .admin-layout *, .admin-layout *:before, .admin-layout *:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

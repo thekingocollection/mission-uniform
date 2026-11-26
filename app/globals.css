@@ -7850,3 +7850,30 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-partner-password-form button{min-height:42px;padding:10px 16px;border:0;border-radius:9px;background:#173e68;color:#fff;font-size:12px;font-weight:850;cursor:pointer}
 .mu-partner-password-form button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:760px){.mu-partner-password{padding:16px}.mu-partner-password-form{grid-template-columns:1fr}}
+
+
+/* Compact partner profile and collapsible security panel */
+.mu-partner-account-compact{margin-top:14px;padding:15px 18px;border:1px solid #e3eaf2;border-radius:14px;background:linear-gradient(120deg,#fff 0%,#f8fbff 100%);box-shadow:0 5px 18px rgba(20,43,69,.03)}
+.mu-partner-account-head{display:flex;align-items:center;gap:11px}
+.mu-partner-account-avatar{width:39px;height:39px;flex:0 0 39px;display:grid;place-items:center;border-radius:12px;background:#eaf1fa;color:#1c4d7d;font-size:17px;font-weight:900}
+.mu-partner-account-title{min-width:0;flex:1}
+.mu-partner-account-title h2{margin:2px 0 0;color:#173451;font-size:15px;line-height:1.2}
+.mu-partner-account-title small{color:#8491a1;font-size:10px}
+.mu-partner-contact-link{padding:8px 11px;border:1px solid #dce6f1;border-radius:9px;color:#285a9e;font-size:11px;font-weight:850;text-decoration:none;white-space:nowrap}
+.mu-partner-account-meta{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin:12px 0 0 50px}
+.mu-partner-account-meta>div{display:grid;gap:3px;min-width:0}
+.mu-partner-account-meta small{color:#8794a5;font-size:9px;font-weight:850;letter-spacing:.7px}
+.mu-partner-account-meta b{color:#354a63;font-size:11px;overflow-wrap:anywhere}
+.mu-partner-password-compact{margin-top:10px;padding:14px 18px;border:1px solid #e3eaf2;border-radius:14px;background:#fff;box-shadow:0 5px 18px rgba(20,43,69,.03)}
+.mu-partner-password-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mu-partner-password-top h2{margin:3px 0;color:#173451;font-size:15px}
+.mu-partner-password-top p{margin:0;color:#8491a1;font-size:10px}
+.mu-partner-password-toggle{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #dce6f1;border-radius:9px;background:#f7faff;color:#285a9e;font-size:11px;font-weight:850;cursor:pointer;white-space:nowrap}
+.mu-partner-password-toggle span{font-size:15px;line-height:1}
+.mu-partner-password-compact .mu-partner-password-form{margin-top:14px;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:9px}
+.mu-partner-password-compact .mu-partner-password-form label{gap:5px;font-size:10px}
+.mu-partner-password-compact .mu-partner-password-form input{padding:9px 10px;font-size:11px}
+.mu-partner-password-compact .mu-partner-password-form button{min-height:36px;padding:8px 12px;font-size:10px;white-space:nowrap}
+.mu-partner-password-hint{margin:9px 0 0;color:#8794a5;font-size:10px}
+@media(max-width:760px){.mu-partner-account-compact,.mu-partner-password-compact{padding:13px}.mu-partner-account-meta{margin-left:0}.mu-partner-password-compact .mu-partner-password-form{grid-template-columns:1fr}.mu-partner-password-compact .mu-partner-password-form button{width:100%}}
+@media(max-width:420px){.mu-partner-account-head{flex-wrap:wrap}.mu-partner-contact-link{margin-left:auto}.mu-partner-account-meta{grid-template-columns:1fr}.mu-partner-password-top{align-items:flex-start;flex-direction:column}.mu-partner-password-toggle{align-self:flex-start}}

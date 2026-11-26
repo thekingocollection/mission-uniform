@@ -199,6 +199,7 @@ function StudentAccessGate({ children }: { children: React.ReactNode }) {
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  if (path.startsWith("/admin")) return <>{children}</>;
+  // Partner portal has its own complete workspace layout; do not render the student navigation, banners or footer here.
+  if (path.startsWith("/admin") || path.startsWith("/partner")) return <>{children}</>;
   return <><SiteHeader /><main className="main-wrap"><SponsorBanner placement={path.startsWith("/syllabus") ? "syllabus_top" : "global_top"} /><StudentAccessGate>{children}</StudentAccessGate><SponsorBanner placement="below_content" /></main><SiteFooter /></>;
 }

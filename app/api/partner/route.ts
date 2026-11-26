@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     const paid = (payouts || []).reduce((sum:number,row:any)=>sum+Number(row.amount_paise||0),0);
     const reserved = (requests || []).reduce((sum:number,row:any)=>sum+Number(row.amount_paise||0),0);
     const available = earned - paid - reserved;
-    if (amountPaise > available) return NextResponse.json({ error: "Requested amount exceeds your available commission balance of " + (available/100).toLocaleString("en-IN",{style:"currency",currency:"INR"}) + "." }, { status: 400 });
+    if (amountPaise !== available || available <= 0) return NextResponse.json({ error: "For accurate reconciliation, request the full available balance of " + Math.max(0,available/100).toLocaleString("en-IN",{style:"currency",currency:"INR"}) + "." }, { status: 400 });
     const { data: created, error } = await db.from("partner_payout_requests").insert({
       partner_id: partner.id, amount_paise: amountPaise, payout_method: method,
       payout_details: details, note: String(body.note || "").trim().slice(0,500) || null

@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e.message || "Could not submit partnership request." }, { status: 500 });
   }
 }
-\n
+
 async function createPayoutRequest(req: NextRequest) {
   try {
     const auth = await currentUser(req);

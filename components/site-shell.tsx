@@ -98,17 +98,15 @@ export function SiteHeader() {
 
 
 function IndiaLiveClock() {
-  const [now, setNow] = useState(() => new Date("2026-11-26T12:20:00+05:30"));
+  const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const startedAt = Date.now();
-    const base = new Date("2026-11-26T12:20:00+05:30").getTime();
-    const update = () => setNow(new Date(base + (Date.now() - startedAt)));
+    const update = () => setNow(new Date());
     update();
     const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
   }, []);
   const dateText = new Intl.DateTimeFormat("en-IN", {
-    timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric",
+    timeZone: "Asia/Kolkata", weekday: "long", day: "2-digit", month: "long", year: "numeric",
   }).format(now);
   const timeText = new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit",

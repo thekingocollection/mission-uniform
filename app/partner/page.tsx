@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
-type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[]; clicks?: any[]; payoutRequests?: any[] };
+type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[]; clicks?: any[]; clickCount?: number; payoutRequests?: any[] };
 const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const date = (value?: string) => value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
@@ -59,7 +59,7 @@ export default function PartnerDashboard() {
   const reservedPaise=payoutRequests.filter((r:any)=>["requested","approved"].includes(r.status)).reduce((sum:number,r:any)=>sum+Number(r.amount_paise||0),0);
   const paidOutPaise=(data?.payouts||[]).reduce((sum:number,r:any)=>sum+Number(r.amount_paise||0),0);
   const availablePaise=Math.max(0,Number(s.pendingPaise||0)-reservedPaise);
-  const clickCount=(data?.clicks||[]).length;
+  const clickCount=Number(data?.clickCount ?? (data?.clicks||[]).length);
 
   async function copyReferral() {
     if (!link) return;

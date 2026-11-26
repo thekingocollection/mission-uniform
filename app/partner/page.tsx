@@ -58,7 +58,7 @@ export default function PartnerDashboard() {
   const payoutRequests=data?.payoutRequests||[];
   const reservedPaise=payoutRequests.filter((r:any)=>["requested","approved"].includes(r.status)).reduce((sum:number,r:any)=>sum+Number(r.amount_paise||0),0);
   const paidOutPaise=(data?.payouts||[]).reduce((sum:number,r:any)=>sum+Number(r.amount_paise||0),0);
-  const availablePaise=Math.max(0,Number(s.earnedPaise||0)-paidOutPaise-reservedPaise);
+  const availablePaise=Math.max(0,Number(s.pendingPaise||0)-reservedPaise);
   const clickCount=(data?.clicks||[]).length;
 
   async function copyReferral() {

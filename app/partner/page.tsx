@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
-type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[]; clicks?: any[]; clickCount?: number; payoutRequests?: any[] };
+type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[]; clicks?: any[]; clickCount?: number; payoutRequests?: any[]; leaderboard?: any[]; partnerEmail?: string };
 const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const date = (value?: string) => value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
@@ -122,6 +122,11 @@ export default function PartnerDashboard() {
           </div>
           <div className="mu-partner-kit-link"><span>Your personal link: <b>{link}</b></span><button onClick={copyReferral}>Copy personal link</button></div>
         </section>
+        <section className="mu-partner-leaderboard">
+          <div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PARTNER NETWORK</span><h2>Top 10 Partner Leaderboard</h2><p>Ranked by recorded successful Premium purchases, then referred students.</p></div></div>
+          <div className="mu-partner-leader-list">{(data.leaderboard||[]).map((row:any,index:number)=><div key={row.display_name+"-"+index}><b className="mu-partner-rank">{index+1}</b><span>{row.display_name}</span><small>{row.students} students</small><strong>{row.premium_sales} purchases</strong></div>)}{!(data.leaderboard||[]).length&&<p className="mu-partner-empty-row">No approved partner performance records yet.</p>}</div>
+        </section>
+        <section className="mu-partner-profile"><div><span className="mu-partner-kicker">ACCOUNT DETAILS</span><h2>My Partner Profile</h2><p>Partner: <b>{p.display_name}</b> · Email: <b>{data.partnerEmail||"Not available"}</b> · Referral ID: <b>{p.referral_code||"Not assigned"}</b></p></div><Link href="/contact">Contact Admin →</Link></section>
         <section className="mu-partner-insights"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PERFORMANCE SNAPSHOT</span><h2>Your partner insights</h2></div><label>Period <select value={period} onChange={e => setPeriod(e.target.value as any)}><option value="all">All time</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select></label></div><div className="mu-partner-insight-grid"><article><small>Referral conversion</small><strong>{conversion}%</strong><span>{s.premiumSales || 0} premium purchases from {s.students || 0} referred students</span><div className="mu-partner-progress"><i style={{ width: Math.min(100, conversion) + "%" }}/></div></article><article><small>Average commission per sale</small><strong>{money(avgCommission)}</strong><span>Average based on recorded commission entries</span></article><article><small>New referrals in selected period</small><strong>{filtered.referrals.length}</strong><span>Students who joined during this period</span></article></div></section>
         <section className="mu-partner-records"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">YOUR ACTIVITY</span><h2>Partner records</h2><p>Review referred students, commission transactions and payout history.</p></div><div className="mu-partner-tabs"><button className={tab==="students"?"active":""} onClick={()=>setTab("students")}>Students ({filtered.referrals.length})</button><button className={tab==="commissions"?"active":""} onClick={()=>setTab("commissions")}>Commissions ({filtered.commissions.length})</button><button className={tab==="payouts"?"active":""} onClick={()=>setTab("payouts")}>Payouts ({(data.payouts||[]).length})</button></div></div>
           <div className="mu-partner-table-wrap">

@@ -97,7 +97,7 @@ async function createPayoutRequest(req: NextRequest) {
       db.from("partner_payouts").select("amount_paise").eq("partner_id", partner.id)
     ]);
     if (commissionError) throw commissionError; if (requestError) throw requestError; if (payoutError) throw payoutError;
-    const earned = (commissions || []).reduce((sum:number,row:any)=>sum+Number(row.commission_paise||0),0);
+    const earned = (commissions || []).filter((row:any)=>!["reversed","paid"].includes(row.status)).reduce((sum:number,row:any)=>sum+Number(row.commission_paise||0),0);
     const paid = (payouts || []).reduce((sum:number,row:any)=>sum+Number(row.amount_paise||0),0);
     const reserved = (requests || []).reduce((sum:number,row:any)=>sum+Number(row.amount_paise||0),0);
     const available = earned - paid - reserved;

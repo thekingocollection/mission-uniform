@@ -24,13 +24,18 @@ export async function GET(req: NextRequest) {
     const indiaCalendarNow = new Date(now.getTime() + IST_OFFSET_MS);
     indiaCalendarNow.setUTCHours(0, 0, 0, 0);
     const dayStart = new Date(indiaCalendarNow.getTime() - IST_OFFSET_MS);
-    const [studentCount, presence, started, submitted] = await Promise.all([
+    const [studentCount, presence, started, submitted, partnerRows, partnerClicks, partnerReferrals, partnerCommissions, partnerPayoutRequests] = await Promise.all([
       db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
       db.from("student_live_presence").select("user_id,last_seen_at,current_path,active_attempt_id").gte("last_seen_at", onlineCutoff).order("last_seen_at", { ascending: false }).limit(2000),
       db.from("test_attempts").select("id,user_id,test_id,started_at,is_submitted,score,correct_count,wrong_count,total_questions").gte("started_at", dayStart.toISOString()).limit(5000),
-      db.from("test_attempts").select("id", { count: "exact", head: true }).eq("is_submitted", true).gte("submitted_at", dayStart.toISOString())
+      db.from("test_attempts").select("id", { count: "exact", head: true }).eq("is_submitted", true).gte("submitted_at", dayStart.toISOString()),
+      db.from("partners").select("id,display_name,referral_code,status").order("created_at",{ascending:false}).limit(1000),
+      db.from("partner_clicks").select("id,partner_id,created_at,landing_path").gte("created_at",dayStart.toISOString()).order("created_at",{ascending:false}).limit(1000),
+      db.from("partner_referrals").select("id,partner_id,created_at").gte("created_at",dayStart.toISOString()).order("created_at",{ascending:false}).limit(1000),
+      db.from("partner_commissions").select("id,partner_id,created_at,status,commission_paise").gte("created_at",dayStart.toISOString()).order("created_at",{ascending:false}).limit(1000),
+      db.from("partner_payout_requests").select("id,partner_id,requested_at,status,amount_paise").gte("requested_at",dayStart.toISOString()).order("requested_at",{ascending:false}).limit(500)
     ]);
-    for (const result of [studentCount, presence, started, submitted]) if (result.error) throw result.error;
+    for (const result of [studentCount, presence, started, submitted, partnerRows, partnerClicks, partnerReferrals, partnerCommissions, partnerPayoutRequests]) if (result.error) throw result.error;
 
     const onlineIdsForLookup = [...new Set((presence.data || []).map((p: any) => p.user_id))];
     const studentsResult = onlineIdsForLookup.length
@@ -116,7 +121,25 @@ export async function GET(req: NextRequest) {
       const s: any = profileMap.get(a.user_id);
       return { id: a.id, student: s?.full_name || "Student", student_code: s?.student_code || "", test: activityTestMap.get(a.test_id) || "Mock Test", started_at: a.started_at, submitted: Boolean(a.is_submitted), score: a.score, correct: a.correct_count, wrong: a.wrong_count, skipped: a.skipped_count, total: a.total_questions, accuracy: a.total_questions ? Number((Number(a.correct_count || 0) / Number(a.total_questions) * 100).toFixed(1)) : 0 };
     });
-    return NextResponse.json({ stats, online_students: online, recent_activity, student_performance, refreshed_at: now.toISOString() }, { headers: { "Cache-Control": "private, no-store" } });
+    const partners = partnerRows.data || [];
+    const partnerMap = new Map(partners.map((p:any)=>[p.id,p]));
+    const partnerStats = {
+      total: partners.length,
+      approved: partners.filter((p:any)=>p.status==="approved").length,
+      pending: partners.filter((p:any)=>p.status==="pending").length,
+      clicks_today: (partnerClicks.data||[]).length,
+      referrals_today: (partnerReferrals.data||[]).length,
+      commissions_today: (partnerCommissions.data||[]).filter((x:any)=>x.status!=="reversed").length,
+      payout_requests_today: (partnerPayoutRequests.data||[]).length
+    };
+    const partnerActivity = [
+      ...(partnerClicks.data||[]).map((x:any)=>({id:"click-"+x.id,kind:"click",partner_id:x.partner_id,at:x.created_at,detail:"Referral link visit",meta:x.landing_path||"/signup"})),
+      ...(partnerReferrals.data||[]).map((x:any)=>({id:"referral-"+x.id,kind:"referral",partner_id:x.partner_id,at:x.created_at,detail:"New student referral",meta:"Student joined"})),
+      ...(partnerCommissions.data||[]).map((x:any)=>({id:"commission-"+x.id,kind:"commission",partner_id:x.partner_id,at:x.created_at,detail:"Commission recorded",meta:(Number(x.commission_paise||0)/100).toLocaleString("en-IN",{style:"currency",currency:"INR"})+" · "+x.status})),
+      ...(partnerPayoutRequests.data||[]).map((x:any)=>({id:"payout-"+x.id,kind:"payout",partner_id:x.partner_id,at:x.requested_at,detail:"Payout request",meta:(Number(x.amount_paise||0)/100).toLocaleString("en-IN",{style:"currency",currency:"INR"})+" · "+x.status}))
+    ].map((x:any)=>({...x,partner_name:partnerMap.get(x.partner_id)?.display_name||"Partner",referral_code:partnerMap.get(x.partner_id)?.referral_code||""}))
+      .sort((a:any,b:any)=>new Date(b.at).getTime()-new Date(a.at).getTime()).slice(0,40);
+    return NextResponse.json({ stats, online_students: online, recent_activity, student_performance, partner_stats: partnerStats, partner_activity: partnerActivity, refreshed_at: now.toISOString() }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Live monitor could not load." }, { status: 500 });
   }

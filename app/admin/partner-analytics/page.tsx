@@ -87,10 +87,19 @@ export default function PartnerLiveAnalyticsPage() {
     <section className="admin-panel mu-pa-panel">
       <div className="admin-panel-title"><div><span className="admin-kicker">RECENT REFERRAL EVENTS</span><h2>Activity Timeline</h2><p className="admin-muted">Latest partner link clicks and attributed registrations.</p></div><span className="mu-live-count">{filteredActivity.length} EVENTS</span></div>
       <div className="mu-pa-tabs"><button className={activityFilter==="all"?"selected":""} onClick={()=>setActivityFilter("all")}>All activity</button><button className={activityFilter==="click"?"selected":""} onClick={()=>setActivityFilter("click")}>Link clicks</button><button className={activityFilter==="registration"?"selected":""} onClick={()=>setActivityFilter("registration")}>Registrations</button></div>
-      <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Partner</th><th>Activity</th><th>Details</th><th>Time (IST)</th></tr></thead><tbody>
-        {filteredActivity.map(event=><tr key={event.id}><td><b>{event.partner}</b></td><td><span className={"mu-pa-event "+(event.kind==="registration"?"registration":"")}>{event.kind==="click"?"Link Click":"Registration"}</span></td><td>{event.detail}<small className="mu-pa-meta">{event.meta}</small></td><td>{time(event.at)}</td></tr>)}
-        {!filteredActivity.length&&<tr><td colSpan={4} className="mu-pa-empty">No activity in this category yet.</td></tr>}
-      </tbody></table></div>
+      <div className="mu-pa-activity-feed">
+        {filteredActivity.map((event,index)=><article className={"mu-pa-activity-card "+(event.kind==="registration"?"is-registration":"is-click")} key={event.id}>
+          <div className="mu-pa-activity-icon">{event.kind==="registration"?"✓":"↗"}</div>
+          <div className="mu-pa-activity-main">
+            <div className="mu-pa-activity-top"><span className={"mu-pa-event "+(event.kind==="registration"?"registration":"")}>{event.kind==="click"?"LINK CLICK":"NEW REGISTRATION"}</span><time>{time(event.at)} IST</time></div>
+            <strong>{event.partner||"Partner"}</strong>
+            <p>{event.detail||"Referral activity recorded"}</p>
+            {event.meta&&<small>{event.meta}</small>}
+          </div>
+          <span className="mu-pa-activity-number">{String(index+1).padStart(2,"0")}</span>
+        </article>)}
+        {!filteredActivity.length&&<div className="mu-pa-activity-empty"><span>◷</span><b>No activity to show</b><p>New partner clicks and registrations will appear here automatically.</p></div>}
+      </div>
     </section>
     <p className="admin-muted mu-pa-note">Auto refresh works every 10 seconds while this page is open. Clicks are counted once per partner/browser visitor key. Registrations depend on referral attribution saved during student sign-up.</p>
   </main>;

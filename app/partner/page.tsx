@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
-type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[] };
+type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[]; clicks?: any[]; payoutRequests?: any[] };
 const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const date = (value?: string) => value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
@@ -18,6 +18,9 @@ export default function PartnerDashboard() {
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState<"students" | "commissions" | "payouts">("students");
   const [period, setPeriod] = useState<"all" | "30" | "7">("all");
+  const [payoutMethod,setPayoutMethod]=useState<"upi"|"bank">("upi");
+  const [upiId,setUpiId]=useState(""); const [accountHolder,setAccountHolder]=useState(""); const [accountNumber,setAccountNumber]=useState(""); const [ifsc,setIfsc]=useState("");
+  const [payoutBusy,setPayoutBusy]=useState(false);
   const sb = partnerSupabaseBrowser();
 
   const load = useCallback(async (quiet = false) => {
@@ -52,12 +55,30 @@ export default function PartnerDashboard() {
   }, [data, period]);
   const conversion = s.students ? Math.round((Number(s.premiumSales || 0) / Number(s.students)) * 100) : 0;
   const avgCommission = s.premiumSales ? Number(s.earnedPaise || 0) / Number(s.premiumSales) : 0;
+  const payoutRequests=data?.payoutRequests||[];
+  const reservedPaise=payoutRequests.filter((r:any)=>["requested","approved"].includes(r.status)).reduce((sum:number,r:any)=>sum+Number(r.amount_paise||0),0);
+  const paidOutPaise=(data?.payouts||[]).reduce((sum:number,r:any)=>sum+Number(r.amount_paise||0),0);
+  const availablePaise=Math.max(0,Number(s.earnedPaise||0)-paidOutPaise-reservedPaise);
+  const clickCount=(data?.clicks||[]).length;
 
   async function copyReferral() {
     if (!link) return;
     try { await navigator.clipboard.writeText(link); setCopied(true); window.setTimeout(() => setCopied(false), 2200); }
     catch { setMessage("Copy failed. Please select and copy the referral link manually."); }
   }
+  async function copyText(value:string) { try { await navigator.clipboard.writeText(value); setMessage("Copied to clipboard."); } catch { setMessage("Copy unavailable. Please select the text manually."); } }
+  async function requestPayout(e:React.FormEvent) {
+    e.preventDefault(); setPayoutBusy(true); setMessage("");
+    try {
+      const {data:{session}}=await sb!.auth.getSession();
+      if(!session?.access_token) throw new Error("Please login again.");
+      const payout_details=payoutMethod==="upi"?{upi_id:upiId.trim()}:{account_holder:accountHolder.trim(),account_number:accountNumber.trim(),ifsc:ifsc.trim().toUpperCase()};
+      const response=await fetch("/api/partner",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+session.access_token},body:JSON.stringify({amount_rupees:availablePaise/100,payout_method:payoutMethod,payout_details})});
+      const result=await response.json(); if(!response.ok) throw new Error(result.error||"Could not submit payout request.");
+      setMessage("Payout request submitted. Admin will review it and update the status here."); setUpiId("");setAccountHolder("");setAccountNumber("");setIfsc("");await load(true);
+    } catch(e:any) { setMessage(e.message||"Payout request failed."); } finally { setPayoutBusy(false); }
+  }
+
   async function shareReferral() {
     if (!link) return;
     const text = "Join Mission Uniform OP for Odisha exam preparation. Register here: " + link;
@@ -75,13 +96,32 @@ export default function PartnerDashboard() {
       {message && <div className="mu-partner-alert" role="status">{message}</div>}
       {p.status !== "approved" ? <section className="mu-partner-pending"><span className="mu-partner-pending-icon">⌛</span><div><h2>Your partner account is under review</h2><p>Admin will review your application and confirm your commission rate. Your referral link and earning dashboard will become available after approval.</p></div></section> : <>
         <section className="mu-partner-stat-grid">
-          <article className="mu-partner-stat"><span className="mu-partner-stat-icon">♙</span><small>Referred Students</small><strong>{s.students || 0}</strong><em>Total registrations through your code</em></article>
+          <article className="mu-partner-stat"><span className="mu-partner-stat-icon">↗</span><small>Referral Link Visits</small><strong>{clickCount}</strong><em>Recorded signup landing visits</em></article><article className="mu-partner-stat"><span className="mu-partner-stat-icon">♙</span><small>Referred Students</small><strong>{s.students || 0}</strong><em>Total registrations through your code</em></article>
           <article className="mu-partner-stat"><span className="mu-partner-stat-icon">▣</span><small>Premium Purchases</small><strong>{s.premiumSales || 0}</strong><em>Eligible successful purchases</em></article>
           <article className="mu-partner-stat stat-highlight"><span className="mu-partner-stat-icon">₹</span><small>Total Commission</small><strong>{money(s.earnedPaise)}</strong><em>Commission generated to date</em></article>
           <article className="mu-partner-stat"><span className="mu-partner-stat-icon">◷</span><small>Pending Commission</small><strong>{money(s.pendingPaise)}</strong><em>Awaiting payout processing</em></article>
           <article className="mu-partner-stat"><span className="mu-partner-stat-icon">✓</span><small>Paid Commission</small><strong>{money(s.paidPaise)}</strong><em>Already paid to you</em></article>
         </section>
         <section className="mu-partner-share-panel"><div className="mu-partner-share-top"><div><span className="mu-partner-share-kicker">YOUR PERSONAL REFERRAL LINK</span><h2>Share. Refer. Earn.</h2><p>Invite students to Mission Uniform OP. Eligible Premium purchases through your referral are tracked here.</p></div><div className="mu-partner-rate"><small>YOUR COMMISSION RATE</small><b>{p.commission_rate}%</b></div></div><div className="mu-partner-link-row"><span>{link || "Referral link will appear after Admin assigns your referral code."}</span><button onClick={copyReferral} disabled={!link}>{copied ? "✓ Copied" : "Copy link"}</button></div><div className="mu-partner-share-actions"><button onClick={shareReferral} disabled={!link}>↗ Share referral link</button><span>Referral code: <b>{p.referral_code || "Not assigned"}</b></span></div></section>
+        <section className="mu-partner-payout-center">
+          <div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">MANUAL PAYOUT CENTER</span><h2>Request your commission payout</h2><p>Submit your payout details. Admin will verify the transfer and add the payment reference.</p></div><div className="mu-partner-available"><small>AVAILABLE BALANCE</small><strong>{money(availablePaise)}</strong></div></div>
+          <form className="mu-partner-payout-form" onSubmit={requestPayout}>
+            <label>Payment method<select value={payoutMethod} onChange={e=>setPayoutMethod(e.target.value as any)}><option value="upi">UPI</option><option value="bank">Bank Transfer</option></select></label>
+            {payoutMethod==="upi"?<label>UPI ID<input value={upiId} onChange={e=>setUpiId(e.target.value)} placeholder="yourname@bank" required/></label>:<><label>Account holder name<input value={accountHolder} onChange={e=>setAccountHolder(e.target.value)} placeholder="Name as per bank account" required/></label><label>Account number<input value={accountNumber} onChange={e=>setAccountNumber(e.target.value.replace(/\D/g,"").slice(0,18))} inputMode="numeric" placeholder="Bank account number" required/></label><label>IFSC code<input value={ifsc} onChange={e=>setIfsc(e.target.value.toUpperCase().slice(0,11))} placeholder="11-character IFSC" required/></label>}
+            <button type="submit" disabled={payoutBusy||availablePaise<10000}>{payoutBusy?"Submitting…":"Request full available payout"}</button>
+          </form>
+          <p className="mu-partner-payout-note">Minimum request ₹100. This is a manual payout process—not an instant transfer. Never enter your UPI PIN, OTP, card PIN or banking password.</p>
+          <div className="mu-partner-request-list">{payoutRequests.slice(0,5).map((r:any)=><div key={r.id}><span>{date(r.requested_at)} · {money(r.amount_paise)}</span><b className={"mu-partner-pill "+(r.status==="paid"?"paid":r.status==="rejected"?"reversed":"pending")}>{r.status.toUpperCase()}</b>{r.payment_reference&&<small>Ref: {r.payment_reference}</small>}{r.admin_note&&<small>Admin note: {r.admin_note}</small>}</div>)}{!payoutRequests.length&&<small>No payout requests yet.</small>}</div>
+        </section>
+        <section className="mu-partner-marketing">
+          <div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">READY-TO-SHARE CONTENT</span><h2>Marketing Kit</h2><p>Copy these captions and share your personal referral link.</p></div></div>
+          <div className="mu-partner-marketing-grid">
+            <article><b>WhatsApp Message</b><p>Odisha Police की तैयारी कर रहे हैं? Mission Uniform OP पर mock tests और practice questions के साथ तैयारी शुरू करें। अभी free account बनाएं:</p><button onClick={()=>void copyText("Odisha Police की तैयारी कर रहे हैं? Mission Uniform OP पर mock tests और practice questions के साथ तैयारी शुरू करें। अभी free account बनाएं: "+link)}>Copy WhatsApp Caption</button></article>
+            <article><b>Instagram Caption</b><p>Dreaming of joining Odisha Police? 🎯 Practice smarter, test yourself and stay exam-ready with Mission Uniform OP. Register using my link:</p><button onClick={()=>void copyText("Dreaming of joining Odisha Police? Practice smarter and stay exam-ready with Mission Uniform OP. Register: "+link)}>Copy Instagram Caption</button></article>
+            <article><b>Short Video Script</b><p>Odisha Police exam की तैयारी कर रहे हो? रोज practice करो, mock test दो और अपनी performance check करो। Mission Uniform OP पर अभी जुड़ो।</p><button onClick={()=>void copyText("Odisha Police exam की तैयारी कर रहे हो? रोज practice करो, mock test दो और अपनी performance check करो। Mission Uniform OP पर अभी जुड़ो। "+link)}>Copy Reel Script</button></article>
+          </div>
+          <div className="mu-partner-kit-link"><span>Your personal link: <b>{link}</b></span><button onClick={copyReferral}>Copy personal link</button></div>
+        </section>
         <section className="mu-partner-insights"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PERFORMANCE SNAPSHOT</span><h2>Your partner insights</h2></div><label>Period <select value={period} onChange={e => setPeriod(e.target.value as any)}><option value="all">All time</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select></label></div><div className="mu-partner-insight-grid"><article><small>Referral conversion</small><strong>{conversion}%</strong><span>{s.premiumSales || 0} premium purchases from {s.students || 0} referred students</span><div className="mu-partner-progress"><i style={{ width: Math.min(100, conversion) + "%" }}/></div></article><article><small>Average commission per sale</small><strong>{money(avgCommission)}</strong><span>Average based on recorded commission entries</span></article><article><small>New referrals in selected period</small><strong>{filtered.referrals.length}</strong><span>Students who joined during this period</span></article></div></section>
         <section className="mu-partner-records"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">YOUR ACTIVITY</span><h2>Partner records</h2><p>Review referred students, commission transactions and payout history.</p></div><div className="mu-partner-tabs"><button className={tab==="students"?"active":""} onClick={()=>setTab("students")}>Students ({filtered.referrals.length})</button><button className={tab==="commissions"?"active":""} onClick={()=>setTab("commissions")}>Commissions ({filtered.commissions.length})</button><button className={tab==="payouts"?"active":""} onClick={()=>setTab("payouts")}>Payouts ({(data.payouts||[]).length})</button></div></div>
           <div className="mu-partner-table-wrap">

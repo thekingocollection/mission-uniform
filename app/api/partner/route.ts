@@ -26,11 +26,11 @@ export async function GET(req: NextRequest) {
     if (new URL(req.url).searchParams.get("verify") === "1") {
       return NextResponse.json({ partner }, { headers: { "Cache-Control": "private, no-store" } });
     }
-    const [{ data: referrals, error: referralsError }, { data: commissions, error: commissionsError }, { data: payouts, error: payoutsError }, { data: clicks, error: clicksError }, { data: payoutRequests, error: payoutRequestsError }] = await Promise.all([
+    const [{ data: referrals, error: referralsError }, { data: commissions, error: commissionsError }, { data: payouts, error: payoutsError }, { data: clicks, error: clicksError, count: clickCount }, { data: payoutRequests, error: payoutRequestsError }] = await Promise.all([
       db.from("partner_referrals").select("id,student_id,created_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),
       db.from("partner_commissions").select("id,amount_paise,commission_rate,commission_paise,status,created_at,paid_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(500),
       db.from("partner_payouts").select("amount_paise,paid_at,payment_reference").eq("partner_id", partner.id).order("paid_at", { ascending: false }).limit(100),
-      db.from("partner_clicks").select("id,created_at").eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(5000),
+      db.from("partner_clicks").select("id,created_at", { count: "exact" }).eq("partner_id", partner.id).order("created_at", { ascending: false }).limit(5000),
       db.from("partner_payout_requests").select("id,amount_paise,payout_method,status,admin_note,payment_reference,requested_at,reviewed_at,paid_at").eq("partner_id", partner.id).order("requested_at", { ascending: false }).limit(100)
     ]);
     if (referralsError) throw referralsError;
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       pendingPaise: rows.filter((r: any) => ["pending","approved"].includes(r.status)).reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0),
       paidPaise: rows.filter((r: any) => r.status === "paid").reduce((s: number, r: any) => s + Number(r.commission_paise || 0), 0)
     };
-    return NextResponse.json({ partner, summary, referrals: referralRows, commissions: rows, payouts: payouts || [], clicks: clicks || [], payoutRequests: payoutRequests || [] }, { headers: { "Cache-Control": "private, no-store" } });
+    return NextResponse.json({ partner, summary, referrals: referralRows, commissions: rows, payouts: payouts || [], clicks: clicks || [], clickCount: clickCount || 0, payoutRequests: payoutRequests || [] }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Could not load partner dashboard." }, { status: 500 });
   }

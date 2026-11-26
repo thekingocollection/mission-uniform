@@ -7969,3 +7969,12 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media(hover:none){
   .mu-partner-app button,.mu-partner-app a{ -webkit-tap-highlight-color:transparent;touch-action:manipulation }
 }
+
+
+/* Live India Standard Time footer clock */
+.mu-footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:16px;padding-top:13px;border-top:1px solid rgba(120,135,155,.18)}
+.mu-ist-clock{display:flex;align-items:center;gap:9px;color:#718096;font-size:11px;font-variant-numeric:tabular-nums}
+.mu-ist-clock b{color:#173e68;font-size:13px;font-weight:900}
+.mu-ist-clock small{color:#9aa5b3;font-size:9px;font-weight:800;letter-spacing:.06em}
+.mu-footer-bottom>small{margin:0}
+@media(max-width:520px){.mu-footer-bottom{justify-content:center;flex-direction:column;gap:7px}.mu-ist-clock{justify-content:center;flex-wrap:wrap}}

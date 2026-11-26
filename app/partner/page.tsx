@@ -21,6 +21,10 @@ export default function PartnerDashboard() {
   const [payoutMethod,setPayoutMethod]=useState<"upi"|"bank">("upi");
   const [upiId,setUpiId]=useState(""); const [accountHolder,setAccountHolder]=useState(""); const [accountNumber,setAccountNumber]=useState(""); const [ifsc,setIfsc]=useState("");
   const [payoutBusy,setPayoutBusy]=useState(false);
+  const [currentPassword,setCurrentPassword]=useState("");
+  const [newPassword,setNewPassword]=useState("");
+  const [confirmPassword,setConfirmPassword]=useState("");
+  const [passwordBusy,setPasswordBusy]=useState(false);
   const sb = partnerSupabaseBrowser();
 
   const load = useCallback(async (quiet = false) => {
@@ -122,11 +126,35 @@ export default function PartnerDashboard() {
           </div>
           <div className="mu-partner-kit-link"><span>Your personal link: <b>{link}</b></span><button onClick={copyReferral}>Copy personal link</button></div>
         </section>
-        <section className="mu-partner-leaderboard">
-          <div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PARTNER NETWORK</span><h2>Top 10 Partner Leaderboard</h2><p>Ranked by recorded successful Premium purchases, then referred students.</p></div></div>
-          <div className="mu-partner-leader-list">{(data.leaderboard||[]).map((row:any,index:number)=><div key={row.display_name+"-"+index}><b className="mu-partner-rank">{index+1}</b><span>{row.display_name}</span><small>{row.students} students</small><strong>{row.premium_sales} purchases</strong></div>)}{!(data.leaderboard||[]).length&&<p className="mu-partner-empty-row">No approved partner performance records yet.</p>}</div>
-        </section>
         <section className="mu-partner-profile"><div><span className="mu-partner-kicker">ACCOUNT DETAILS</span><h2>My Partner Profile</h2><p>Partner: <b>{p.display_name}</b> · Email: <b>{data.partnerEmail||"Not available"}</b> · Referral ID: <b>{p.referral_code||"Not assigned"}</b></p></div><Link href="/contact">Contact Admin →</Link></section>
+        <section className="mu-partner-password">
+          <div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">ACCOUNT SECURITY</span><h2>Change Password</h2><p>Enter your current password and choose a new password for your partner login.</p></div></div>
+          <form className="mu-partner-password-form" onSubmit={async (e) => {
+            e.preventDefault();
+            setMessage("");
+            if (newPassword.length < 8) { setMessage("New password must contain at least 8 characters."); return; }
+            if (newPassword !== confirmPassword) { setMessage("New password and confirmation do not match."); return; }
+            const email = String(data?.partnerEmail || "").trim().toLowerCase();
+            if (!email) { setMessage("Your registered email could not be verified. Please contact Admin."); return; }
+            setPasswordBusy(true);
+            try {
+              const { error: loginError } = await sb!.auth.signInWithPassword({ email, password: currentPassword });
+              if (loginError) throw new Error("Current password is incorrect.");
+              const { error: updateError } = await sb!.auth.updateUser({ password: newPassword });
+              if (updateError) throw updateError;
+              setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+              setMessage("Password changed successfully. Use your new password next time you login.");
+            } catch (err: any) {
+              setMessage(err.message || "Could not change password. Please try again.");
+            } finally { setPasswordBusy(false); }
+          }}>
+            <label>Current password<input type="password" value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)} autoComplete="current-password" required /></label>
+            <label>New password<input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} minLength={8} autoComplete="new-password" required /></label>
+            <label>Confirm new password<input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} minLength={8} autoComplete="new-password" required /></label>
+            <button type="submit" disabled={passwordBusy || !currentPassword || newPassword.length<8 || !confirmPassword}>{passwordBusy ? "Updating…" : "Update Password"}</button>
+          </form>
+          <p className="mu-partner-payout-note">Use at least 8 characters. Never share your password or OTP with anyone.</p>
+        </section>
         <section className="mu-partner-insights"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PERFORMANCE SNAPSHOT</span><h2>Your partner insights</h2></div><label>Period <select value={period} onChange={e => setPeriod(e.target.value as any)}><option value="all">All time</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select></label></div><div className="mu-partner-insight-grid"><article><small>Referral conversion</small><strong>{conversion}%</strong><span>{s.premiumSales || 0} premium purchases from {s.students || 0} referred students</span><div className="mu-partner-progress"><i style={{ width: Math.min(100, conversion) + "%" }}/></div></article><article><small>Average commission per sale</small><strong>{money(avgCommission)}</strong><span>Average based on recorded commission entries</span></article><article><small>New referrals in selected period</small><strong>{filtered.referrals.length}</strong><span>Students who joined during this period</span></article></div></section>
         <section className="mu-partner-records"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">YOUR ACTIVITY</span><h2>Partner records</h2><p>Review referred students, commission transactions and payout history.</p></div><div className="mu-partner-tabs"><button className={tab==="students"?"active":""} onClick={()=>setTab("students")}>Students ({filtered.referrals.length})</button><button className={tab==="commissions"?"active":""} onClick={()=>setTab("commissions")}>Commissions ({filtered.commissions.length})</button><button className={tab==="payouts"?"active":""} onClick={()=>setTab("payouts")}>Payouts ({(data.payouts||[]).length})</button></div></div>
           <div className="mu-partner-table-wrap">

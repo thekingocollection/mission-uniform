@@ -7801,3 +7801,29 @@ button, a, input, select, textarea { touch-action: manipulation; }
 @media(max-width:1050px){.mu-partner-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.mu-partner-header{align-items:flex-start;padding:13px 15px}.mu-partner-header-right{gap:7px}.mu-partner-welcome{width:100%;text-align:right}.mu-partner-content{width:calc(100% - 24px);padding-top:23px}.mu-partner-hero{align-items:flex-start;flex-direction:column}.mu-partner-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mu-partner-stat{padding:14px}.mu-partner-stat strong{font-size:22px}.mu-partner-share-panel{padding:18px}.mu-partner-share-top{flex-direction:column}.mu-partner-rate{width:100%;text-align:left}.mu-partner-link-row{align-items:stretch;flex-direction:column;padding:10px}.mu-partner-link-row button{width:100%}.mu-partner-insights,.mu-partner-records{padding:16px}.mu-partner-insight-grid{grid-template-columns:1fr}.mu-partner-section-heading{align-items:flex-start;flex-direction:column}.mu-partner-tabs{width:100%;display:grid;grid-template-columns:1fr}.mu-partner-tabs button{text-align:left}.mu-partner-help{align-items:flex-start;flex-direction:column}}
 @media(max-width:390px){.mu-partner-stat-grid{grid-template-columns:1fr 1fr}.mu-partner-stat strong{font-size:19px}.mu-partner-brand b{font-size:10px}.mu-partner-brand small{font-size:8px}.mu-partner-logo{width:38px;height:38px}}
+
+
+/* Partner portal additions: verified referral visits, manual payout and marketing kit */
+.mu-partner-payout-center,.mu-partner-marketing{margin-top:17px;padding:22px;border:1px solid #e3eaf2;border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(20,43,69,.035)}
+.mu-partner-available{padding:12px 16px;border:1px solid #dce8dd;border-radius:12px;background:#f4faf5}
+.mu-partner-available small{display:block;color:#647b68;font-size:9px;font-weight:900;letter-spacing:.1em}
+.mu-partner-available strong{display:block;margin-top:4px;color:#1d6b3d;font-size:24px}
+.mu-partner-payout-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+.mu-partner-payout-form label{display:grid;gap:6px;color:#40516a;font-size:11px;font-weight:800}
+.mu-partner-payout-form input,.mu-partner-payout-form select{width:100%;min-width:0;height:43px;padding:0 11px;border:1px solid #dce3ed;border-radius:9px;background:#fbfcfe;color:#172744;font-size:12px}
+.mu-partner-payout-form button{min-height:43px;border:0;border-radius:9px;background:#173e68;color:#fff;padding:10px 14px;font-size:11px;font-weight:900;cursor:pointer}
+.mu-partner-payout-form button:disabled{opacity:.45;cursor:not-allowed}
+.mu-partner-payout-note{margin:12px 0;color:#8a95a5;font-size:10px;line-height:1.6}
+.mu-partner-request-list{display:grid;gap:8px;margin-top:13px}
+.mu-partner-request-list>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid #edf0f4;border-radius:9px;background:#fbfcfe;color:#596a80;font-size:11px}
+.mu-partner-request-list>div>span{margin-right:auto}
+.mu-partner-request-list>div>small{color:#8995a5}
+.mu-partner-marketing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mu-partner-marketing-grid article{display:flex;flex-direction:column;align-items:flex-start;padding:16px;border:1px solid #e7edf4;border-radius:12px;background:#fbfcfe}
+.mu-partner-marketing-grid article>b{color:#173451;font-size:13px}
+.mu-partner-marketing-grid article>p{flex:1;color:#68788c;font-size:11px;line-height:1.7}
+.mu-partner-marketing-grid article>button,.mu-partner-kit-link button{border:0;border-radius:8px;background:#eaf0f8;color:#234d7d;padding:9px 11px;font-size:10px;font-weight:900;cursor:pointer}
+.mu-partner-kit-link{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:13px;padding:12px;border-radius:10px;background:#f3f6fa;color:#68788c;font-size:10px}
+.mu-partner-kit-link span{min-width:0;overflow-wrap:anywhere}.mu-partner-kit-link b{color:#234d7d}
+@media(max-width:800px){.mu-partner-payout-form{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-partner-marketing-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.mu-partner-payout-center,.mu-partner-marketing{padding:16px}.mu-partner-payout-form{grid-template-columns:1fr}.mu-partner-available{width:100%}.mu-partner-request-list>div{align-items:flex-start}}

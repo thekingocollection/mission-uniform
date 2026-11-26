@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
     if (referralsError) throw referralsError;
     if (commissionsError) throw commissionsError;
     if (payoutsError) throw payoutsError;
-    if (clicksError) throw clicksError;\n    if (payoutRequestsError) throw payoutRequestsError;
+    if (clicksError) throw clicksError;
+    if (payoutRequestsError) throw payoutRequestsError;
     const studentIds = (referrals || []).map((r: any) => r.student_id);
     const profileResult = studentIds.length ? await db.from("profiles").select("id,full_name,student_code").in("id", studentIds) : { data: [], error: null };
     if (profileResult.error) throw profileResult.error;

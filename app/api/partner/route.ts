@@ -54,6 +54,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const requestedAction = await req.clone().json().catch(() => ({}));
+  if (requestedAction.action === "payout_request") return createPayoutRequest(req);
   try {
     const auth = await currentUser(req);
     if (!auth) return NextResponse.json({ error: "Please login first." }, { status: 401 });
@@ -71,7 +73,7 @@ export async function POST(req: NextRequest) {
   }
 }
 \n
-export async function POST(req: NextRequest) {
+async function createPayoutRequest(req: NextRequest) {
   try {
     const auth = await currentUser(req);
     if (!auth) return NextResponse.json({ error: "Please login first." }, { status: 401 });

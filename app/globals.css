@@ -7839,3 +7839,14 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-partner-profile p{margin:0;color:#718096;font-size:11px;line-height:1.7;overflow-wrap:anywhere}
 .mu-partner-profile p b{color:#354a63}.mu-partner-profile>a{color:#285a9e;font-size:11px;font-weight:900;text-decoration:none}
 @media(max-width:520px){.mu-partner-leaderboard,.mu-partner-profile{padding:16px}.mu-partner-leader-list>div{grid-template-columns:28px minmax(0,1fr) auto;gap:7px}.mu-partner-leader-list>div>small{display:none}.mu-partner-leader-list>div>strong{font-size:10px}}
+
+
+/* Partner account password settings */
+.mu-partner-password{margin-top:17px;padding:21px;border:1px solid #e3eaf2;border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(20,43,69,.035)}
+.mu-partner-password-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+.mu-partner-password-form label{display:grid;gap:7px;color:#344b64;font-size:12px;font-weight:800}
+.mu-partner-password-form input{width:100%;min-width:0;padding:12px;border:1px solid #d5deea;border-radius:9px;background:#fff;color:#172f4b;font:inherit}
+.mu-partner-password-form input:focus{outline:2px solid rgba(42,102,165,.2);border-color:#3974ad}
+.mu-partner-password-form button{min-height:42px;padding:10px 16px;border:0;border-radius:9px;background:#173e68;color:#fff;font-size:12px;font-weight:850;cursor:pointer}
+.mu-partner-password-form button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:760px){.mu-partner-password{padding:16px}.mu-partner-password-form{grid-template-columns:1fr}}

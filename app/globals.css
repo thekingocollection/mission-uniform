@@ -8079,3 +8079,20 @@ button, a, input, select, textarea { touch-action: manipulation; }
  .admin-topbar-site,.admin-topbar-logout{min-height:34px;padding:7px 8px;font-size:9px}
 }
 @media(max-width:430px){.admin-topbar-actions .admin-status{display:none}.admin-topbar-site span,.admin-topbar-logout span{display:none}.admin-topbar-title b{font-size:14px}.admin-topbar-title small{font-size:7px}}
+
+
+/* Premium IST clock for Live Command Center */
+.mu-live-clock{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+.mu-live-clock-card{position:relative;min-width:300px;overflow:hidden;padding:15px 18px 13px;border:1px solid rgba(214,177,101,.42);border-radius:17px;background:radial-gradient(circle at 90% 0%,rgba(213,173,91,.2),transparent 38%),linear-gradient(135deg,#0a1b36 0%,#142e52 58%,#1c3d5b 100%);box-shadow:0 12px 28px rgba(13,35,65,.16);text-align:left}
+.mu-live-clock-card:after{content:"";position:absolute;right:-37px;top:-72px;width:150px;height:150px;border:1px solid rgba(255,255,255,.09);border-radius:50%;box-shadow:0 0 0 17px rgba(255,255,255,.025),0 0 0 34px rgba(255,255,255,.02);pointer-events:none}
+.mu-live-clock-top{position:relative;z-index:1;display:flex;align-items:center;gap:8px}
+.mu-live-clock-icon{display:grid;place-items:center;width:25px;height:25px;border:1px solid rgba(241,210,151,.3);border-radius:8px;color:#f3d18c;font-size:16px}
+.mu-live-clock .admin-kicker{color:#e5c88f;font-size:8px;letter-spacing:.15em}
+.mu-live-zone{margin-left:auto;padding:5px 7px;border:1px solid rgba(236,208,154,.25);border-radius:20px;background:rgba(255,255,255,.06);color:#f1dba9;font-size:8px;font-weight:850;letter-spacing:.07em}
+.mu-live-clock .mu-live-clock-digits{position:relative;z-index:1;display:block;margin:8px 0 7px;color:#fff8e8;font-size:clamp(34px,3vw,43px);font-weight:850;line-height:1.05;letter-spacing:.045em;font-variant-numeric:tabular-nums;text-shadow:0 2px 15px rgba(0,0,0,.18)}
+.mu-live-clock-bottom{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:9px;border-top:1px solid rgba(255,255,255,.12)}
+.mu-live-clock-bottom>span{display:flex;align-items:center;gap:6px;color:#aee6c8;font-size:8px;font-weight:900;letter-spacing:.1em;white-space:nowrap}
+.mu-live-clock-bottom>span i{width:6px;height:6px;border-radius:50%;background:#4bd39a;box-shadow:0 0 0 4px rgba(75,211,154,.12)}
+.mu-live-clock-bottom small{color:#c4d1e0;font-size:9px;text-align:right}
+.mu-live-controls{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+@media(max-width:760px){.mu-live-clock{width:100%;align-items:stretch}.mu-live-clock-card{min-width:0;width:100%}.mu-live-clock .mu-live-clock-digits{font-size:37px}.mu-live-controls{justify-content:flex-start}}

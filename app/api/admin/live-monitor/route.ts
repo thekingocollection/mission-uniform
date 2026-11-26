@@ -19,8 +19,11 @@ export async function GET(req: NextRequest) {
     const db = getServiceSupabase();
     const now = new Date();
     const onlineCutoff = new Date(now.getTime() - 75000).toISOString();
-    const dayStart = new Date(now);
-    dayStart.setUTCHours(0, 0, 0, 0);
+    // Daily reporting follows the India calendar day (00:00 IST), not UTC midnight.
+    const IST_OFFSET_MS = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+    const indiaCalendarNow = new Date(now.getTime() + IST_OFFSET_MS);
+    indiaCalendarNow.setUTCHours(0, 0, 0, 0);
+    const dayStart = new Date(indiaCalendarNow.getTime() - IST_OFFSET_MS);
     const [studentCount, presence, started, submitted] = await Promise.all([
       db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
       db.from("student_live_presence").select("user_id,last_seen_at,current_path,active_attempt_id").gte("last_seen_at", onlineCutoff).order("last_seen_at", { ascending: false }).limit(2000),

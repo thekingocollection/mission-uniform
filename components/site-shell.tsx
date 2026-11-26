@@ -96,6 +96,29 @@ export function SiteHeader() {
   );
 }
 
+
+function IndiaLiveClock() {
+  const [now, setNow] = useState(() => new Date("2026-11-26T12:20:00+05:30"));
+  useEffect(() => {
+    const startedAt = Date.now();
+    const base = new Date("2026-11-26T12:20:00+05:30").getTime();
+    const update = () => setNow(new Date(base + (Date.now() - startedAt)));
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const dateText = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric",
+  }).format(now);
+  const timeText = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: true,
+  }).format(now);
+  return <div className="mu-ist-clock" aria-label="India Standard Time">
+    <span>{dateText}</span><b>{timeText}</b><small>IST · Asia/Kolkata</small>
+  </div>;
+}
+
 export function SiteFooter() {
   return (
     <footer className="footer">
@@ -105,7 +128,7 @@ export function SiteFooter() {
         <Link href="/privacy-policy">Privacy</Link><Link href="/terms">Terms</Link>
         <a href="https://t.me/missionuniformm" target="_blank" rel="noopener noreferrer">Join Telegram Channel ↗</a>
       </div>
-      <small>© {new Date().getFullYear()} Mission Uniform OP. Educational platform.</small>
+      <div className="mu-footer-bottom"><IndiaLiveClock /><small>© 2026 Mission Uniform OP. Educational platform.</small></div>
     </footer>
   );
 }

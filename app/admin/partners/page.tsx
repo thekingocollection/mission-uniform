@@ -43,7 +43,7 @@ export default function AdminPartners() {
     }catch(e:any){setMessage(e.message||"Update failed.");}finally{setBusy("");}
   }
   return <div>
-    <div className="admin-page-heading"><div><span className="admin-kicker">GROWTH & AFFILIATE CONTROL</span><h1>Partnership Management</h1><p>Review partner requests, approve referral IDs and set individual commission percentages.</p></div><div className="admin-actions"><Link href="/partner/login" className="admin-primary" style={{textDecoration:"none",display:"inline-flex",alignItems:"center"}}>↗ Open Partner Portal</Link><button className="admin-ghost" onClick={()=>void load()}>↻ Refresh</button></div></div>
+    <div className="admin-page-heading"><div><span className="admin-kicker">GROWTH & AFFILIATE CONTROL</span><h1>Partnership Management</h1><p>Review partner requests, approve referral IDs and set individual commission percentages.</p></div><div className="admin-actions"><Link href="/partner/login" className="admin-primary" style={{textDecoration:"none",display:"inline-flex",alignItems:"center"}}>↗ Open Partner Portal</Link><Link href="/admin/partner-payouts" className="admin-ghost" style={{textDecoration:"none",display:"inline-flex",alignItems:"center"}}>₹ Payout Requests</Link><button className="admin-ghost" onClick={()=>void load()}>↻ Refresh</button></div></div>
     <div className="admin-stat-grid">
       <div className="admin-stat-card"><small>Total Partners</small><b>{rows.length}</b></div>
       <div className="admin-stat-card"><small>Pending Requests</small><b>{rows.filter(r=>r.status==="pending").length}</b></div>

@@ -48,18 +48,13 @@ export async function PATCH(req: NextRequest) {
     const paymentReference = String(body.payment_reference || "").trim().slice(0, 120);
     if (!paymentReference) return NextResponse.json({ error: "Enter the verified bank/UPI transaction reference before marking paid." }, { status: 400 });
     if (request.status !== "approved") return NextResponse.json({ error: "Approve this payout request before marking it paid." }, { status: 409 });
-    const { data: commissions, error: commissionsError } = await auth.db.from("partner_commissions").select("id,commission_paise,status").eq("partner_id", request.partner_id).neq("status","reversed").neq("status","paid").order("created_at", { ascending: true });
-    if (commissionsError) throw commissionsError;
-    const due = (commissions || []).reduce((sum:number,row:any)=>sum+Number(row.commission_paise||0),0);
-    if (due !== Number(request.amount_paise)) return NextResponse.json({ error: "Outstanding commission no longer matches this request. Refresh and reconcile before paying." }, { status: 409 });
-    const { error: payoutError } = await auth.db.from("partner_payouts").insert({ partner_id: request.partner_id, amount_paise: request.amount_paise, payment_reference: paymentReference, notes: adminNote, paid_by: auth.user.id, paid_at: new Date().toISOString() });
-    if (payoutError) throw payoutError;
-    if ((commissions || []).length) {
-      const { error: updateError } = await auth.db.from("partner_commissions").update({ status: "paid", paid_at: new Date().toISOString() }).in("id", (commissions || []).map((row:any)=>row.id));
-      if (updateError) throw updateError;
-    }
-    const { data, error } = await auth.db.from("partner_payout_requests").update({ status: "paid", payment_reference: paymentReference, admin_note: adminNote, paid_at: new Date().toISOString(), reviewed_at: new Date().toISOString(), reviewed_by: auth.user.id }).eq("id", id).select().single();
+    const { data, error } = await auth.db.rpc("complete_partner_payout_request", {
+      p_request_id: id,
+      p_admin_id: auth.user.id,
+      p_payment_reference: paymentReference,
+      p_admin_note: adminNote
+    });
     if (error) throw error;
-    return NextResponse.json({ success: true, request: data });
+    return NextResponse.json({ success: true, result: data });
   } catch (e:any) { return NextResponse.json({ error: e.message || "Could not update payout request." }, { status: 500 }); }
 }

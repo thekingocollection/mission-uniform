@@ -1,27 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { partnerSupabaseBrowser } from "@/lib/partner-supabase-browser";
 
 type Payload = { partner: any; summary: any; referrals: any[]; commissions: any[]; payouts: any[] };
 const money = (paise: number) => "₹" + (Number(paise || 0) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
-const card: CSSProperties = { background: "#fff", border: "1px solid #e3eaf2", borderRadius: 18, padding: 20, boxShadow: "0 8px 24px rgba(20,43,69,.045)" };
-const th: CSSProperties = { padding: "13px 14px", color: "#65758a", fontSize: 12, textTransform: "uppercase", letterSpacing: ".06em", textAlign: "left", whiteSpace: "nowrap", borderBottom: "1px solid #e8edf3" };
-const td: CSSProperties = { padding: "14px", borderBottom: "1px solid #edf1f5", fontSize: 14, color: "#253b53" };
+const date = (value?: string) => value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 export default function PartnerDashboard() {
   const router = useRouter();
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+  const [tab, setTab] = useState<"students" | "commissions" | "payouts">("students");
+  const [period, setPeriod] = useState<"all" | "30" | "7">("all");
   const sb = partnerSupabaseBrowser();
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (quiet = false) => {
     try {
       if (!sb) throw new Error("Partner portal is unavailable. Please contact Admin.");
+      if (quiet) setRefreshing(true); else setLoading(true);
       let { data: { session } } = await sb.auth.getSession();
       if (!session?.access_token) {
         const refreshed = await sb.auth.refreshSession();
@@ -31,57 +33,66 @@ export default function PartnerDashboard() {
       const response = await fetch("/api/partner", { headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not load partner details.");
-      setData(result);
-      setMessage("");
+      setData(result); setMessage("");
     } catch (e: any) { setMessage(e.message || "Could not load partner dashboard."); }
-    finally { setLoading(false); }
+    finally { setLoading(false); setRefreshing(false); }
   }, [sb]);
 
   useEffect(() => { void load(); }, [load]);
+  async function logout() { await sb?.auth.signOut(); router.replace("/partner/login"); router.refresh(); }
 
-  async function logout() {
-    await sb?.auth.signOut();
-    router.replace("/partner/login");
-    router.refresh();
-  }
+  const p = data?.partner;
+  const s = data?.summary || {};
+  const link = p?.referral_code && typeof window !== "undefined" ? window.location.origin + "/signup?ref=" + p.referral_code : "";
+  const filtered = useMemo(() => {
+    const days = period === "all" ? 0 : Number(period);
+    const cutoff = days ? Date.now() - days * 86400000 : 0;
+    const keep = (row: any) => !cutoff || new Date(row.created_at).getTime() >= cutoff;
+    return { referrals: (data?.referrals || []).filter(keep), commissions: (data?.commissions || []).filter(keep) };
+  }, [data, period]);
+  const conversion = s.students ? Math.round((Number(s.premiumSales || 0) / Number(s.students)) * 100) : 0;
+  const avgCommission = s.premiumSales ? Number(s.earnedPaise || 0) / Number(s.premiumSales) : 0;
 
   async function copyReferral() {
     if (!link) return;
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2200);
-    } catch { setMessage("Copy failed. Please select and copy the referral link manually."); }
+    try { await navigator.clipboard.writeText(link); setCopied(true); window.setTimeout(() => setCopied(false), 2200); }
+    catch { setMessage("Copy failed. Please select and copy the referral link manually."); }
+  }
+  async function shareReferral() {
+    if (!link) return;
+    const text = "Join Mission Uniform OP for Odisha exam preparation. Register here: " + link;
+    if (navigator.share) { try { await navigator.share({ title: "Mission Uniform OP", text, url: link }); } catch {} }
+    else window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener,noreferrer");
   }
 
-  if (loading) return <main style={{ minHeight: "70vh", display: "grid", placeItems: "center", background: "#f4f7fb", color: "#173451", fontWeight: 800 }}>Loading your secure Partner Workspace…</main>;
-  if (!data?.partner) return <main style={{ minHeight: "70vh", display: "grid", placeItems: "center", padding: 20, background: "#f4f7fb" }}><section style={{ ...card, maxWidth: 520, width: "100%", padding: 30 }}><span style={{ color: "#a77b2e", fontWeight: 900, letterSpacing: 2, fontSize: 12 }}>MISSION UNIFORM OP · PARTNER NETWORK</span><h1 style={{ color: "#173451", fontSize: 30, margin: "12px 0" }}>Partner access</h1><p style={{ color: "#65758a", lineHeight: 1.7 }}>{message || "This workspace is available only to partner accounts created by Mission Uniform Admin."}</p><Link href="/partner/login" style={{ display: "inline-flex", marginTop: 10, padding: "12px 18px", borderRadius: 10, background: "#173e68", color: "#fff", fontWeight: 800, textDecoration: "none" }}>Go to Partner Login →</Link></section></main>;
+  if (loading) return <main className="mu-partner-loading"><div className="mu-partner-loader">MU</div><b>Opening your Partner Workspace</b><span>Securely loading your referral and commission data…</span></main>;
+  if (!p) return <main className="mu-partner-empty"><section><span className="mu-partner-kicker">MISSION UNIFORM OP · PARTNER NETWORK</span><h1>Partner access</h1><p>{message || "This workspace is available only to partner accounts created by Mission Uniform Admin."}</p><Link href="/partner/login" className="mu-partner-primary">Go to Partner Login →</Link></section></main>;
 
-  const p = data.partner, s = data.summary || {};
-  const link = p.referral_code ? (typeof window !== "undefined" ? window.location.origin : "") + "/signup?ref=" + p.referral_code : "";
-
-  return <main style={{ minHeight: "100vh", background: "#f4f7fb", color: "#173451", paddingBottom: 40 }}>
-    <header style={{ background: "#102b49", color: "#fff", padding: "15px clamp(16px,4vw,48px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap", boxShadow: "0 5px 22px rgba(10,30,52,.16)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}><span style={{ width: 42, height: 42, borderRadius: 13, display: "grid", placeItems: "center", background: "linear-gradient(145deg,#f0cf83,#b98732)", color: "#173451", fontWeight: 950 }}>MU</span><span><b style={{ display: "block", letterSpacing: ".08em", fontSize: 13 }}>MISSION UNIFORM</b><small style={{ color: "#c5d3e2" }}>PARTNER WORKSPACE</small></span></div>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}><span style={{ color: "#d5e0eb", fontSize: 13 }}>Welcome, {p.display_name}</span><span style={{ padding: "7px 12px", borderRadius: 30, background: p.status === "approved" ? "#d8f5e5" : "#fff0cf", color: p.status === "approved" ? "#17633d" : "#8b5d12", fontWeight: 900, fontSize: 11 }}>{String(p.status).toUpperCase()}</span><button onClick={logout} style={{ border: "1px solid #68809a", background: "rgba(255,255,255,.08)", color: "#fff", borderRadius: 10, padding: "10px 14px", fontWeight: 800, cursor: "pointer" }}>↪ Logout</button></div>
-    </header>
-    <div style={{ maxWidth: 1180, margin: "0 auto", padding: "28px 18px" }}>
-      <div style={{ marginBottom: 22 }}><span style={{ color: "#a77b2e", fontWeight: 900, letterSpacing: ".13em", fontSize: 11 }}>PARTNER OVERVIEW</span><h1 style={{ margin: "7px 0 5px", fontSize: "clamp(26px,4vw,36px)", letterSpacing: "-.03em" }}>Your Partnership Dashboard</h1><p style={{ margin: 0, color: "#718096" }}>Track referrals, premium conversions and your commission in one place.</p></div>
-      {p.status !== "approved" ? <section style={{ ...card, background: "#fff9ec", borderColor: "#f0dfb8" }}><b style={{ fontSize: 18 }}>Your partner account is under review</b><p style={{ color: "#78623d", lineHeight: 1.7, marginBottom: 0 }}>Admin will review your application and confirm your commission rate. Your referral link will become available after approval.</p></section> : <>
-        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(175px,1fr))", gap: 14 }}>
-          {[[ "Referred Students", s.students || 0, "People who joined using your code" ],[ "Premium Purchases", s.premiumSales || 0, "Successful premium conversions" ],[ "Total Commission", money(s.earnedPaise), "Commission generated so far" ],[ "Pending Commission", money(s.pendingPaise), "Awaiting payout" ],[ "Paid Commission", money(s.paidPaise), "Already paid to you" ]].map(([label,value,desc],i)=><article key={String(label)} style={{ ...card, borderTop: "3px solid " + (i===2 ? "#c69a4b" : "#dce5ef") }}><small style={{ color: "#718096", fontWeight: 750 }}>{label}</small><div style={{ fontSize: 27, fontWeight: 950, margin: "10px 0 5px", color: "#173451" }}>{value}</div><small style={{ color: "#8a98a9", lineHeight: 1.4 }}>{desc}</small></article>)}
+  return <main className="mu-partner-app">
+    <header className="mu-partner-header"><Link href="/partner" className="mu-partner-brand"><span className="mu-partner-logo">MU</span><span><b>MISSION UNIFORM OP</b><small>PARTNER BUSINESS WORKSPACE</small></span></Link><div className="mu-partner-header-right"><span className="mu-partner-welcome">Welcome, {p.display_name}</span><span className={"mu-partner-status " + (p.status === "approved" ? "is-approved" : "is-pending")}>{String(p.status).toUpperCase()}</span><button className="mu-partner-logout" onClick={logout}>↪ Logout</button></div></header>
+    <div className="mu-partner-content">
+      <section className="mu-partner-hero"><div><span className="mu-partner-kicker">PARTNER OVERVIEW</span><h1>Your growth, at a glance.</h1><p>Manage referrals, follow your performance and track your earnings from one place.</p></div><button className="mu-partner-refresh" onClick={() => void load(true)} disabled={refreshing}>{refreshing ? "Refreshing…" : "↻ Refresh data"}</button></section>
+      {message && <div className="mu-partner-alert" role="status">{message}</div>}
+      {p.status !== "approved" ? <section className="mu-partner-pending"><span className="mu-partner-pending-icon">⌛</span><div><h2>Your partner account is under review</h2><p>Admin will review your application and confirm your commission rate. Your referral link and earning dashboard will become available after approval.</p></div></section> : <>
+        <section className="mu-partner-stat-grid">
+          <article className="mu-partner-stat"><span className="mu-partner-stat-icon">♙</span><small>Referred Students</small><strong>{s.students || 0}</strong><em>Total registrations through your code</em></article>
+          <article className="mu-partner-stat"><span className="mu-partner-stat-icon">▣</span><small>Premium Purchases</small><strong>{s.premiumSales || 0}</strong><em>Eligible successful purchases</em></article>
+          <article className="mu-partner-stat stat-highlight"><span className="mu-partner-stat-icon">₹</span><small>Total Commission</small><strong>{money(s.earnedPaise)}</strong><em>Commission generated to date</em></article>
+          <article className="mu-partner-stat"><span className="mu-partner-stat-icon">◷</span><small>Pending Commission</small><strong>{money(s.pendingPaise)}</strong><em>Awaiting payout processing</em></article>
+          <article className="mu-partner-stat"><span className="mu-partner-stat-icon">✓</span><small>Paid Commission</small><strong>{money(s.paidPaise)}</strong><em>Already paid to you</em></article>
         </section>
-        <section style={{ ...card, marginTop: 18, background: "linear-gradient(120deg,#173e68,#102b49)", color: "#fff", border: 0 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}><div><span style={{ color: "#e5c37e", fontSize: 11, fontWeight: 900, letterSpacing: ".12em" }}>YOUR PERSONAL REFERRAL LINK</span><h2 style={{ margin: "7px 0", fontSize: 22 }}>Share. Refer. Earn.</h2></div><span style={{ padding: "8px 12px", borderRadius: 30, background: "rgba(255,255,255,.12)", color: "#f2d99f", fontWeight: 850 }}>Commission: {p.commission_rate}%</span></div>
-          <div style={{ marginTop: 12, padding: 13, borderRadius: 10, background: "rgba(0,0,0,.18)", color: "#e8eef5", overflowWrap: "anywhere", fontSize: 14 }}>{link || "Referral link will appear after Admin assigns your referral code."}</div>
-          <button disabled={!link} onClick={copyReferral} style={{ marginTop: 13, padding: "11px 17px", border: 0, borderRadius: 10, background: "#e4bd70", color: "#173451", fontWeight: 950, cursor: "pointer", opacity: link ? 1 : .5 }}>{copied ? "✓ Copied!" : "Copy Referral Link"}</button>
-          <p style={{ color: "#c6d3e1", fontSize: 12, marginBottom: 0 }}>Commission is credited only for eligible successful Premium purchases tracked through your referral code.</p>
+        <section className="mu-partner-share-panel"><div className="mu-partner-share-top"><div><span className="mu-partner-share-kicker">YOUR PERSONAL REFERRAL LINK</span><h2>Share. Refer. Earn.</h2><p>Invite students to Mission Uniform OP. Eligible Premium purchases through your referral are tracked here.</p></div><div className="mu-partner-rate"><small>YOUR COMMISSION RATE</small><b>{p.commission_rate}%</b></div></div><div className="mu-partner-link-row"><span>{link || "Referral link will appear after Admin assigns your referral code."}</span><button onClick={copyReferral} disabled={!link}>{copied ? "✓ Copied" : "Copy link"}</button></div><div className="mu-partner-share-actions"><button onClick={shareReferral} disabled={!link}>↗ Share referral link</button><span>Referral code: <b>{p.referral_code || "Not assigned"}</b></span></div></section>
+        <section className="mu-partner-insights"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">PERFORMANCE SNAPSHOT</span><h2>Your partner insights</h2></div><label>Period <select value={period} onChange={e => setPeriod(e.target.value as any)}><option value="all">All time</option><option value="30">Last 30 days</option><option value="7">Last 7 days</option></select></label></div><div className="mu-partner-insight-grid"><article><small>Referral conversion</small><strong>{conversion}%</strong><span>{s.premiumSales || 0} premium purchases from {s.students || 0} referred students</span><div className="mu-partner-progress"><i style={{ width: Math.min(100, conversion) + "%" }}/></div></article><article><small>Average commission per sale</small><strong>{money(avgCommission)}</strong><span>Average based on recorded commission entries</span></article><article><small>New referrals in selected period</small><strong>{filtered.referrals.length}</strong><span>Students who joined during this period</span></article></div></section>
+        <section className="mu-partner-records"><div className="mu-partner-section-heading"><div><span className="mu-partner-kicker">YOUR ACTIVITY</span><h2>Partner records</h2><p>Review referred students, commission transactions and payout history.</p></div><div className="mu-partner-tabs"><button className={tab==="students"?"active":""} onClick={()=>setTab("students")}>Students ({filtered.referrals.length})</button><button className={tab==="commissions"?"active":""} onClick={()=>setTab("commissions")}>Commissions ({filtered.commissions.length})</button><button className={tab==="payouts"?"active":""} onClick={()=>setTab("payouts")}>Payouts ({(data.payouts||[]).length})</button></div></div>
+          <div className="mu-partner-table-wrap">
+          {tab==="students"&&<table><thead><tr><th>Student name</th><th>Student ID</th><th>Joined on</th></tr></thead><tbody>{filtered.referrals.map((r:any)=><tr key={r.id}><td><b>{r.profiles?.full_name||"Student"}</b></td><td>{r.profiles?.student_code||"—"}</td><td>{date(r.created_at)}</td></tr>)}{!filtered.referrals.length&&<tr><td colSpan={3} className="mu-partner-empty-row">No referred students in this period. Share your link to get started.</td></tr>}</tbody></table>}
+          {tab==="commissions"&&<table><thead><tr><th>Date</th><th>Purchase amount</th><th>Rate</th><th>Your commission</th><th>Status</th></tr></thead><tbody>{filtered.commissions.map((c:any)=><tr key={c.id}><td>{date(c.created_at)}</td><td>{money(c.amount_paise)}</td><td>{c.commission_rate}%</td><td><b>{money(c.commission_paise)}</b></td><td><span className={"mu-partner-pill "+(c.status==="paid"?"paid":c.status==="reversed"?"reversed":"pending")}>{String(c.status).toUpperCase()}</span></td></tr>)}{!filtered.commissions.length&&<tr><td colSpan={5} className="mu-partner-empty-row">No commission transactions found for this period.</td></tr>}</tbody></table>}
+          {tab==="payouts"&&<table><thead><tr><th>Paid on</th><th>Amount</th><th>Payment reference</th><th>Status</th></tr></thead><tbody>{(data.payouts||[]).map((v:any,i:number)=><tr key={String(v.payment_reference||"payout")+"-"+i}><td>{date(v.paid_at)}</td><td><b>{money(v.amount_paise)}</b></td><td>{v.payment_reference||"—"}</td><td><span className="mu-partner-pill paid">PAID</span></td></tr>)}{!(data.payouts||[]).length&&<tr><td colSpan={4} className="mu-partner-empty-row">No payout has been recorded yet.</td></tr>}</tbody></table>}
+          </div>
         </section>
-        <section style={{ ...card, marginTop: 18 }}><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}><div><h2 style={{ margin: 0, fontSize: 20 }}>Referred Students</h2><p style={{ color: "#8190a1", margin: "5px 0 0", fontSize: 13 }}>Students registered through your referral link</p></div><b style={{ color: "#a77b2e" }}>{data.referrals.length} students</b></div><div style={{ overflowX: "auto", marginTop: 14 }}><table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}><thead><tr><th style={th}>Student</th><th style={th}>Student Code</th><th style={th}>Joined</th></tr></thead><tbody>{data.referrals.map((r: any) => <tr key={r.id}><td style={td}>{r.profiles?.full_name || "Student"}</td><td style={td}>{r.profiles?.student_code || "—"}</td><td style={td}>{new Date(r.created_at).toLocaleDateString("en-IN")}</td></tr>)}{!data.referrals.length && <tr><td colSpan={3} style={{ ...td, color: "#8190a1" }}>No referred students yet. Share your link to get started.</td></tr>}</tbody></table></div></section>
-        <section style={{ ...card, marginTop: 18 }}><h2 style={{ margin: 0, fontSize: 20 }}>Commission History</h2><p style={{ color: "#8190a1", margin: "5px 0 0", fontSize: 13 }}>Premium transactions and commission status</p><div style={{ overflowX: "auto", marginTop: 14 }}><table style={{ width: "100%", borderCollapse: "collapse", minWidth: 680 }}><thead><tr><th style={th}>Date</th><th style={th}>Premium Amount</th><th style={th}>Rate</th><th style={th}>Commission</th><th style={th}>Status</th></tr></thead><tbody>{data.commissions.map((c: any) => <tr key={c.id}><td style={td}>{new Date(c.created_at).toLocaleDateString("en-IN")}</td><td style={td}>{money(c.amount_paise)}</td><td style={td}>{c.commission_rate}%</td><td style={{ ...td, fontWeight: 850 }}>{money(c.commission_paise)}</td><td style={td}><span style={{ padding: "5px 9px", borderRadius: 20, background: c.status === "paid" ? "#e4f6eb" : "#fff3d9", color: c.status === "paid" ? "#17633d" : "#8b641b", fontWeight: 850, fontSize: 11 }}>{String(c.status).toUpperCase()}</span></td></tr>)}{!data.commissions.length && <tr><td colSpan={5} style={{ ...td, color: "#8190a1" }}>No Premium commission yet.</td></tr>}</tbody></table></div></section>
+        <section className="mu-partner-help"><div><b>Need help with your partnership?</b><span>For commission or payout questions, contact Mission Uniform Admin.</span></div><Link href="/contact">Contact support →</Link></section>
       </>}
-      {message && <p role="status" style={{ color: "#9a4b16", marginTop: 16 }}>{message}</p>}
-      <footer style={{ textAlign: "center", color: "#94a1b0", fontSize: 12, padding: "24px 0 0" }}>MISSION UNIFORM OP · Secure Partner Workspace</footer>
+      <footer className="mu-partner-footer">MISSION UNIFORM OP · SECURE PARTNER WORKSPACE</footer>
     </div>
   </main>;
 }

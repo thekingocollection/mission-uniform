@@ -7827,3 +7827,15 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-partner-kit-link span{min-width:0;overflow-wrap:anywhere}.mu-partner-kit-link b{color:#234d7d}
 @media(max-width:800px){.mu-partner-payout-form{grid-template-columns:repeat(2,minmax(0,1fr))}.mu-partner-marketing-grid{grid-template-columns:1fr}}
 @media(max-width:520px){.mu-partner-payout-center,.mu-partner-marketing{padding:16px}.mu-partner-payout-form{grid-template-columns:1fr}.mu-partner-available{width:100%}.mu-partner-request-list>div{align-items:flex-start}}
+
+.mu-partner-leaderboard,.mu-partner-profile{margin-top:17px;padding:21px;border:1px solid #e3eaf2;border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(20,43,69,.035)}
+.mu-partner-leader-list{display:grid;gap:7px}
+.mu-partner-leader-list>div{display:grid;grid-template-columns:32px minmax(0,1fr) 110px 120px;align-items:center;gap:10px;padding:10px 12px;border:1px solid #edf0f4;border-radius:10px;background:#fbfcfe}
+.mu-partner-rank{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:#edf2f8;color:#244e7b;font-size:11px}
+.mu-partner-leader-list>div:first-child .mu-partner-rank{background:#fff1d5;color:#936b22}
+.mu-partner-leader-list>div>span{color:#243b58;font-size:12px;font-weight:850}.mu-partner-leader-list>div>small{color:#8390a2;font-size:10px}.mu-partner-leader-list>div>strong{color:#1d5a40;font-size:11px;text-align:right}
+.mu-partner-profile{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mu-partner-profile h2{margin:5px 0;color:#173451;font-size:18px}
+.mu-partner-profile p{margin:0;color:#718096;font-size:11px;line-height:1.7;overflow-wrap:anywhere}
+.mu-partner-profile p b{color:#354a63}.mu-partner-profile>a{color:#285a9e;font-size:11px;font-weight:900;text-decoration:none}
+@media(max-width:520px){.mu-partner-leaderboard,.mu-partner-profile{padding:16px}.mu-partner-leader-list>div{grid-template-columns:28px minmax(0,1fr) auto;gap:7px}.mu-partner-leader-list>div>small{display:none}.mu-partner-leader-list>div>strong{font-size:10px}}

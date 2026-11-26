@@ -98,20 +98,20 @@ export function SiteHeader() {
 
 
 function IndiaLiveClock() {
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     const update = () => setNow(new Date());
     update();
     const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
   }, []);
-  const dateText = new Intl.DateTimeFormat("en-IN", {
+  const dateText = now ? new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata", weekday: "long", day: "2-digit", month: "long", year: "numeric",
-  }).format(now);
-  const timeText = new Intl.DateTimeFormat("en-IN", {
+  }).format(now) : "India date loading…";
+  const timeText = now ? new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", second: "2-digit",
     hour12: true,
-  }).format(now);
+  }).format(now) : "--:--:--";
   return <div className="mu-ist-clock" aria-label="India Standard Time">
     <span>{dateText}</span><b>{timeText}</b><small>IST · Asia/Kolkata</small>
   </div>;

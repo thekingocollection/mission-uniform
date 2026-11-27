@@ -8458,3 +8458,95 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .mu-pa-activity-empty>p{margin:0;color:#91a0b1;font-size:10px;line-height:1.6}
 @media(max-width:760px){.mu-pa-activity-feed{grid-template-columns:1fr}}
 @media(max-width:560px){.mu-pa-activity-card{padding:13px;gap:10px}.mu-pa-activity-icon{width:33px;height:33px;flex-basis:33px}.mu-pa-activity-top{align-items:flex-start;flex-direction:column;gap:5px}}
+
+
+/* ADMIN AUTH VERIFICATION STATES */
+.admin-loading,
+.admin-denied {
+  box-sizing: border-box;
+  width: min(620px, calc(100% - 32px));
+  margin: clamp(32px, 8vh, 84px) auto;
+  padding: clamp(24px, 5vw, 42px);
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+  color: #172b4d;
+  text-align: center;
+  box-shadow: 0 22px 65px rgba(20, 38, 76, .10);
+}
+.admin-loading {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  font-size: 14px;
+  font-weight: 750;
+}
+.admin-loading::before {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #e6eaf1;
+  border-top-color: #bd9131;
+  border-radius: 50%;
+  content: "";
+  animation: admin-auth-spin .8s linear infinite;
+}
+@keyframes admin-auth-spin { to { transform: rotate(360deg); } }
+.admin-denied h1 {
+  margin: 0 0 12px;
+  color: #172b4d;
+  font-size: clamp(22px, 4vw, 29px);
+  line-height: 1.2;
+  letter-spacing: -.5px;
+}
+.admin-denied p {
+  margin: 10px 0;
+  color: #66758e;
+  font-size: 14px;
+  line-height: 1.75;
+}
+.admin-denied .admin-alert {
+  margin: 18px 0;
+  padding: 13px 15px;
+  border: 1px solid #f3d6a0;
+  border-radius: 12px;
+  background: #fff9ed;
+  color: #825b16;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.admin-denied button {
+  min-height: 44px;
+  margin: 12px 0 4px;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(110deg, #172b50, #294a75);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(23, 43, 80, .16);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.admin-denied button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(23, 43, 80, .22);
+}
+.admin-denied a {
+  display: inline-flex;
+  margin-top: 12px;
+  color: #9a711e;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.admin-denied a:hover { text-decoration: underline; }
+@media (max-width: 600px) {
+  .admin-loading, .admin-denied {
+    width: calc(100% - 24px);
+    margin: 28px auto;
+    border-radius: 17px;
+  }
+}
